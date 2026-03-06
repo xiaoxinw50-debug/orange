@@ -8,7 +8,6 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 确保 uploads 文件夹存在
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
@@ -29,7 +28,6 @@ const upload = multer({ storage });
 
 // API: 上传信件
 app.post('/api/upload', upload.single('letterImage'), (req, res) => {
-    // 获取前端传来的日期，如果没有则使用今天
     const userDate = req.body.date; 
     const timestamp = userDate ? new Date(userDate).getTime() : Date.now();
     const displayDate = userDate ? userDate : new Date().toISOString().split('T')[0];
@@ -38,8 +36,8 @@ app.post('/api/upload', upload.single('letterImage'), (req, res) => {
         type: 'image',
         url: `/uploads/${req.file.filename}`, 
         note: req.body.note, 
-        date: displayDate, // 用于显示的格式 YYYY-MM-DD
-        time: timestamp    // 用于数据库绝对排序的时间戳
+        date: displayDate,
+        time: timestamp
     };
     
     db.insert(newLetter, (err, doc) => {
@@ -47,12 +45,31 @@ app.post('/api/upload', upload.single('letterImage'), (req, res) => {
     });
 });
 
-// API: 获取并搜索信件（按时间倒序）
+// API: 获取所有信件
 app.get('/api/letters', (req, res) => {
     const search = req.query.q || '';
     const query = { note: new RegExp(search, 'i') };
     db.find(query).sort({ time: -1 }).exec((err, docs) => {
         res.json(docs);
+    });
+});
+
+// API: 删除信件 (新功能)
+app.delete('/api/letters/:id', (req, res) => {
+    const id = req.params.id;
+    // 先找到信件，获取文件路径
+    db.findOne({ _id: id }, (err, doc) => {
+        if (doc && doc.url) {
+            // 删除物理文件
+            const filePath = path.join(__dirname, doc.url);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+        // 从数据库中删除
+        db.remove({ _id: id }, {}, (err, numRemoved) => {
+            res.json({ success: true });
+        });
     });
 });
 
