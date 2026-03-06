@@ -9,7 +9,7 @@
     <style>
         :root {
             --paper-bg: #F7F5F0; --ink-main: #2C2826; --ink-light: #5C5652;
-            --accent-bronze: #A68A6B; --accent-red: #8B3A3A;
+            --accent-bronze: #A68A6B; --accent-red: #8B3A3A; --accent-indigo: #313A4D;
             --glass-bg: rgba(247, 245, 240, 0.65); --border-fine: rgba(44, 40, 38, 0.08);
             --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
@@ -24,65 +24,63 @@
         #app { max-width: 900px; margin: 0 auto; padding: 40px 20px; position: relative;}
         
         /* 登录界面的屏风遮罩 */
-        .login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--paper-bg); z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--paper-bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { text-align: center; }
         .login-box h1 { font-family: var(--font-serif); font-size: 32px; letter-spacing: 8px; margin-bottom: 40px; }
         .login-box input { width: 200px; text-align: center; letter-spacing: 2px; }
 
         /* 顶部导航与身份 */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .nav-tabs { display: flex; gap: 20px; }
-        .tab { 
-            font-family: var(--font-serif); font-size: 18px; cursor: pointer; 
-            padding-bottom: 5px; color: var(--ink-light); transition: all 0.3s; 
-        }
+        .nav-tabs { display: flex; gap: 20px; flex-wrap: wrap; }
+        .tab { font-family: var(--font-serif); font-size: 18px; cursor: pointer; padding-bottom: 5px; color: var(--ink-light); transition: all 0.3s; }
         .tab.active { color: var(--ink-main); border-bottom: 2px solid var(--accent-bronze); font-weight: bold; }
-        .user-badge { 
-            font-family: var(--font-serif); font-size: 14px; color: var(--accent-red); 
-            border: 1px solid var(--accent-red); padding: 4px 12px; border-radius: 20px; 
-            cursor: pointer; opacity: 0.8;
-        }
+        .user-badge { font-family: var(--font-serif); font-size: 14px; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 4px 12px; border-radius: 20px; cursor: pointer; opacity: 0.8; }
 
         /* 岁月拾遗 */
         .memory-flashback { text-align: center; margin-bottom: 40px; padding: 20px; border-top: 1px solid var(--border-fine); border-bottom: 1px solid var(--border-fine); }
         .memory-title { font-family: var(--font-serif); font-size: 14px; color: var(--accent-bronze); margin-bottom: 10px; letter-spacing: 2px; }
         .memory-text { font-family: var(--font-serif); font-size: 16px; font-style: italic; cursor: pointer; }
-        .memory-text:hover { color: var(--accent-bronze); }
 
-        /* 控制台 (上传/记录) */
-        .control-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 12px; padding: 25px; margin-bottom: 50px; border: 1px solid var(--border-fine); }
+        /* 控制台与输入框 */
+        .control-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 12px; padding: 25px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; }
         .input-group { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
-        input[type="text"] { font-family: var(--font-ui); padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; flex: 1; min-width: 200px; }
-        input:focus { border-color: var(--accent-bronze); background: white; }
+        .title-input { font-family: var(--font-serif); font-size: 18px; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; width: 100%; box-sizing: border-box; text-align: center; letter-spacing: 2px; }
+        .note-input { font-family: var(--font-ui); padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; flex: 1; min-width: 200px; }
+        input:focus, textarea:focus { border-color: var(--accent-bronze); background: white; outline: none;}
+        
         button { background: var(--ink-main); color: var(--paper-bg); border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
         button:hover { background: var(--accent-bronze); transform: translateY(-2px); }
 
-        /* 卡片通用样式 */
+        /* 卡片网格 */
         .timeline-group { margin-bottom: 50px; }
         .timeline-header { font-family: var(--font-serif); font-size: 18px; color: var(--ink-light); margin-bottom: 20px; position: sticky; top: 0; z-index: 10; background: rgba(247, 245, 240, 0.9); padding: 10px 0; border-bottom: 1px solid var(--border-fine); }
         .grid { display: grid; gap: 25px; }
         .grid-memory { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-        .grid-list { grid-template-columns: 1fr; } /* 随笔和心愿单列显示 */
+        .grid-list { grid-template-columns: 1fr; }
 
+        /* 卡片通用样式 */
         .card { background: white; border-radius: 10px; border: 1px solid var(--border-fine); position: relative; transition: 0.4s; overflow: hidden; }
         .card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.04); }
         .card img { width: 100%; height: 260px; object-fit: cover; border-bottom: 1px solid var(--border-fine); }
-        .card-info { padding: 20px; position: relative; }
+        .card-info { padding: 30px 25px; position: relative; }
         
         .author-stamp { position: absolute; bottom: 15px; right: 20px; font-family: var(--font-serif); font-size: 12px; color: var(--accent-red); opacity: 0.6; }
-        .date { font-size: 12px; color: var(--accent-bronze); margin-bottom: 8px; display: block; }
-        .note { font-family: var(--font-serif); font-size: 16px; line-height: 1.8; color: var(--ink-main); white-space: pre-wrap; }
+        .date { font-size: 12px; color: var(--accent-bronze); margin-bottom: 15px; display: block; text-align: center; }
+        
+        /* 平行世界专属样式 (小说排版) */
+        .story-title { font-family: var(--font-serif); font-size: 22px; font-weight: bold; text-align: center; color: var(--accent-indigo); margin-bottom: 20px; letter-spacing: 2px;}
+        .note { font-family: var(--font-serif); font-size: 16px; line-height: 2; color: var(--ink-main); white-space: pre-wrap; text-align: justify;}
+        
+        /* 浮梦卡片特殊质感 */
+        .card-story { background: linear-gradient(180deg, #FDFCFB 0%, #F5F3F0 100%); border: 1px solid rgba(49, 58, 77, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.01);}
+        .card-story .note { color: var(--accent-indigo); }
 
         /* 编辑模式 */
-        .edit-area { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 16px; line-height: 1.8; padding: 10px; border: 1px solid var(--accent-bronze); border-radius: 6px; outline: none; resize: vertical; min-height: 80px; }
-        .edit-actions { display: flex; gap: 10px; margin-top: 10px; }
-        .edit-actions button { padding: 6px 12px; font-size: 12px; }
+        .edit-title { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 18px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--accent-bronze); border-radius: 6px; text-align: center;}
+        .edit-area { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 16px; line-height: 1.8; padding: 10px; border: 1px solid var(--accent-bronze); border-radius: 6px; outline: none; resize: vertical; min-height: 120px; }
+        .edit-actions { display: flex; gap: 10px; margin-top: 10px; justify-content: center;}
 
-        /* 操作按钮 (悬浮显示) */
+        /* 操作按钮 */
         .actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; opacity: 0; transition: 0.3s; z-index: 20;}
         .card:hover .actions { opacity: 1; }
         .action-btn { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-light); }
@@ -93,7 +91,7 @@
         .wish-item { display: flex; align-items: center; gap: 15px; }
         .wish-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent-bronze); }
         .wish-completed { text-decoration: line-through; color: var(--ink-light); }
-
+        
         /* 时光胶囊 */
         .capsule-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 260px; background: rgba(247, 245, 240, 0.96); backdrop-filter: blur(15px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; border-bottom: 1px solid var(--border-fine); }
     </style>
@@ -117,6 +115,7 @@
                 <div :class="['tab', {active: currentTab === 'memory'}]" @click="switchTab('memory')">纪事</div>
                 <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')">随笔</div>
                 <div :class="['tab', {active: currentTab === 'wish'}]" @click="switchTab('wish')">心愿</div>
+                <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')">浮梦</div>
             </div>
             <div class="user-badge" @click="logout" title="点击可退出">
                 {{ currentUser }} 印
@@ -129,10 +128,12 @@
         </div>
 
         <div class="control-panel">
+            <input v-if="currentTab === 'story'" type="text" v-model="newTitle" class="title-input" placeholder="《 平行世界篇章名 》 (如：末日废土篇、赛博朋克篇)...">
+            
             <div class="input-group">
-                <input v-if="currentTab === 'memory' || currentTab === 'wish'" type="file" @change="handleFile" accept="image/*" style="width:180px;">
+                <input v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story'" type="file" @change="handleFile" accept="image/*" style="width:180px;">
                 <input type="date" v-model="newDate">
-                <input type="text" v-model="newNote" :placeholder="placeholderText" @keyup.enter="uploadItem">
+                <input type="text" class="note-input" v-model="newNote" :placeholder="placeholderText" @keyup.enter="uploadItem">
                 <button @click="uploadItem">{{ btnText }}</button>
             </div>
         </div>
@@ -141,14 +142,14 @@
             <div class="timeline-header">{{ monthYear }}</div>
             
             <div :class="['grid', currentTab === 'memory' ? 'grid-memory' : 'grid-list']">
-                <div v-for="item in itemsInGroup" :key="item._id" class="card">
+                <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': currentTab === 'story'}]">
                     
                     <div class="actions">
                         <button class="action-btn" @click="startEdit(item)" title="修编">✎</button>
                         <button class="action-btn btn-delete" @click="deleteItem(item._id)" title="抹去">×</button>
                     </div>
 
-                    <template v-if="item.url && currentTab === 'memory'">
+                    <template v-if="item.url && (currentTab === 'memory' || currentTab === 'story')">
                         <div v-if="isFuture(item.time)" class="capsule-overlay">
                             <div style="font-size:24px; margin-bottom:10px;">✉️</div>
                             <div style="font-family: var(--font-serif); color:var(--ink-light);">静待花开时</div>
@@ -162,14 +163,17 @@
                         <span class="date">{{ formatDate(item.date) }}</span>
                         
                         <div v-if="editingId === item._id">
+                            <input v-if="currentTab === 'story'" type="text" class="edit-title" v-model="editTitle" placeholder="篇章名">
                             <textarea class="edit-area" v-model="editNote"></textarea>
                             <div class="edit-actions">
-                                <button @click="saveEdit(item._id)">保存</button>
+                                <button @click="saveEdit(item._id)">保存修改</button>
                                 <button style="background:transparent; border:1px solid var(--border-fine); color:var(--ink-main);" @click="cancelEdit">取消</button>
                             </div>
                         </div>
 
                         <div v-else>
+                            <div v-if="currentTab === 'story' && item.title" class="story-title">《 {{ item.title }} 》</div>
+                            
                             <div v-if="currentTab === 'wish'" class="wish-item">
                                 <input type="checkbox" class="wish-checkbox" :checked="item.completed" @change="toggleWish(item, $event)">
                                 <span :class="['note', {'wish-completed': item.completed}]">{{ item.note }}</span>
@@ -180,7 +184,11 @@
                             </div>
                         </div>
 
-                        <div class="author-stamp">记录者：{{ item.author }}</div>
+                        <div class="author-stamp">
+                            <span v-if="currentTab === 'story'">构想者：</span>
+                            <span v-else>记录者：</span>
+                            {{ item.author }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -195,22 +203,24 @@
             return {
                 currentUser: null,
                 loginCode: '',
-                currentTab: 'memory', // memory, diary, wish
+                currentTab: 'memory', // memory, diary, wish, story
                 items: [],
-                newNote: '', newDate: '', selectedFile: null,
+                newTitle: '', newNote: '', newDate: '', selectedFile: null,
                 randomMemory: null,
-                editingId: null, editNote: '' // 编辑相关
+                editingId: null, editTitle: '', editNote: '' 
             }
         },
         computed: {
             placeholderText() {
                 if (this.currentTab === 'memory') return '记叙那一刻的回忆...';
                 if (this.currentTab === 'diary') return '写下今天的随笔碎语...';
+                if (this.currentTab === 'story') return '在这个平行世界里，我们正经历着怎样的故事？...';
                 return '许下一个愿望...';
             },
             btnText() {
                 if (this.currentTab === 'memory') return '入卷';
                 if (this.currentTab === 'diary') return '落笔';
+                if (this.currentTab === 'story') return '筑梦';
                 return '许愿';
             },
             groupedItems() {
@@ -228,7 +238,6 @@
         },
         methods: {
             login() {
-                // 这里的暗号可以自己随意修改
                 if (this.loginCode === 'xiaoxin') this.currentUser = '小心';
                 else if (this.loginCode === 'xiaocheng') this.currentUser = '小橙';
                 else return alert('暗号有误，门扉紧闭');
@@ -246,6 +255,7 @@
                 this.getItems();
                 this.selectedFile = null;
                 this.newNote = '';
+                this.newTitle = '';
             },
             handleFile(e) { this.selectedFile = e.target.files[0]; },
             async uploadItem() {
@@ -254,13 +264,15 @@
                 const fd = new FormData();
                 if (this.selectedFile) fd.append('file', this.selectedFile);
                 fd.append('category', this.currentTab);
+                fd.append('title', this.newTitle);
                 fd.append('note', this.newNote);
-                fd.append('author', this.currentUser); // 注入作者身份
+                fd.append('author', this.currentUser); 
                 if (this.newDate) fd.append('date', this.newDate);
                 
                 try {
                     await axios.post('/api/items', fd);
                     this.newNote = ''; 
+                    this.newTitle = '';
                     this.newDate = new Date().toISOString().split('T')[0];
                     this.selectedFile = null;
                     const fileInput = document.querySelector('input[type="file"]');
@@ -286,15 +298,20 @@
             },
             startEdit(item) {
                 this.editingId = item._id;
+                this.editTitle = item.title || '';
                 this.editNote = item.note;
             },
             cancelEdit() {
                 this.editingId = null;
+                this.editTitle = '';
                 this.editNote = '';
             },
             async saveEdit(id) {
                 try {
-                    await axios.put(`/api/items/${id}`, { note: this.editNote });
+                    await axios.put(`/api/items/${id}`, { 
+                        title: this.editTitle,
+                        note: this.editNote 
+                    });
                     this.editingId = null;
                     this.getItems();
                 } catch (e) { alert("修改失败"); }
@@ -318,7 +335,6 @@
             }
         },
         mounted() { 
-            // 检查是否已经登录过
             const savedUser = localStorage.getItem('orange_user');
             if (savedUser) {
                 this.currentUser = savedUser;
