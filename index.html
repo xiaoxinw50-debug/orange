@@ -8,113 +8,113 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         :root {
-            /* 古典美学配色：宣纸白、水墨黑、沉木色 */
-            --paper-bg: #F7F5F0;
-            --ink-main: #2C2826;
+            --paper-bg: #F7F5F0; 
+            --ink-main: #2C2826; 
             --ink-light: #5C5652;
-            --accent-bronze: #A68A6B;
+            --accent-bronze: #A68A6B; 
             --glass-bg: rgba(247, 245, 240, 0.65);
             --border-fine: rgba(44, 40, 38, 0.08);
-            
-            /* UI字体用现代无衬线，标题和内容用古典衬线体 */
             --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
         }
 
-        body {
-            font-family: var(--font-ui);
-            background-color: var(--paper-bg);
-            /* 添加极其微弱的纸张噪点质感 */
+        body { 
+            font-family: var(--font-ui); 
+            background-color: var(--paper-bg); 
             background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.03"/%3E%3C/svg%3E');
-            margin: 0; padding: 50px 20px; color: var(--ink-main);
-            -webkit-font-smoothing: antialiased;
+            margin: 0; padding: 50px 20px; color: var(--ink-main); 
+            -webkit-font-smoothing: antialiased; 
         }
-
+        
         #app { max-width: 900px; margin: 0 auto; }
-
-        /* 古典标题 */
+        
         h1 { 
-            text-align: center; font-family: var(--font-serif);
-            font-weight: 500; font-size: 38px; letter-spacing: 4px;
-            margin-bottom: 50px; color: var(--ink-main);
-            position: relative;
+            text-align: center; font-family: var(--font-serif); 
+            font-weight: 500; font-size: 38px; letter-spacing: 4px; 
+            margin-bottom: 50px; color: var(--ink-main); position: relative; 
         }
-        h1::after {
-            content: ''; display: block; width: 40px; height: 1px;
-            background: var(--accent-bronze); margin: 20px auto 0;
+        h1::after { 
+            content: ''; display: block; width: 40px; height: 1px; 
+            background: var(--accent-bronze); margin: 20px auto 0; 
         }
 
-        /* 丝滑的玉石质感控制台 */
-        .control-panel {
+        /* 岁月拾遗区域 */
+        .memory-flashback {
+            text-align: center; margin-bottom: 50px; padding: 25px;
+            border-top: 1px solid var(--border-fine); border-bottom: 1px solid var(--border-fine);
+            background: linear-gradient(90deg, transparent, rgba(166,138,107,0.03), transparent);
+        }
+        .memory-title { font-family: var(--font-serif); font-size: 16px; color: var(--accent-bronze); margin-bottom: 15px; letter-spacing: 2px; }
+        .memory-text { font-family: var(--font-serif); font-size: 18px; color: var(--ink-main); font-style: italic; cursor: pointer; transition: color 0.3s; }
+        .memory-text:hover { color: var(--accent-bronze); }
+        .refresh-btn { font-size: 12px; color: var(--ink-light); cursor: pointer; margin-top: 15px; display: inline-block; border-bottom: 1px dashed var(--border-fine); transition: color 0.3s;}
+        .refresh-btn:hover { color: var(--ink-main); }
+
+        /* 控制台 */
+        .control-panel { 
             background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 16px; padding: 30px; margin-bottom: 60px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border-fine);
-            display: flex; flex-direction: column; gap: 20px;
+            border-radius: 16px; padding: 30px; margin-bottom: 60px; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03); border: 1px solid var(--border-fine); 
+            display: flex; flex-direction: column; gap: 20px; 
         }
-
-        .input-group { display: flex; gap: 15px; flex-wrap: wrap; }
-
-        input {
+        .input-group { display: flex; gap: 15px; flex-wrap: wrap; align-items: center;}
+        input { 
             font-family: var(--font-ui); padding: 12px 16px; border-radius: 8px; 
-            border: 1px solid var(--border-fine); background: transparent;
-            font-size: 14px; outline: none; transition: all 0.3s ease;
-            color: var(--ink-main); flex: 1; min-width: 200px;
+            border: 1px solid var(--border-fine); background: transparent; 
+            font-size: 14px; outline: none; transition: all 0.3s ease; 
+            color: var(--ink-main); flex: 1; min-width: 200px; 
         }
         input::placeholder { color: #a39c97; }
         input:focus { border-color: var(--accent-bronze); background: white; box-shadow: 0 0 0 3px rgba(166, 138, 107, 0.1); }
-
         input[type="file"], input[type="date"] { flex: none; width: auto; cursor: pointer; color: var(--ink-light); }
-
-        button {
-            background: var(--ink-main); color: var(--paper-bg);
-            border: none; padding: 12px 28px; border-radius: 8px;
-            font-size: 14px; font-weight: 500; letter-spacing: 1px; cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        button { 
+            background: var(--ink-main); color: var(--paper-bg); border: none; 
+            padding: 12px 28px; border-radius: 8px; font-size: 14px; 
+            font-weight: 500; letter-spacing: 1px; cursor: pointer; transition: all 0.4s; 
         }
         button:hover { background: var(--accent-bronze); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(166, 138, 107, 0.2); }
 
-        /* 时间轴标题 */
+        /* 时间轴与画框 */
         .timeline-group { margin-bottom: 60px; }
-        .timeline-header {
-            font-family: var(--font-serif); font-size: 20px; color: var(--ink-light);
-            margin-bottom: 25px; padding-bottom: 10px;
-            position: sticky; top: 0; z-index: 10;
-            background: rgba(247, 245, 240, 0.85); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-fine); padding-top: 15px;
+        .timeline-header { 
+            font-family: var(--font-serif); font-size: 20px; color: var(--ink-light); 
+            margin-bottom: 25px; padding-bottom: 10px; position: sticky; top: 0; z-index: 10; 
+            background: rgba(247, 245, 240, 0.85); backdrop-filter: blur(10px); 
+            border-bottom: 1px solid var(--border-fine); padding-top: 15px; 
         }
-
-        /* 极简画框卡片 */
         .letter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-
-        .letter-card {
-            background: white; border-radius: 12px; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border-fine);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
+        
+        .letter-card { 
+            background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); 
+            border: 1px solid var(--border-fine); transition: all 0.5s; position: relative; 
         }
         .letter-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.06); }
-
         .letter-card img { width: 100%; height: 280px; object-fit: cover; cursor: zoom-in; }
-
-        .letter-info { padding: 20px; background: white; border-top: 1px solid var(--border-fine); }
-        .letter-date { font-size: 12px; color: var(--accent-bronze); display: block; margin-bottom: 8px; font-family: var(--font-ui); letter-spacing: 0.5px; }
-        .letter-note { font-size: 15px; line-height: 1.8; color: var(--ink-main); font-family: var(--font-serif); }
         
+        .letter-info { padding: 20px; background: white; border-top: 1px solid var(--border-fine); }
+        .letter-date { font-size: 12px; color: var(--accent-bronze); display: block; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .letter-note { font-size: 15px; line-height: 1.8; color: var(--ink-main); font-family: var(--font-serif); }
         .highlight { background: rgba(166, 138, 107, 0.15); border-bottom: 1px solid var(--accent-bronze); }
 
-        /* 优雅的悬浮删除按钮 */
-        .delete-btn {
-            position: absolute; top: 12px; right: 12px;
-            width: 32px; height: 32px; border-radius: 50%;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(5px);
-            border: 1px solid var(--border-fine); color: var(--ink-light);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; cursor: pointer; opacity: 0;
-            transition: all 0.3s ease; transform: scale(0.9); padding: 0;
+        /* 删除按钮 */
+        .delete-btn { 
+            position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; 
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(5px); border: 1px solid var(--border-fine); 
+            color: var(--ink-light); display: flex; align-items: center; justify-content: center; 
+            font-size: 16px; cursor: pointer; opacity: 0; transition: all 0.3s ease; transform: scale(0.9); padding: 0; z-index: 20;
         }
         .letter-card:hover .delete-btn { opacity: 1; transform: scale(1); }
         .delete-btn:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
+        /* 时光胶囊封印特效 */
+        .capsule-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 280px;
+            background: rgba(247, 245, 240, 0.96); backdrop-filter: blur(20px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 5; cursor: not-allowed; border-bottom: 1px solid var(--border-fine);
+        }
+        .seal { font-size: 32px; margin-bottom: 12px; opacity: 0.85; }
+        .capsule-text { font-family: var(--font-serif); color: var(--ink-light); font-size: 14px; letter-spacing: 2px; }
     </style>
 </head>
 <body>
@@ -122,13 +122,21 @@
 <div id="app">
     <h1>橙心回忆</h1>
 
+    <div v-if="randomMemory" class="memory-flashback">
+        <div class="memory-title">—— 岁月拾遗 ——</div>
+        <div class="memory-text" @click="viewFull(randomMemory.url)" title="点击查阅此信">
+            "{{ randomMemory.note || '一封无言的信件' }}"
+        </div>
+        <div class="refresh-btn" @click="fetchRandomMemory">换一张翻阅</div>
+    </div>
+
     <div class="control-panel">
         <input type="text" v-model="searchQuery" @input="getLetters" placeholder="循迹（搜索关键字）...">
         
         <div class="input-group">
             <input type="file" @change="handleFile" accept="image/*">
-            <input type="date" v-model="newDate">
-            <input type="text" v-model="newNote" placeholder="记叙...">
+            <input type="date" v-model="newDate" title="若选择未来的日期，即为时光胶囊">
+            <input type="text" v-model="newNote" placeholder="记叙（可寄语未来）...">
             <button @click="uploadLetter">入卷</button>
         </div>
     </div>
@@ -138,12 +146,20 @@
         
         <div class="letter-grid">
             <div v-for="letter in lettersInGroup" :key="letter._id" class="letter-card">
-                <button class="delete-btn" @click.stop="deleteLetter(letter._id)" title="删除此条目">×</button>
                 
-                <img :src="letter.url" @click="viewFull(letter.url)">
+                <button class="delete-btn" @click.stop="deleteLetter(letter._id)" title="抹去此记忆">×</button>
+                
+                <div v-if="isFuture(letter.time)" class="capsule-overlay" title="时辰未到，暂不可阅">
+                    <div class="seal">✉️</div>
+                    <div class="capsule-text">静待花开时</div>
+                </div>
+
+                <img :src="letter.url" @click="!isFuture(letter.time) && viewFull(letter.url)">
+                
                 <div class="letter-info">
                     <span class="letter-date">{{ formatDate(letter.date) }}</span>
-                    <span class="letter-note" v-html="highlight(letter.note)"></span>
+                    <span class="letter-note" v-if="isFuture(letter.time)">[ 时光胶囊 · 尚未解封 ]</span>
+                    <span class="letter-note" v-else v-html="highlight(letter.note)"></span>
                 </div>
             </div>
         </div>
@@ -159,7 +175,8 @@
                 searchQuery: '',
                 newNote: '',
                 newDate: '',
-                selectedFile: null
+                selectedFile: null,
+                randomMemory: null 
             }
         },
         computed: {
@@ -194,6 +211,7 @@
                     this.selectedFile = null;
                     document.querySelector('input[type="file"]').value = ''; 
                     this.getLetters();
+                    this.fetchRandomMemory(); // 上传后更新一次拾遗
                 } catch (error) {
                     alert("入卷失败，请稍后重试");
                 }
@@ -206,16 +224,27 @@
                     console.error("加载信件失败", error);
                 }
             },
-            // 新增：删除信件功能
+            async fetchRandomMemory() {
+                try {
+                    const res = await axios.get('/api/random');
+                    this.randomMemory = res.data;
+                } catch (error) {
+                    console.error("岁月拾遗读取失败", error);
+                }
+            },
             async deleteLetter(id) {
                 if (confirm("是否确认将此记忆抹去？")) {
                     try {
                         await axios.delete(`/api/letters/${id}`);
-                        this.getLetters(); // 删除后刷新列表
+                        this.getLetters(); 
+                        this.fetchRandomMemory(); 
                     } catch (error) {
                         alert("删除失败");
                     }
                 }
+            },
+            isFuture(timestamp) {
+                return timestamp > Date.now();
             },
             highlight(text) {
                 if(!text) return '';
@@ -231,6 +260,7 @@
         mounted() { 
             this.newDate = new Date().toISOString().split('T')[0];
             this.getLetters(); 
+            this.fetchRandomMemory(); 
         }
     }).mount('#app');
 </script>
