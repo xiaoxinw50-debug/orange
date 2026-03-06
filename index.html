@@ -15,13 +15,12 @@
         body {
             background: var(--bg-gradient);
             background-attachment: fixed;
-            font-family: 'STKaiti', 'KaiTi', serif; /* 使用楷体增加书信感 */
+            font-family: 'STKaiti', 'KaiTi', serif;
             margin: 0; padding: 20px; color: #5a5a5a;
         }
 
         #app { max-width: 900px; margin: 0 auto; }
 
-        /* 上传区域 */
         .upload-section {
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(10px);
@@ -45,15 +44,13 @@
         }
         button:hover { transform: scale(1.05); background: #ff8fab; }
 
-        /* 搜索框 */
         .search-box {
             width: 100%; padding: 15px; border-radius: 30px;
-            border: none; margin-bottom: 30px; font-size: 16px;
+            border: none; margin-bottom: 30px; font-size: 16px; box-sizing: border-box;
             box-shadow: 0 5px 15px rgba(162, 210, 255, 0.3);
-            text-align: center;
+            text-align: center; outline: none;
         }
 
-        /* 信件展示卡片 */
         .letter-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 25px;
@@ -61,7 +58,7 @@
 
         .letter-card {
             background: white; border-radius: 15px; overflow: hidden;
-            transition: 0.4s; position: relative;
+            transition: 0.4s; position: relative; cursor: pointer;
             border: 8px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.08);
         }
 
@@ -69,33 +66,33 @@
 
         .letter-card img {
             width: 100%; height: 200px; object-fit: cover;
-            filter: sepia(0.1) contrast(1.05); /* 淡淡的复古滤镜 */
+            filter: sepia(0.1) contrast(1.05);
         }
 
         .letter-info { padding: 15px; background: #fffafb; }
         .letter-date { font-size: 12px; color: var(--accent-blue); }
-        .letter-note { font-size: 15px; margin-top: 5px; display: block; }
+        .letter-note { font-size: 15px; margin-top: 5px; display: block; line-height: 1.5; }
         
-        .highlight { background: #fff176; }
+        .highlight { background: #fff176; padding: 0 2px; border-radius: 3px; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <h1 style="text-align: center; color: #88a9c9;">✉️ 她的信件博物馆</h1>
+    <h1 style="text-align: center; color: #88a9c9;">✉️ 她的信箱</h1>
 
     <div class="upload-section">
-        <h3>添加新的信件记录</h3>
-        <input type="file" @change="handleFile">
-        <input type="text" v-model="newNote" placeholder="写一点关于这封信的备注 (用于搜索)...">
+        <h3 style="margin-top: 0;">收录新信件</h3>
+        <input type="file" @change="handleFile" accept="image/*">
+        <input type="text" v-model="newNote" placeholder="写下关于这封信的回忆 (用于搜索)...">
         <button @click="uploadLetter">存入信箱</button>
     </div>
 
     <input type="text" class="search-box" v-model="searchQuery" @input="getLetters" placeholder="搜索信件备注，寻找那天的回忆...">
 
     <div class="letter-grid">
-        <div v-for="letter in letters" :key="letter._id" class="letter-card">
-            <img :src="letter.url" @click="viewFull(letter.url)">
+        <div v-for="letter in letters" :key="letter._id" class="letter-card" @click="viewFull(letter.url)">
+            <img :src="letter.url">
             <div class="letter-info">
                 <span class="letter-date">{{ letter.date }}</span>
                 <span class="letter-note" v-html="highlight(letter.note)"></span>
@@ -116,28 +113,47 @@
             }
         },
         methods: {
-            handleFile(e) { this.selectedFile = e.target.files[0]; },
+            handleFile(e) { 
+                this.selectedFile = e.target.files[0]; 
+            },
             async uploadLetter() {
-                if(!this.selectedFile) return alert("请先选择照片");
+                if(!this.selectedFile) return alert("请先选择照片哦！");
                 const fd = new FormData();
                 fd.append('letterImage', this.selectedFile);
                 fd.append('note', this.newNote);
                 
-                await axios.post('http://localhost:3000/api/upload', fd);
-                this.newNote = '';
-                this.getLetters();
+                try {
+                    // 【关键修复】使用相对路径请求 API
+                    await axios.post('/api/upload', fd);
+                    this.newNote = '';
+                    this.selectedFile = null;
+                    document.querySelector('input[type="file"]').value = ''; // 清空文件选择框
+                    this.getLetters();
+                } catch (error) {
+                    alert("上传失败，请稍后再试");
+                }
             },
             async getLetters() {
-                const res = await axios.get(`http://localhost:3000/api/letters?q=${this.searchQuery}`);
-                this.letters = res.data;
+                try {
+                    // 【关键修复】使用相对路径请求 API
+                    const res = await axios.get(`/api/letters?q=${this.searchQuery}`);
+                    this.letters = res.data;
+                } catch (error) {
+                    console.error("获取信件失败", error);
+                }
             },
             highlight(text) {
+                if(!text) return '';
                 if(!this.searchQuery) return text;
                 return text.replace(new RegExp(`(${this.searchQuery})`, 'gi'), '<mark class="highlight">$1</mark>');
             },
-            viewFull(url) { window.open(url, '_blank'); }
+            viewFull(url) { 
+                window.open(url, '_blank'); 
+            }
         },
-        mounted() { this.getLetters(); }
+        mounted() { 
+            this.getLetters(); 
+        }
     }).mount('#app');
 </script>
 </body>
