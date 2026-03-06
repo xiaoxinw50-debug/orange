@@ -63,12 +63,12 @@
         .story-title { font-family: var(--font-serif); font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 20px; letter-spacing: 2px; color: var(--ink-main);}
         .card-story { background: linear-gradient(180deg, #FDFCFB 0%, #F5F3F0 100%); border: 1px solid rgba(49, 58, 77, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.01);}
         
-        /* 段落级颜色标识 */
+        /* 段落级颜色标识 (优化为独立段落) */
         .story-content { font-family: var(--font-serif); font-size: 16px; line-height: 2; text-align: justify; }
         .text-xiaocheng { color: var(--color-xiaocheng); }
         .text-xiaoxin { color: var(--color-xiaoxin); }
-        .story-seg { transition: background 0.3s; border-radius: 4px; padding: 2px; }
-        .story-seg:hover { background: rgba(0,0,0,0.04); }
+        .story-seg { transition: background 0.3s; border-radius: 4px; padding: 4px 8px; margin-bottom: 8px; white-space: pre-wrap; word-wrap: break-word;}
+        .story-seg:hover { background: rgba(0,0,0,0.03); }
         
         /* 故事图例 */
         .story-legend { text-align: center; font-family: var(--font-serif); font-size: 13px; margin-bottom: 20px; }
@@ -168,7 +168,6 @@
                         <span class="date">{{ formatDate(item.date) }}</span>
                         
                         <div v-if="editingId === item._id">
-                            
                             <template v-if="currentTab === 'story'">
                                 <input type="text" class="edit-title" v-model="editTitle" placeholder="篇章名">
                                 <div v-for="(seg, index) in editSegments" :key="index" class="edit-seg-row">
@@ -195,11 +194,11 @@
                             <template v-if="currentTab === 'story'">
                                 <div v-if="item.title" class="story-title">《 {{ item.title }} 》</div>
                                 <div class="story-content">
-                                    <span v-for="seg in item.segments" :key="seg.id" 
+                                    <p v-for="seg in item.segments" :key="seg.id" 
                                           :class="['story-seg', seg.author === '小心' ? 'text-xiaoxin' : 'text-xiaocheng']"
                                           :title="'本段作者: ' + seg.author">
                                         {{ seg.text }}
-                                    </span>
+                                    </p>
                                 </div>
                             </template>
 
@@ -298,7 +297,6 @@
                 fd.append('author', this.currentUser); 
                 if (this.newDate) fd.append('date', this.newDate);
                 
-                // 如果是浮梦故事，将文字打包为“第一段落”
                 if (this.currentTab === 'story') {
                     const initialSegment = [{ id: Date.now().toString(), author: this.currentUser, text: this.newNote }];
                     fd.append('segments', JSON.stringify(initialSegment));
@@ -332,12 +330,10 @@
                 this.editTitle = item.title || '';
                 this.editNote = item.note || '';
                 
-                // 加载故事段落，优雅兼容旧数据
                 if (this.currentTab === 'story') {
                     if (item.segments && item.segments.length > 0) {
                         this.editSegments = JSON.parse(JSON.stringify(item.segments));
                     } else if (item.note) {
-                        // 如果是老数据没有 segments，自动升级
                         this.editSegments = [{ id: Date.now().toString(), author: item.author, text: item.note }];
                     } else {
                         this.editSegments = [];
@@ -345,7 +341,6 @@
                 }
             },
             addNewSegment() {
-                // 新增段落，自动打上当前登录者的印记
                 this.editSegments.push({
                     id: Date.now().toString(),
                     author: this.currentUser,
@@ -359,7 +354,6 @@
                 let payload = { title: this.editTitle };
                 
                 if (this.currentTab === 'story') {
-                    // 过滤掉空白段落
                     payload.segments = this.editSegments.filter(seg => seg.text.trim() !== '');
                 } else {
                     payload.note = this.editNote;
