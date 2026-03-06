@@ -8,82 +8,85 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 确保 uploads 文件夹存在，避免线上部署报错
+// 确保上传目录存在
 const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
-// 初始化数据库
-const db = new Datastore({ filename: 'letters.db', autoload: true });
+// 统一使用一个数据库，通过 category 区分类型
+const db = new Datastore({ filename: 'memories.db', autoload: true });
 
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadDir)); 
-app.use(express.static(__dirname)); // 允许直接访问 index.html
+app.use(express.static(__dirname)); 
 
-// 配置文件上传
+// 配置文件上传 (允许不传图片)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-// API: 入卷 (上传信件)
-app.post('/api/upload', upload.single('letterImage'), (req, res) => {
-    const userDate = req.body.date; 
-    // 若选择了未来的日期，时间戳会自动设为未来，成为时光胶囊
-    const timestamp = userDate ? new Date(userDate).getTime() : Date.now();
-    const displayDate = userDate ? userDate : new Date().toISOString().split('T')[0];
+// API: 新增内容 (纪事/随笔/心愿)
+app.post('/api/items', upload.single('file'), (req, res) => {
+    const { category, note, date, author } = req.body;
+    const timestamp = date ? new Date(date).getTime() : Date.now();
+    const displayDate = date ? date : new Date().toISOString().split('T')[0];
 
-    const newLetter = {
-        type: 'image',
-        url: `/uploads/${req.file.filename}`, 
-        note: req.body.note, 
+    const newItem = {
+        category: category || 'memory', // memory, diary, wish
+        author: author,                 // 小心 或 小橙
+        url: req.file ? `/uploads/${req.file.filename}` : null, 
+        note: note, 
         date: displayDate,
-        time: timestamp
+        time: timestamp,
+        completed: false                // 仅用于心愿单
     };
     
-    db.insert(newLetter, (err, doc) => {
-        res.json(doc);
-    });
+    db.insert(newItem, (err, doc) => res.json(doc));
 });
 
-// API: 阅览 (获取所有信件，按时间倒序)
-app.get('/api/letters', (req, res) => {
-    const search = req.query.q || '';
-    const query = { note: new RegExp(search, 'i') };
-    db.find(query).sort({ time: -1 }).exec((err, docs) => {
-        res.json(docs);
-    });
+// API: 获取内容
+app.get('/api/items', (req, res) => {
+    const { q, category } = req.query;
+    let query = {};
+    if (category) query.category = category;
+    if (q) query.note = new RegExp(q, 'i');
+    
+    db.find(query).sort({ time: -1 }).exec((err, docs) => res.json(docs));
 });
 
-// API: 岁月拾遗 (随机抽取一封"已解封"的过去信件)
+// API: 岁月拾遗 (随机抽取过去的纪事)
 app.get('/api/random', (req, res) => {
     const now = Date.now();
-    db.find({ time: { $lte: now } }).exec((err, docs) => {
-        if (err || docs.length === 0) {
-            res.json(null);
-        } else {
-            const randomIndex = Math.floor(Math.random() * docs.length);
-            res.json(docs[randomIndex]);
-        }
+    db.find({ category: 'memory', time: { $lte: now } }).exec((err, docs) => {
+        if (err || docs.length === 0) return res.json(null);
+        res.json(docs[Math.floor(Math.random() * docs.length)]);
     });
 });
 
-// API: 抹去 (删除信件及物理文件)
-app.delete('/api/letters/:id', (req, res) => {
+// API: 修改文本内容或心愿状态
+app.put('/api/items/:id', (req, res) => {
     const id = req.params.id;
+    const { note, completed } = req.body;
+    
+    let updateDoc = {};
+    if (note !== undefined) updateDoc.note = note;
+    if (completed !== undefined) updateDoc.completed = completed;
+
+    db.update({ _id: id }, { $set: updateDoc }, {}, (err, numReplaced) => {
+        res.json({ success: true });
+    });
+});
+
+// API: 抹去内容
+app.delete('/api/items/:id', (req, res) => {
     db.findOne({ _id: id }, (err, doc) => {
         if (doc && doc.url) {
             const filePath = path.join(__dirname, doc.url);
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         }
-        db.remove({ _id: id }, {}, (err, numRemoved) => {
-            res.json({ success: true });
-        });
+        db.remove({ _id: id }, {}, (err) => res.json({ success: true }));
     });
 });
 
