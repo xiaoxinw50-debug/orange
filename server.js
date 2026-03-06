@@ -8,11 +8,9 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 确保上传目录存在
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
-// 统一使用一个数据库，通过 category 区分类型
 const db = new Datastore({ filename: 'memories.db', autoload: true });
 
 app.use(cors());
@@ -26,18 +24,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// API: 新增内容 (纪事/随笔/心愿/浮梦)
+// API: 新增内容
 app.post('/api/items', upload.single('file'), (req, res) => {
     const { category, title, note, date, author } = req.body;
     const timestamp = date ? new Date(date).getTime() : Date.now();
     const displayDate = date ? date : new Date().toISOString().split('T')[0];
+    
+    // 解析分段故事数据 (如果有)
+    const segments = req.body.segments ? JSON.parse(req.body.segments) : null;
 
     const newItem = {
         category: category || 'memory', 
         author: author,                 
         url: req.file ? `/uploads/${req.file.filename}` : null, 
         title: title || '',             
-        note: note, 
+        note: note || '', 
+        segments: segments, // 存入平行世界的故事段落
         date: displayDate,
         time: timestamp,
         completed: false                
@@ -58,7 +60,7 @@ app.get('/api/items', (req, res) => {
     db.find(query).sort({ time: -1 }).exec((err, docs) => res.json(docs));
 });
 
-// API: 岁月拾遗 (随机抽取过去的纪事)
+// API: 岁月拾遗
 app.get('/api/random', (req, res) => {
     const now = Date.now();
     db.find({ category: 'memory', time: { $lte: now } }).exec((err, docs) => {
@@ -67,15 +69,16 @@ app.get('/api/random', (req, res) => {
     });
 });
 
-// API: 修改内容或状态
+// API: 修改内容
 app.put('/api/items/:id', (req, res) => {
     const id = req.params.id;
-    const { title, note, completed } = req.body;
+    const { title, note, completed, segments } = req.body;
     
     let updateDoc = {};
     if (title !== undefined) updateDoc.title = title;
     if (note !== undefined) updateDoc.note = note;
     if (completed !== undefined) updateDoc.completed = completed;
+    if (segments !== undefined) updateDoc.segments = segments;
 
     db.update({ _id: id }, { $set: updateDoc }, {}, (err, numReplaced) => {
         res.json({ success: true });
