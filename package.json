@@ -1,7 +1,7 @@
 {
-  "name": "orange",
+  "name": "orange-memories",
   "version": "1.0.0",
-  "description": "Our memory lane",
+  "description": "橙心回忆 - 专属古典数字信箱",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
