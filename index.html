@@ -3,124 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>她的信箱 - 梦幻收藏</title>
+    <title>橙心回忆 - 梦幻流光信箱</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         :root {
-            /* 苹果风格的高级柔和渐变 */
-            --bg-color: #f5f5f7;
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.5);
-            --text-main: #1d1d1f;
-            --text-secondary: #86868b;
-            --apple-blue: #0071e3;
+            /* 橙心主题的华丽色彩 */
+            --orange-light: #ffd8b1;
+            --orange-main: #ff9a44;
+            --orange-glow: rgba(255, 154, 68, 0.4);
+            --pink-dream: #fc6076;
+            
+            /* 水晶毛玻璃质感 */
+            --glass-bg: rgba(255, 255, 255, 0.35);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-shadow: 0 8px 32px rgba(255, 154, 68, 0.15);
+            
+            --text-main: #5a3e2b;
+            --text-secondary: #8c6b5d;
         }
 
         body {
-            /* 使用苹果系统默认字体，极具现代感 */
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            /* 增加梦幻的背景光晕 */
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(200, 220, 255, 0.6), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(255, 210, 230, 0.5), transparent 25%);
-            background-attachment: fixed;
-            margin: 0; padding: 40px 20px; color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+            margin: 0; 
+            padding: 40px 20px; 
+            color: var(--text-main);
+            min-height: 100vh;
+            /* 梦幻流光动态背景 */
+            background: linear-gradient(-45deg, #ffecd2, #fcb69f, #ff9a44, #ffc3a0);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             -webkit-font-smoothing: antialiased;
         }
 
-        #app { max-width: 960px; margin: 0 auto; }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-        h1 { text-align: center; font-weight: 600; font-size: 32px; letter-spacing: -0.5px; margin-bottom: 40px; }
+        #app { max-width: 1000px; margin: 0 auto; }
 
-        /* 苹果毛玻璃质感控制面板 */
+        /* 华丽发光标题 */
+        h1 { 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 42px; 
+            letter-spacing: 2px; 
+            margin-bottom: 40px;
+            background: linear-gradient(to right, #ff758c 0%, #ff7eb3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 4px 20px rgba(255, 117, 140, 0.4);
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from { text-shadow: 0px 4px 15px rgba(255, 117, 140, 0.3); }
+            to { text-shadow: 0px 4px 25px rgba(255, 117, 140, 0.7); }
+        }
+
+        /* 极光水晶控制面板 */
         .control-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 35px;
+            margin-bottom: 50px;
+            box-shadow: var(--glass-shadow);
             border: 1px solid var(--glass-border);
-            display: flex; flex-direction: column; gap: 15px;
+            border-top: 1px solid rgba(255,255,255,0.8);
+            border-left: 1px solid rgba(255,255,255,0.8);
+            display: flex; flex-direction: column; gap: 20px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .input-group { display: flex; gap: 15px; flex-wrap: wrap; }
+        /* 面板内部的微光点缀 */
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: -50px; left: -50px;
+            width: 150px; height: 150px;
+            background: rgba(255, 255, 255, 0.4);
+            filter: blur(40px);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .input-group { display: flex; gap: 15px; flex-wrap: wrap; position: relative; z-index: 1;}
 
         input {
-            padding: 14px 18px; border-radius: 14px; 
-            border: 1px solid transparent; background: rgba(0, 0, 0, 0.04);
+            padding: 15px 20px; border-radius: 18px; 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            background: rgba(255, 255, 255, 0.4);
             font-size: 15px; outline: none; transition: all 0.3s ease;
             color: var(--text-main); flex: 1; min-width: 200px;
-        }
-        input:focus { background: white; border: 1px solid var(--apple-blue); box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1); }
-
-        /* 特别定制文件上传按钮和提交按钮 */
-        input[type="file"] { padding: 10px; background: transparent; flex: none; width: 220px;}
-        input[type="date"] { flex: none; width: 140px; }
-
-        button {
-            background: var(--apple-blue); color: white;
-            border: none; padding: 14px 28px; border-radius: 14px;
-            font-size: 15px; font-weight: 600; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        button:hover { transform: scale(1.02); background: #0077ed; box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3); }
-
-        /* 时间轴分组标题 (吸顶效果) */
-        .timeline-group { margin-bottom: 50px; }
-        .timeline-header {
-            font-size: 22px; font-weight: 600; color: var(--text-main);
-            margin-bottom: 20px; padding-bottom: 10px;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-            position: sticky; top: 0; z-index: 10;
-            background: rgba(245, 245, 247, 0.8);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding-top: 15px;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+        
+        input::placeholder { color: #a88a7b; }
+        input:focus { 
+            background: rgba(255, 255, 255, 0.7); 
+            border: 1px solid var(--orange-main); 
+            box-shadow: 0 0 15px var(--orange-glow); 
         }
 
-        /* 照片瀑布流卡片 */
+        input[type="file"] { padding: 12px; flex: none; width: 220px; cursor: pointer; }
+        input[type="date"] { flex: none; width: 140px; cursor: pointer; }
+
+        /* 华丽的渐变按钮 */
+        button {
+            background: linear-gradient(135deg, #ff9a44 0%, #fc6076 100%);
+            color: white; border: none; padding: 15px 30px; border-radius: 18px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 8px 20px var(--orange-glow);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative; overflow: hidden;
+        }
+        
+        button:hover { 
+            transform: translateY(-2px) scale(1.03); 
+            box-shadow: 0 12px 25px rgba(252, 96, 118, 0.4); 
+        }
+
+        /* 时间轴标题 */
+        .timeline-group { margin-bottom: 60px; }
+        .timeline-header {
+            font-size: 26px; font-weight: 700; color: #d45d3c;
+            margin-bottom: 25px; padding-bottom: 10px;
+            position: sticky; top: 10px; z-index: 10;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: inline-block;
+        }
+
+        /* 水晶相册卡片 */
         .letter-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px;
         }
 
         .letter-card {
-            background: white; border-radius: 20px; overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 24px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(200, 100, 50, 0.08);
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            cursor: pointer; border: 1px solid rgba(0,0,0,0.02);
+            cursor: pointer; 
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-top: 2px solid rgba(255, 255, 255, 1);
         }
 
-        .letter-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+        .letter-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 40px rgba(252, 96, 118, 0.15); 
+            border-color: rgba(255, 154, 68, 0.4);
+        }
 
         .letter-card img {
-            width: 100%; height: 240px; object-fit: cover;
-            border-bottom: 1px solid rgba(0,0,0,0.03);
+            width: 100%; height: 260px; object-fit: cover;
+            border-bottom: 1px solid rgba(255,255,255,0.5);
         }
 
-        .letter-info { padding: 18px; }
-        .letter-date { font-size: 13px; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 6px; }
-        .letter-note { font-size: 15px; line-height: 1.5; color: var(--text-main); }
+        .letter-info { padding: 22px; }
+        .letter-date { 
+            font-size: 13px; font-weight: bold; 
+            color: var(--orange-main); 
+            display: block; margin-bottom: 8px; 
+            letter-spacing: 1px;
+        }
+        .letter-note { font-size: 16px; line-height: 1.6; color: var(--text-main); font-weight: 500;}
         
-        .highlight { background: rgba(0, 113, 227, 0.15); color: var(--apple-blue); border-radius: 4px; padding: 0 4px; }
+        .highlight { 
+            background: linear-gradient(120deg, #ffd8b1 0%, #ffc3a0 100%); 
+            color: #d45d3c; 
+            border-radius: 6px; padding: 2px 6px; 
+            box-shadow: 0 2px 5px rgba(255, 154, 68, 0.2);
+        }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <h1>Memories</h1>
+    <h1>✨ 橙心回忆 ✨</h1>
 
     <div class="control-panel">
-        <input type="text" v-model="searchQuery" @input="getLetters" placeholder="搜索信件备注，寻找那天的回忆... (Search)">
+        <input type="text" v-model="searchQuery" @input="getLetters" placeholder="🔍 搜索那天的只言片语，寻找珍贵的回忆...">
         
         <div class="input-group">
             <input type="file" @change="handleFile" accept="image/*">
-            <input type="date" v-model="newDate" title="选择这封信的日期">
-            <input type="text" v-model="newNote" placeholder="写下关于这封信的回忆...">
-            <button @click="uploadLetter">保存回忆</button>
+            <input type="date" v-model="newDate" title="选择回忆发生的日期">
+            <input type="text" v-model="newNote" placeholder="✍️ 写下关于这封信的温馨记忆...">
+            <button @click="uploadLetter">珍藏回忆 🧡</button>
         </div>
     </div>
 
@@ -140,6 +221,7 @@
 </div>
 
 <script>
+    // 这里的 JavaScript 逻辑与上一版完全一致，仅驱动 UI
     const { createApp } = Vue;
     createApp({
         data() {
@@ -147,41 +229,35 @@
                 letters: [],
                 searchQuery: '',
                 newNote: '',
-                newDate: '', // 绑定的自定义日期
+                newDate: '',
                 selectedFile: null
             }
         },
         computed: {
-            // Vue 的计算属性：将平铺的信件数组，按“年月”进行分组，实现时间轴效果
             groupedLetters() {
                 const groups = {};
                 this.letters.forEach(letter => {
                     const dateObj = new Date(letter.date);
-                    // 格式化为 "2024年 5月"
                     const yearMonth = `${dateObj.getFullYear()}年 ${dateObj.getMonth() + 1}月`;
-                    if (!groups[yearMonth]) {
-                        groups[yearMonth] = [];
-                    }
+                    if (!groups[yearMonth]) groups[yearMonth] = [];
                     groups[yearMonth].push(letter);
                 });
                 return groups;
             }
         },
         methods: {
-            handleFile(e) { 
-                this.selectedFile = e.target.files[0]; 
-            },
+            handleFile(e) { this.selectedFile = e.target.files[0]; },
             async uploadLetter() {
                 if(!this.selectedFile) return alert("请先选择照片哦！");
                 const fd = new FormData();
                 fd.append('letterImage', this.selectedFile);
                 fd.append('note', this.newNote);
-                if(this.newDate) fd.append('date', this.newDate); // 传入自选时间
+                if(this.newDate) fd.append('date', this.newDate);
                 
                 try {
                     await axios.post('/api/upload', fd);
                     this.newNote = '';
-                    this.newDate = '';
+                    this.newDate = new Date().toISOString().split('T')[0];
                     this.selectedFile = null;
                     document.querySelector('input[type="file"]').value = ''; 
                     this.getLetters();
@@ -202,17 +278,13 @@
                 if(!this.searchQuery) return text;
                 return text.replace(new RegExp(`(${this.searchQuery})`, 'gi'), '<span class="highlight">$1</span>');
             },
-            viewFull(url) { 
-                window.open(url, '_blank'); 
-            },
+            viewFull(url) { window.open(url, '_blank'); },
             formatDate(dateString) {
-                // 将 2024-05-20 转换为更易读的格式
                 const options = { year: 'numeric', month: 'long', day: 'numeric' };
                 return new Date(dateString).toLocaleDateString('zh-CN', options);
             }
         },
         mounted() { 
-            // 初始化时将日期选择器默认设置为今天
             this.newDate = new Date().toISOString().split('T')[0];
             this.getLetters(); 
         }
