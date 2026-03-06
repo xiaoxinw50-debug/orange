@@ -20,27 +20,27 @@ app.use(express.json());
 app.use('/uploads', express.static(uploadDir)); 
 app.use(express.static(__dirname)); 
 
-// 配置文件上传 (允许不传图片)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-// API: 新增内容 (纪事/随笔/心愿)
+// API: 新增内容 (纪事/随笔/心愿/浮梦)
 app.post('/api/items', upload.single('file'), (req, res) => {
-    const { category, note, date, author } = req.body;
+    const { category, title, note, date, author } = req.body;
     const timestamp = date ? new Date(date).getTime() : Date.now();
     const displayDate = date ? date : new Date().toISOString().split('T')[0];
 
     const newItem = {
-        category: category || 'memory', // memory, diary, wish
-        author: author,                 // 小心 或 小橙
+        category: category || 'memory', 
+        author: author,                 
         url: req.file ? `/uploads/${req.file.filename}` : null, 
+        title: title || '',             // 新增：平行世界的篇章名
         note: note, 
         date: displayDate,
         time: timestamp,
-        completed: false                // 仅用于心愿单
+        completed: false                
     };
     
     db.insert(newItem, (err, doc) => res.json(doc));
@@ -51,7 +51,10 @@ app.get('/api/items', (req, res) => {
     const { q, category } = req.query;
     let query = {};
     if (category) query.category = category;
-    if (q) query.note = new RegExp(q, 'i');
+    if (q) {
+        // 支持同时搜索标题和内容
+        query.$or = [{ note: new RegExp(q, 'i') }, { title: new RegExp(q, 'i') }];
+    }
     
     db.find(query).sort({ time: -1 }).exec((err, docs) => res.json(docs));
 });
@@ -65,12 +68,13 @@ app.get('/api/random', (req, res) => {
     });
 });
 
-// API: 修改文本内容或心愿状态
+// API: 修改内容或状态
 app.put('/api/items/:id', (req, res) => {
     const id = req.params.id;
-    const { note, completed } = req.body;
+    const { title, note, completed } = req.body;
     
     let updateDoc = {};
+    if (title !== undefined) updateDoc.title = title;
     if (note !== undefined) updateDoc.note = note;
     if (completed !== undefined) updateDoc.completed = completed;
 
