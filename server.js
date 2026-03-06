@@ -1,341 +1,96 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>橙心回忆 - 专属家园</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <style>
-        :root {
-            --paper-bg: #F7F5F0; --ink-main: #2C2826; --ink-light: #5C5652;
-            --accent-bronze: #A68A6B; --accent-red: #8B3A3A; --accent-indigo: #313A4D;
-            --glass-bg: rgba(247, 245, 240, 0.65); --border-fine: rgba(44, 40, 38, 0.08);
-            --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-            --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+const express = require('express');
+const multer = require('multer');
+const Datastore = require('nedb');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// 确保上传目录存在
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+
+// 统一使用一个数据库，通过 category 区分类型
+const db = new Datastore({ filename: 'memories.db', autoload: true });
+
+app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static(uploadDir)); 
+app.use(express.static(__dirname)); 
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
+
+// API: 新增内容 (纪事/随笔/心愿/浮梦)
+app.post('/api/items', upload.single('file'), (req, res) => {
+    const { category, title, note, date, author } = req.body;
+    const timestamp = date ? new Date(date).getTime() : Date.now();
+    const displayDate = date ? date : new Date().toISOString().split('T')[0];
+
+    const newItem = {
+        category: category || 'memory', 
+        author: author,                 
+        url: req.file ? `/uploads/${req.file.filename}` : null, 
+        title: title || '',             
+        note: note, 
+        date: displayDate,
+        time: timestamp,
+        completed: false                
+    };
+    
+    db.insert(newItem, (err, doc) => res.json(doc));
+});
+
+// API: 获取内容
+app.get('/api/items', (req, res) => {
+    const { q, category } = req.query;
+    let query = {};
+    if (category) query.category = category;
+    if (q) {
+        query.$or = [{ note: new RegExp(q, 'i') }, { title: new RegExp(q, 'i') }];
+    }
+    
+    db.find(query).sort({ time: -1 }).exec((err, docs) => res.json(docs));
+});
+
+// API: 岁月拾遗 (随机抽取过去的纪事)
+app.get('/api/random', (req, res) => {
+    const now = Date.now();
+    db.find({ category: 'memory', time: { $lte: now } }).exec((err, docs) => {
+        if (err || docs.length === 0) return res.json(null);
+        res.json(docs[Math.floor(Math.random() * docs.length)]);
+    });
+});
+
+// API: 修改内容或状态
+app.put('/api/items/:id', (req, res) => {
+    const id = req.params.id;
+    const { title, note, completed } = req.body;
+    
+    let updateDoc = {};
+    if (title !== undefined) updateDoc.title = title;
+    if (note !== undefined) updateDoc.note = note;
+    if (completed !== undefined) updateDoc.completed = completed;
+
+    db.update({ _id: id }, { $set: updateDoc }, {}, (err, numReplaced) => {
+        res.json({ success: true });
+    });
+});
+
+// API: 抹去内容
+app.delete('/api/items/:id', (req, res) => {
+    db.findOne({ _id: id }, (err, doc) => {
+        if (doc && doc.url) {
+            const filePath = path.join(__dirname, doc.url);
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         }
+        db.remove({ _id: id }, {}, (err) => res.json({ success: true }));
+    });
+});
 
-        body { 
-            font-family: var(--font-ui); background-color: var(--paper-bg); 
-            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.03"/%3E%3C/svg%3E');
-            margin: 0; padding: 0; color: var(--ink-main); -webkit-font-smoothing: antialiased; 
-        }
-        
-        #app { max-width: 900px; margin: 0 auto; padding: 40px 20px; position: relative;}
-        
-        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--paper-bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-box { text-align: center; }
-        .login-box h1 { font-family: var(--font-serif); font-size: 32px; letter-spacing: 8px; margin-bottom: 40px; }
-        .login-box input { width: 200px; text-align: center; letter-spacing: 2px; }
-
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .nav-tabs { display: flex; gap: 20px; flex-wrap: wrap; }
-        .tab { font-family: var(--font-serif); font-size: 18px; cursor: pointer; padding-bottom: 5px; color: var(--ink-light); transition: all 0.3s; }
-        .tab.active { color: var(--ink-main); border-bottom: 2px solid var(--accent-bronze); font-weight: bold; }
-        .user-badge { font-family: var(--font-serif); font-size: 14px; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 4px 12px; border-radius: 20px; cursor: pointer; opacity: 0.8; }
-
-        .memory-flashback { text-align: center; margin-bottom: 40px; padding: 20px; border-top: 1px solid var(--border-fine); border-bottom: 1px solid var(--border-fine); }
-        .memory-title { font-family: var(--font-serif); font-size: 14px; color: var(--accent-bronze); margin-bottom: 10px; letter-spacing: 2px; }
-        .memory-text { font-family: var(--font-serif); font-size: 16px; font-style: italic; cursor: pointer; }
-
-        /* 控制台与输入框 */
-        .control-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 12px; padding: 25px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; }
-        .input-group { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
-        .title-input { font-family: var(--font-serif); font-size: 18px; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; width: 100%; box-sizing: border-box; text-align: center; letter-spacing: 2px; }
-        .note-input { font-family: var(--font-ui); padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; flex: 1; min-width: 200px; }
-        input:focus, textarea:focus { border-color: var(--accent-bronze); background: white; outline: none;}
-        
-        button { background: var(--ink-main); color: var(--paper-bg); border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-        button:hover { background: var(--accent-bronze); transform: translateY(-2px); }
-
-        /* 卡片网格 */
-        .timeline-group { margin-bottom: 50px; }
-        .timeline-header { font-family: var(--font-serif); font-size: 18px; color: var(--ink-light); margin-bottom: 20px; position: sticky; top: 0; z-index: 10; background: rgba(247, 245, 240, 0.9); padding: 10px 0; border-bottom: 1px solid var(--border-fine); }
-        .grid { display: grid; gap: 25px; }
-        .grid-memory { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-        .grid-list { grid-template-columns: 1fr; }
-
-        .card { background: white; border-radius: 10px; border: 1px solid var(--border-fine); position: relative; transition: 0.4s; overflow: hidden; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.04); }
-        .card img { width: 100%; height: 260px; object-fit: cover; border-bottom: 1px solid var(--border-fine); }
-        .card-info { padding: 30px 25px; position: relative; }
-        
-        .author-stamp { position: absolute; bottom: 15px; right: 20px; font-family: var(--font-serif); font-size: 12px; color: var(--accent-red); opacity: 0.6; }
-        .date { font-size: 12px; color: var(--accent-bronze); margin-bottom: 15px; display: block; text-align: center; }
-        
-        /* 平行世界专属样式 (小说排版) */
-        .story-title { font-family: var(--font-serif); font-size: 22px; font-weight: bold; text-align: center; color: var(--accent-indigo); margin-bottom: 20px; letter-spacing: 2px;}
-        .note { font-family: var(--font-serif); font-size: 16px; line-height: 2; color: var(--ink-main); white-space: pre-wrap; text-align: justify;}
-        
-        /* 浮梦卡片特殊质感 */
-        .card-story { background: linear-gradient(180deg, #FDFCFB 0%, #F5F3F0 100%); border: 1px solid rgba(49, 58, 77, 0.15); box-shadow: inset 0 0 20px rgba(0,0,0,0.01);}
-        .card-story .note { color: var(--accent-indigo); }
-
-        /* 编辑模式 */
-        .edit-title { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 18px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--accent-bronze); border-radius: 6px; text-align: center;}
-        .edit-area { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 16px; line-height: 1.8; padding: 10px; border: 1px solid var(--accent-bronze); border-radius: 6px; outline: none; resize: vertical; min-height: 120px; }
-        .edit-actions { display: flex; gap: 10px; margin-top: 10px; justify-content: center;}
-
-        /* 操作按钮 */
-        .actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; opacity: 0; transition: 0.3s; z-index: 20;}
-        .card:hover .actions { opacity: 1; }
-        .action-btn { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-light); }
-        .action-btn:hover { background: var(--paper-bg); color: var(--ink-main); }
-        .btn-delete:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
-
-        .wish-item { display: flex; align-items: center; gap: 15px; }
-        .wish-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent-bronze); }
-        .wish-completed { text-decoration: line-through; color: var(--ink-light); }
-        
-        .capsule-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 260px; background: rgba(247, 245, 240, 0.96); backdrop-filter: blur(15px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; border-bottom: 1px solid var(--border-fine); }
-    </style>
-</head>
-<body>
-
-<div id="app">
-    <div v-if="!currentUser" class="login-overlay">
-        <div class="login-box">
-            <h1>叩门</h1>
-            <input type="password" v-model="loginCode" @keyup.enter="login" placeholder="输入暗号...">
-            <div style="margin-top:20px; font-size:12px; color:var(--ink-light);">
-                (暗号：xiaoxin 或 xiaocheng)
-            </div>
-        </div>
-    </div>
-
-    <template v-else>
-        <div class="header">
-            <div class="nav-tabs">
-                <div :class="['tab', {active: currentTab === 'memory'}]" @click="switchTab('memory')">纪事</div>
-                <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')">随笔</div>
-                <div :class="['tab', {active: currentTab === 'wish'}]" @click="switchTab('wish')">心愿</div>
-                <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')">浮梦</div>
-            </div>
-            <div class="user-badge" @click="logout" title="点击可退出">
-                {{ currentUser }} 印
-            </div>
-        </div>
-
-        <div v-if="currentTab === 'memory' && randomMemory" class="memory-flashback">
-            <div class="memory-title">—— 岁月拾遗 ——</div>
-            <div class="memory-text" @click="viewFull(randomMemory.url)">"{{ randomMemory.note }}"</div>
-        </div>
-
-        <div class="control-panel">
-            <input v-if="currentTab === 'story'" type="text" v-model="newTitle" class="title-input" placeholder="《 平行世界篇章名 》 (如：末日废土篇、赛博朋克篇)...">
-            
-            <div class="input-group">
-                <input v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story'" type="file" @change="handleFile" accept="image/*" style="width:180px;">
-                <input type="date" v-model="newDate">
-                <input type="text" class="note-input" v-model="newNote" :placeholder="placeholderText" @keyup.enter="uploadItem">
-                <button @click="uploadItem">{{ btnText }}</button>
-            </div>
-        </div>
-
-        <div v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
-            <div class="timeline-header">{{ monthYear }}</div>
-            
-            <div :class="['grid', currentTab === 'memory' ? 'grid-memory' : 'grid-list']">
-                <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': currentTab === 'story'}]">
-                    
-                    <div class="actions">
-                        <button class="action-btn" @click="startEdit(item)" title="修编">✎</button>
-                        <button class="action-btn btn-delete" @click="deleteItem(item._id)" title="抹去">×</button>
-                    </div>
-
-                    <template v-if="item.url && (currentTab === 'memory' || currentTab === 'story')">
-                        <div v-if="isFuture(item.time)" class="capsule-overlay">
-                            <div style="font-size:24px; margin-bottom:10px;">✉️</div>
-                            <div style="font-family: var(--font-serif); color:var(--ink-light);">静待花开时</div>
-                        </div>
-                        <img :src="item.url" @click="!isFuture(item.time) && viewFull(item.url)">
-                    </template>
-
-                    <img v-if="item.url && currentTab === 'wish'" :src="item.url" style="height: 150px;">
-
-                    <div class="card-info">
-                        <span class="date">{{ formatDate(item.date) }}</span>
-                        
-                        <div v-if="editingId === item._id">
-                            <input v-if="currentTab === 'story'" type="text" class="edit-title" v-model="editTitle" placeholder="篇章名">
-                            <textarea class="edit-area" v-model="editNote"></textarea>
-                            <div class="edit-actions">
-                                <button @click="saveEdit(item._id)">保存修改</button>
-                                <button style="background:transparent; border:1px solid var(--border-fine); color:var(--ink-main);" @click="cancelEdit">取消</button>
-                            </div>
-                        </div>
-
-                        <div v-else>
-                            <div v-if="currentTab === 'story' && item.title" class="story-title">《 {{ item.title }} 》</div>
-                            
-                            <div v-if="currentTab === 'wish'" class="wish-item">
-                                <input type="checkbox" class="wish-checkbox" :checked="item.completed" @change="toggleWish(item, $event)">
-                                <span :class="['note', {'wish-completed': item.completed}]">{{ item.note }}</span>
-                            </div>
-                            <div v-else class="note">
-                                <template v-if="currentTab === 'memory' && isFuture(item.time)">[ 时光胶囊 · 尚未解封 ]</template>
-                                <template v-else>{{ item.note }}</template>
-                            </div>
-                        </div>
-
-                        <div class="author-stamp">
-                            <span v-if="currentTab === 'story'">构想者：</span>
-                            <span v-else>记录者：</span>
-                            {{ item.author }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </template>
-</div>
-
-<script>
-    const { createApp } = Vue;
-    createApp({
-        data() {
-            return {
-                currentUser: null,
-                loginCode: '',
-                currentTab: 'memory', // memory, diary, wish, story
-                items: [],
-                newTitle: '', newNote: '', newDate: '', selectedFile: null,
-                randomMemory: null,
-                editingId: null, editTitle: '', editNote: '' 
-            }
-        },
-        computed: {
-            placeholderText() {
-                if (this.currentTab === 'memory') return '记叙那一刻的回忆...';
-                if (this.currentTab === 'diary') return '写下今天的随笔碎语...';
-                if (this.currentTab === 'story') return '在这个平行世界里，我们正经历着怎样的故事？...';
-                return '许下一个愿望...';
-            },
-            btnText() {
-                if (this.currentTab === 'memory') return '入卷';
-                if (this.currentTab === 'diary') return '落笔';
-                if (this.currentTab === 'story') return '筑梦';
-                return '许愿';
-            },
-            groupedItems() {
-                const groups = {};
-                this.items.forEach(item => {
-                    const dateObj = new Date(item.date);
-                    const yearOptions = ['〇','一','二','三','四','五','六','七','八','九'];
-                    const yearStr = dateObj.getFullYear().toString().split('').map(n => yearOptions[n]).join('');
-                    const yearMonth = `${yearStr}年 ${dateObj.getMonth() + 1}月`;
-                    if (!groups[yearMonth]) groups[yearMonth] = [];
-                    groups[yearMonth].push(item);
-                });
-                return groups;
-            }
-        },
-        methods: {
-            login() {
-                if (this.loginCode === 'xiaoxin') this.currentUser = '小心';
-                else if (this.loginCode === 'xiaocheng') this.currentUser = '小橙';
-                else return alert('暗号有误，门扉紧闭');
-                
-                localStorage.setItem('orange_user', this.currentUser);
-                this.initApp();
-            },
-            logout() {
-                localStorage.removeItem('orange_user');
-                this.currentUser = null;
-                this.loginCode = '';
-            },
-            switchTab(tab) {
-                this.currentTab = tab;
-                this.getItems();
-                this.selectedFile = null;
-                this.newNote = '';
-                this.newTitle = '';
-            },
-            handleFile(e) { this.selectedFile = e.target.files[0]; },
-            async uploadItem() {
-                if (!this.newNote && !this.selectedFile) return alert("总得留下些什么痕迹吧？");
-                
-                const fd = new FormData();
-                if (this.selectedFile) fd.append('file', this.selectedFile);
-                fd.append('category', this.currentTab);
-                fd.append('title', this.newTitle);
-                fd.append('note', this.newNote);
-                fd.append('author', this.currentUser); 
-                if (this.newDate) fd.append('date', this.newDate);
-                
-                try {
-                    await axios.post('/api/items', fd);
-                    this.newNote = ''; 
-                    this.newTitle = '';
-                    this.newDate = new Date().toISOString().split('T')[0];
-                    this.selectedFile = null;
-                    const fileInput = document.querySelector('input[type="file"]');
-                    if(fileInput) fileInput.value = '';
-                    
-                    this.getItems();
-                    if(this.currentTab === 'memory') this.fetchRandomMemory();
-                } catch (error) { alert("记录失败，请稍后重试"); }
-            },
-            async getItems() {
-                const res = await axios.get(`/api/items?category=${this.currentTab}`);
-                this.items = res.data;
-            },
-            async fetchRandomMemory() {
-                const res = await axios.get('/api/random');
-                this.randomMemory = res.data;
-            },
-            async deleteItem(id) {
-                if (confirm("是否确认将此记忆抹去？")) {
-                    await axios.delete(`/api/items/${id}`);
-                    this.getItems();
-                }
-            },
-            startEdit(item) {
-                this.editingId = item._id;
-                this.editTitle = item.title || '';
-                this.editNote = item.note;
-            },
-            cancelEdit() {
-                this.editingId = null;
-                this.editTitle = '';
-                this.editNote = '';
-            },
-            async saveEdit(id) {
-                try {
-                    await axios.put(`/api/items/${id}`, { 
-                        title: this.editTitle,
-                        note: this.editNote 
-                    });
-                    this.editingId = null;
-                    this.getItems();
-                } catch (e) { alert("修改失败"); }
-            },
-            async toggleWish(item, event) {
-                try {
-                    await axios.put(`/api/items/${item._id}`, { completed: event.target.checked });
-                    item.completed = event.target.checked;
-                } catch (e) { 
-                    alert("更新状态失败"); 
-                    event.target.checked = !event.target.checked; 
-                }
-            },
-            isFuture(timestamp) { return timestamp > Date.now(); },
-            viewFull(url) { window.open(url, '_blank'); },
-            formatDate(dateString) { return new Date(dateString).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }); },
-            initApp() {
-                this.newDate = new Date().toISOString().split('T')[0];
-                this.getItems(); 
-                this.fetchRandomMemory();
-            }
-        },
-        mounted() { 
-            const savedUser = localStorage.getItem('orange_user');
-            if (savedUser) {
-                this.currentUser = savedUser;
-                this.initApp();
-            }
-        }
-    }).mount('#app');
-</script>
-</body>
-</html>
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
