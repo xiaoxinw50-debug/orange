@@ -1,27 +1,44 @@
 const express = require('express');
+const multer = require('multer');
 const Datastore = require('nedb');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
-const db = new Datastore({ filename: 'chats.db', autoload: true });
+const db = new Datastore({ filename: 'letters.db', autoload: true });
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads')); // 公开上传文件夹
 
-// 初始化一些测试数据 (仅第一次运行)
-// db.insert([{ sender: 'He', text: '想去海边看日落', time: '2023-05-20' }, ...]);
+// 配置图片存储
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
 
-// 获取所有聊天记录或搜索关键词
-app.get('/api/messages', (req, res) => {
-    const keyword = req.query.q;
-    let query = {};
-    if (keyword) {
-        // 使用正则实现模糊搜索
-        query = { text: new RegExp(keyword, 'i') };
-    }
-    db.find(query).sort({ time: 1 }).exec((err, docs) => {
+// API: 上传信件照片
+app.post('/api/upload', upload.single('letterImage'), (req, res) => {
+    const newLetter = {
+        type: 'image',
+        url: `http://localhost:3000/uploads/${req.file.filename}`,
+        note: req.body.note, // 信件的文字备注（用于搜索）
+        date: req.body.date || new Date().toLocaleDateString(),
+        time: Date.now()
+    };
+    db.insert(newLetter, (err, doc) => {
+        res.json(doc);
+    });
+});
+
+// API: 获取并搜索信件
+app.get('/api/letters', (req, res) => {
+    const search = req.query.q || '';
+    const query = { note: new RegExp(search, 'i') };
+    db.find(query).sort({ time: -1 }).exec((err, docs) => {
         res.json(docs);
     });
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+app.listen(3000, () => console.log('Server running at http://localhost:3000'));
