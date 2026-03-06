@@ -8,6 +8,7 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 确保上传目录存在
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
@@ -30,7 +31,7 @@ app.post('/api/items', upload.single('file'), (req, res) => {
     const timestamp = date ? new Date(date).getTime() : Date.now();
     const displayDate = date ? date : new Date().toISOString().split('T')[0];
     
-    // 解析分段故事数据 (如果有)
+    // 【关键修复所在】：解析前端传来的小说段落
     const segments = req.body.segments ? JSON.parse(req.body.segments) : null;
 
     const newItem = {
@@ -39,7 +40,7 @@ app.post('/api/items', upload.single('file'), (req, res) => {
         url: req.file ? `/uploads/${req.file.filename}` : null, 
         title: title || '',             
         note: note || '', 
-        segments: segments, // 存入平行世界的故事段落
+        segments: segments, // 保存双色段落
         date: displayDate,
         time: timestamp,
         completed: false                
@@ -69,7 +70,7 @@ app.get('/api/random', (req, res) => {
     });
 });
 
-// API: 修改内容
+// API: 修改内容与接龙段落
 app.put('/api/items/:id', (req, res) => {
     const id = req.params.id;
     const { title, note, completed, segments } = req.body;
@@ -78,7 +79,7 @@ app.put('/api/items/:id', (req, res) => {
     if (title !== undefined) updateDoc.title = title;
     if (note !== undefined) updateDoc.note = note;
     if (completed !== undefined) updateDoc.completed = completed;
-    if (segments !== undefined) updateDoc.segments = segments;
+    if (segments !== undefined) updateDoc.segments = segments; // 更新双色段落
 
     db.update({ _id: id }, { $set: updateDoc }, {}, (err, numReplaced) => {
         res.json({ success: true });
