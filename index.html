@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Our Memory Lane</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --pink: #ffdee9;
+            --blue: #b5fffc;
+            --glass: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            background: linear-gradient(45deg, var(--pink), var(--blue));
+            background-attachment: fixed;
+            margin: 0;
+            font-family: 'PingFang SC', sans-serif;
+        }
+
+        #app {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 顶部搜索条 */
+        .search-bar {
+            position: sticky;
+            top: 20px;
+            backdrop-filter: blur(15px);
+            background: var(--glass);
+            border-radius: 30px;
+            padding: 10px 25px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* 聊天气泡 */
+        .chat-container { display: flex; flex-direction: column; gap: 20px; }
+
+        .msg-wrapper { display: flex; width: 100%; }
+        .msg-wrapper.left { justify-content: flex-start; }
+        .msg-wrapper.right { justify-content: flex-end; }
+
+        .bubble {
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 60%;
+            line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .bubble:hover { transform: scale(1.02); }
+
+        .left .bubble { 
+            background: rgba(255, 255, 255, 0.7); 
+            border-bottom-left-radius: 5px; 
+        }
+        .right .bubble { 
+            background: rgba(255, 182, 193, 0.5); 
+            border-bottom-right-radius: 5px;
+        }
+
+        .time { font-size: 10px; color: #888; margin-top: 5px; display: block; }
+        
+        .highlight { background: #fff176; padding: 0 2px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="search-bar">
+        <input v-model="searchQuery" @input="fetchMessages" placeholder="搜索一段回忆...">
+    </div>
+
+    <div class="chat-container">
+        <div v-for="msg in messages" :key="msg._id" :class="['msg-wrapper', msg.sender === 'Me' ? 'right' : 'left']">
+            <div class="bubble">
+                <span v-html="highlightText(msg.text)"></span>
+                <span class="time">{{ msg.time }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                searchQuery: '',
+                messages: []
+            }
+        },
+        methods: {
+            async fetchMessages() {
+                const res = await axios.get(`http://localhost:3000/api/messages?q=${this.searchQuery}`);
+                this.messages = res.data;
+            },
+            highlightText(text) {
+                if (!this.searchQuery) return text;
+                const reg = new RegExp(`(${this.searchQuery})`, 'gi');
+                return text.replace(reg, '<mark class="highlight">$1</mark>');
+            }
+        },
+        mounted() {
+            this.fetchMessages();
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
