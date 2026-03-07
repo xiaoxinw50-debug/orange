@@ -183,6 +183,19 @@
         .fun-card.wide { grid-column: span 2; }
         .fun-title { font-family: var(--font-serif); font-size: 24px; margin: 0 0 12px; color: var(--ink-main); }
         .fun-text { font-size: 14px; color: var(--ink-light); line-height: 1.8; margin-bottom: 16px; }
+        .arcade-ribbon { position: relative; overflow: hidden; background:
+            radial-gradient(circle at top left, rgba(255, 183, 178, 0.22), transparent 34%),
+            radial-gradient(circle at top right, rgba(130, 202, 255, 0.18), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.58), rgba(255,240,245,0.34)); }
+        .arcade-ribbon::after { content: ''; position: absolute; inset: auto -10% -58% auto; width: 260px; height: 260px; background: radial-gradient(circle, rgba(255,255,255,0.26), transparent 65%); pointer-events: none; }
+        .arcade-kicker { font-size: 12px; letter-spacing: 2px; color: var(--ink-light); margin-bottom: 8px; }
+        .arcade-title { margin: 0 0 10px; font-family: var(--font-serif); font-size: 30px; color: var(--ink-main); }
+        .arcade-summary { max-width: 660px; font-size: 15px; line-height: 1.8; color: var(--ink-main); margin: 0 0 18px; }
+        .arcade-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+        .arcade-stat { border-radius: 18px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.48); padding: 14px 16px; }
+        .arcade-stat-label { font-size: 12px; color: var(--ink-light); margin-bottom: 8px; letter-spacing: 1px; }
+        .arcade-stat-value { font-family: var(--font-serif); font-size: 26px; color: var(--ink-main); }
+        .arcade-stat-note { font-size: 12px; line-height: 1.6; color: var(--ink-light); margin-top: 6px; }
         .surprise-display { min-height: 220px; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-radius: 20px; border: 1px dashed var(--border-fine); padding: 22px; background: rgba(255,255,255,0.24); }
         .surprise-display.rolling { position: relative; overflow: hidden; }
         .surprise-display.rolling::after { content: ''; position: absolute; inset: -40%; background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%); animation: capsuleSweep 1.2s linear infinite; }
@@ -194,6 +207,27 @@
         .surprise-rolling-sub { font-size: 14px; color: var(--ink-light); }
         @keyframes capsuleSweep { from { transform: translateX(-45%) rotate(18deg); } to { transform: translateX(45%) rotate(18deg); } }
         @keyframes capsuleBounce { 0%, 100% { transform: translateY(0); opacity: 0.7; } 50% { transform: translateY(-6px); opacity: 1; } }
+        .fun-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+        .decision-presets { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+        .decision-wheel { display: grid; gap: 12px; margin-top: 14px; }
+        .decision-wheel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .decision-option { border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.36); padding: 14px 16px; color: var(--ink-main); line-height: 1.7; transition: 0.2s; }
+        .decision-option.active { transform: translateY(-2px) scale(1.01); background: linear-gradient(135deg, rgba(255,183,178,0.92), rgba(130,202,255,0.8)); color: white; border-color: transparent; box-shadow: 0 10px 22px rgba(230, 168, 215, 0.28); }
+        .decision-option.result { border-style: dashed; }
+        .scenario-shell { display: grid; gap: 14px; }
+        .scenario-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .scenario-item { border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.34); padding: 14px 16px; }
+        .scenario-item-label { font-size: 12px; color: var(--ink-light); margin-bottom: 6px; letter-spacing: 1px; }
+        .scenario-item-value { font-family: var(--font-serif); font-size: 17px; color: var(--ink-main); line-height: 1.6; }
+        .scenario-summary { border-radius: 18px; border: 1px dashed var(--border-fine); background: rgba(255,255,255,0.28); padding: 18px; font-size: 14px; line-height: 1.9; color: var(--ink-main); }
+        .bingo-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+        .bingo-cell { min-height: 104px; border-radius: 18px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.34); padding: 14px 12px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.7; color: var(--ink-main); cursor: pointer; transition: 0.22s; position: relative; overflow: hidden; white-space: pre-line; }
+        .bingo-cell:hover { transform: translateY(-2px); }
+        .bingo-cell.done { background: linear-gradient(135deg, rgba(255,183,178,0.22), rgba(130,202,255,0.2)); border-color: rgba(230, 168, 215, 0.54); }
+        .bingo-cell.free { font-family: var(--font-serif); font-size: 18px; }
+        .bingo-cell.win { box-shadow: 0 12px 24px rgba(230, 168, 215, 0.26); border-color: transparent; background: linear-gradient(135deg, rgba(255,183,178,0.9), rgba(130,202,255,0.78)); color: white; }
+        .bingo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+        .bingo-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.42); padding: 7px 12px; color: var(--ink-main); font-size: 12px; }
         .badge-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; margin-top: 18px; }
         .badge-card { border-radius: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.45); padding: 18px; text-align: center; transition: 0.25s; }
         .badge-card.unlocked { box-shadow: 0 10px 24px rgba(255, 182, 193, 0.18); transform: translateY(-2px); }
@@ -384,6 +418,9 @@
             .review-card.wide { grid-column: auto; }
             .fun-dashboard { grid-template-columns: 1fr; }
             .fun-card.wide { grid-column: auto; }
+            .arcade-stats { grid-template-columns: 1fr 1fr; }
+            .decision-wheel-grid { grid-template-columns: 1fr; }
+            .scenario-grid { grid-template-columns: 1fr; }
             .bond-grid { grid-template-columns: 1fr; }
             .bond-card.wide { grid-column: auto; }
             .bond-metrics { grid-template-columns: 1fr 1fr; }
@@ -926,6 +963,19 @@
         </div>
 
         <div v-if="currentTab === 'play' && playMode === 'surprise'" class="fun-dashboard">
+            <div class="fun-card wide arcade-ribbon">
+                <div class="arcade-kicker">ARCADE MODE</div>
+                <h3 class="arcade-title">把今晚要玩的东西收进一块游乐面板</h3>
+                <p class="arcade-summary">{{ arcadeSummary }}</p>
+                <div class="arcade-stats">
+                    <div class="arcade-stat" v-for="stat in arcadeStats" :key="stat.label">
+                        <div class="arcade-stat-label">{{ stat.label }}</div>
+                        <div class="arcade-stat-value">{{ stat.value }}</div>
+                        <div class="arcade-stat-note">{{ stat.note }}</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="fun-card">
                 <h3 class="fun-title">时光扭蛋</h3>
                 <div class="fun-text">从你们已经写下的内容里随机抽一张，适合深夜重温，也适合没灵感的时候重新打开故事。</div>
@@ -944,7 +994,7 @@
                     </template>
                     <div v-else class="empty-state">还没抽到扭蛋，点下面的按钮试试。</div>
                 </div>
-                <div class="input-group" style="margin-top: 16px;">
+                <div class="fun-actions">
                     <button class="action-submit" @click="drawSurpriseItem" :disabled="surpriseLoading">{{ surpriseLoading ? '扭蛋滚动中...' : '抽一张回忆扭蛋' }}</button>
                 </div>
             </div>
@@ -960,9 +1010,75 @@
                     </template>
                     <div v-else class="empty-state">盲盒还没开启，抽一张看看今天适合做什么。</div>
                 </div>
-                <div class="input-group" style="margin-top: 16px;">
+                <div class="fun-actions">
                     <button class="action-submit" @click="drawSurpriseTask">抽一个今日任务</button>
                     <button v-if="surpriseTask" class="action-submit secondary-btn" @click="saveSurpriseTaskToWish">存进心愿</button>
+                </div>
+            </div>
+
+            <div class="fun-card">
+                <h3 class="fun-title">今夜谁来选</h3>
+                <div class="fun-text">晚餐、电影、路线还是今晚的氛围，让转盘替你们把犹豫切掉。</div>
+                <div class="decision-presets">
+                    <button
+                        v-for="preset in decisionPresetDecks"
+                        :key="preset.key"
+                        type="button"
+                        :class="['bond-chip', { active: decisionPreset === preset.key }]"
+                        @click="decisionPreset = preset.key"
+                    >
+                        {{ preset.label }}
+                    </button>
+                </div>
+                <input type="text" class="bond-select" v-model="decisionOptionsInput" placeholder="可选：自定义候选项，用逗号分隔，比如火锅,烤肉,寿司">
+                <div class="decision-wheel">
+                    <div class="decision-wheel-grid">
+                        <div
+                            v-for="(option, index) in decisionOptionsResolved"
+                            :key="`${decisionPreset}-${option}-${index}`"
+                            :class="['decision-option', { active: decisionHighlightIndex === index }]"
+                        >
+                            {{ option }}
+                        </div>
+                    </div>
+                    <div v-if="decisionResult" class="decision-option result">最终落点：{{ decisionResult }}</div>
+                </div>
+                <div class="fun-actions">
+                    <button class="action-submit" @click="spinDecisionWheel" :disabled="decisionSpinning">{{ decisionSpinning ? '转盘旋转中...' : '开始转一圈' }}</button>
+                    <button v-if="decisionResult" class="action-submit secondary-btn" @click="saveDecisionToWish">按这个决定安排今晚</button>
+                </div>
+            </div>
+
+            <div class="fun-card">
+                <h3 class="fun-title">剧情盲盒</h3>
+                <div class="fun-text">系统随机给你们一段氛围、一个场景、一句开场和一个结尾动作，适合立刻去演。</div>
+                <div class="scenario-shell">
+                    <div v-if="scenarioResult" class="scenario-grid">
+                        <div class="scenario-item">
+                            <div class="scenario-item-label">场景</div>
+                            <div class="scenario-item-value">{{ scenarioResult.place }}</div>
+                        </div>
+                        <div class="scenario-item">
+                            <div class="scenario-item-label">气氛</div>
+                            <div class="scenario-item-value">{{ scenarioResult.vibe }}</div>
+                        </div>
+                        <div class="scenario-item">
+                            <div class="scenario-item-label">开场白</div>
+                            <div class="scenario-item-value">{{ scenarioResult.line }}</div>
+                        </div>
+                        <div class="scenario-item">
+                            <div class="scenario-item-label">动作线</div>
+                            <div class="scenario-item-value">{{ scenarioResult.mission }}</div>
+                        </div>
+                    </div>
+                    <div v-if="scenarioResult" class="scenario-summary">
+                        今晚你们在 {{ scenarioResult.place }}，整体气氛是“{{ scenarioResult.vibe }}”。先用“{{ scenarioResult.line }}”把戏开场，再完成“{{ scenarioResult.mission }}”，最后以“{{ scenarioResult.ending }}”收尾。
+                    </div>
+                    <div v-else class="empty-state">点一下抽取，让系统给你们一个今天就能演的桥段。</div>
+                </div>
+                <div class="fun-actions">
+                    <button class="action-submit" @click="drawScenarioBox">抽一个桥段</button>
+                    <button v-if="scenarioResult" class="action-submit secondary-btn" @click="saveScenarioToDiary">写进随笔草稿</button>
                 </div>
             </div>
 
@@ -1001,6 +1117,31 @@
                             <button class="action-submit" @click="nextSyncQuestion">{{ syncMatched ? '再来一道' : '换一题继续' }}</button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="fun-card wide">
+                <h3 class="fun-title">双人 Bingo</h3>
+                <div class="fun-text">把轻任务做成 3x3 小棋盘，随手完成一格就点亮一格。横竖斜任意连成一线都算一次通关。</div>
+                <div class="bingo-meta">
+                    <div class="bingo-badge">已完成 {{ completedBingoCount }}/9 格</div>
+                    <div class="bingo-badge">已连成 {{ bingoLineCount }} 条线</div>
+                    <div class="bingo-badge">累计通关 {{ playStats.bingoWins }} 次</div>
+                </div>
+                <div class="bingo-board">
+                    <button
+                        v-for="(cell, index) in bingoBoard"
+                        :key="cell.id"
+                        type="button"
+                        :class="['bingo-cell', { done: cell.completed, free: cell.free, win: winningBingoIndexes.includes(index) }]"
+                        @click="toggleBingoCell(index)"
+                    >
+                        {{ cell.text }}
+                    </button>
+                </div>
+                <div class="fun-actions">
+                    <button class="action-submit" @click="shuffleBingoBoard(true)">换一张新棋盘</button>
+                    <button class="action-submit secondary-btn" @click="resetBingoProgress">清空这张的进度</button>
                 </div>
             </div>
 
@@ -1207,8 +1348,15 @@
                 particles: [],
                 activeAchievement: null,
                 achievementQueue: [],
-                playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0 },
+                playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0, wheelSpins: 0, scenarioDraws: 0, bingoWins: 0 },
                 playMode: 'tarot',
+                decisionPreset: 'date',
+                decisionOptionsInput: '',
+                decisionHighlightIndex: -1,
+                decisionResult: '',
+                decisionSpinning: false,
+                scenarioResult: null,
+                bingoBoard: [],
                 syncPhase: 'answering',
                 syncRound: 1,
                 syncQuestionIndex: 0,
@@ -1257,6 +1405,36 @@
                     { prompt: '你觉得对方最适合哪种约会氛围？', options: [{ key: 'quiet', text: '安静慢慢来' }, { key: 'wild', text: '临时起意瞎闯' }, { key: 'ritual', text: '有仪式感地安排好' }] },
                     { prompt: '深夜最想和对方一起做什么？', options: [{ key: 'movie', text: '窝着看电影' }, { key: 'walk', text: '出去散步吹风' }, { key: 'talk', text: '躺着长聊到睡着' }] },
                     { prompt: '如果要给今天的关系气氛起个代号，你会选哪个？', options: [{ key: 'spark', text: '火花四溅' }, { key: 'soft', text: '奶油融化' }, { key: 'storm', text: '疯玩到失控' }] }
+                ],
+                decisionPresetDecks: [
+                    { key: 'date', label: '约会安排', options: ['去吃想了很久的那家店', '今晚随便散步乱走', '窝在家里看电影', '临时出发去一个陌生地方'] },
+                    { key: 'dinner', label: '晚餐选择', options: ['火锅', '烤肉', '寿司', '面馆'] },
+                    { key: 'night', label: '夜间节目', options: ['认真聊天', '一起打游戏', '旧照片回顾', '直接出去吹风'] }
+                ],
+                scenarioPlaces: ['阳台小夜风里', '回家路上的便利店门口', '客厅沙发的一角', '刚洗完澡的卧室', '临时起意的小咖啡店'],
+                scenarioVibes: ['软绵绵但暧昧升温', '像深夜电影一样慢慢推进', '明明很日常却突然失守', '带一点试探和不说破的张力', '甜得像故意安排过'],
+                scenarioLines: ['“你先别动，我想认真看你十秒。”', '“如果现在把时间停住，你希望它停在哪一秒？”', '“我突然觉得，今天应该有一个只属于我们的镜头。”', '“不如假装我们现在是第一次偷偷心动。”', '“今晚不聊工作了，我们只演一个小剧情。”'],
+                scenarioMissions: ['轮流说出三个此刻最想做的小动作', '互相给对方安排一个一分钟的专属镜头', '闭眼靠近，直到其中一个人先笑场', '各自补一句只在这种气氛下才说得出口的话', '把今天的一件小事讲成一段电影旁白'],
+                scenarioEndings: ['以一个认真拥抱收场', '以交换歌单收场', '以拍下一张只留给彼此的照片收场', '以写一条短回信收场', '以临时决定去做一件小冒险收场'],
+                bingoPromptPool: [
+                    '给对方一个 20 秒不说话的抱抱',
+                    '互相说一句今天最喜欢对方的地方',
+                    '一起看一张旧照片并补完细节',
+                    '对视到有人先笑场',
+                    '交换一首“今天像你”的歌',
+                    '把手机放下 10 分钟只聊天',
+                    '一起决定明天的一件小期待',
+                    '轮流说一个想被怎样安慰的小偏好',
+                    '散步 5 分钟或者在窗边吹风',
+                    '拍一张不看镜头的合照',
+                    '互相喂一口东西或者一口水',
+                    '认真夸对方今天的一个细节',
+                    '闭眼猜对方现在的心情',
+                    '一起写一句只属于今晚的话',
+                    '把今天的随机任务执行 1 格',
+                    '互相问一个平时不会问的小问题',
+                    '一起看着天花板发呆 60 秒',
+                    '在备忘录写下下次约会想做的事'
                 ],
                 
                 // 🔮 塔罗牌相关状态
@@ -1353,8 +1531,31 @@
             currentSyncQuestion() {
                 return this.syncQuestions[this.syncQuestionIndex] || { prompt: '', options: [] };
             },
+            decisionOptionsResolved() {
+                const custom = this.decisionOptionsInput
+                    .split(/[,，]/)
+                    .map(item => item.trim())
+                    .filter(Boolean);
+                if (custom.length >= 2) return custom.slice(0, 6);
+                const preset = this.decisionPresetDecks.find(item => item.key === this.decisionPreset);
+                return preset ? preset.options : [];
+            },
             currentSyncPlayer() {
                 return this.syncCurrentPlayer;
+            },
+            arcadeStats() {
+                return [
+                    { label: '回忆扭蛋', value: `${this.playStats.surpriseDraws} 次`, note: '随机抽旧故事最容易把人拉回当时。' },
+                    { label: '转盘决定', value: `${this.playStats.wheelSpins} 次`, note: '让“今晚干嘛”少一点犹豫，多一点直接。' },
+                    { label: '剧情盲盒', value: `${this.playStats.scenarioDraws} 次`, note: '没灵感时直接给你们一个能演的桥段。' },
+                    { label: 'Bingo 通关', value: `${this.playStats.bingoWins} 次`, note: '把陪伴拆成可完成的小格子，更容易真的去做。' }
+                ];
+            },
+            arcadeSummary() {
+                if (this.playStats.bingoWins >= 2) {
+                    return '现在这页已经不只是抽卡了。它能帮你们随机、决策、起剧情，再把真正做过的小事一格格点亮。';
+                }
+                return '游乐区改成了更集中的面板：回忆扭蛋负责回看，任务和剧情负责起头，转盘负责做决定，Bingo 负责把小互动落到手上。';
             },
             relationshipItems() {
                 return (this.allItemsForStats || []).filter(item => !item.deletedAt).slice().sort((a, b) => b.time - a.time).slice(0, 24);
@@ -1518,6 +1719,33 @@
                 }
                 return days;
             },
+            completedBingoCount() {
+                return this.bingoBoard.filter(cell => cell.completed).length;
+            },
+            bingoWinLines() {
+                const wins = [];
+                if (this.bingoBoard.length !== 9) return wins;
+                const lines = [
+                    [0, 1, 2],
+                    [3, 4, 5],
+                    [6, 7, 8],
+                    [0, 3, 6],
+                    [1, 4, 7],
+                    [2, 5, 8],
+                    [0, 4, 8],
+                    [2, 4, 6]
+                ];
+                lines.forEach(line => {
+                    if (line.every(index => this.bingoBoard[index]?.completed)) wins.push(line);
+                });
+                return wins;
+            },
+            bingoLineCount() {
+                return this.bingoWinLines.length;
+            },
+            winningBingoIndexes() {
+                return [...new Set(this.bingoWinLines.flat())];
+            },
             achievementCards() {
                 const items = this.allItemsForStats || [];
                 const total = items.length;
@@ -1529,6 +1757,9 @@
                 const draws = this.playStats.surpriseDraws || 0;
                 const syncMatches = this.playStats.syncMatches || 0;
                 const taskSaves = this.playStats.taskSaves || 0;
+                const wheelSpins = this.playStats.wheelSpins || 0;
+                const scenarioDraws = this.playStats.scenarioDraws || 0;
+                const bingoWins = this.playStats.bingoWins || 0;
 
                 return [
                     { key: 'first', icon: '🌱', name: '初次落笔', condition: '留下任意 1 条内容', unlocked: total >= 1, description: '你们已经把这个小宇宙真正启动了。' },
@@ -1539,7 +1770,10 @@
                     { key: 'duo', icon: '🤝', name: '双人共振', condition: '两个人都留下过内容', unlocked: authors >= 2, description: '这不再是一人的独白，而是真正的双人宇宙。' },
                     { key: 'capsule', icon: '🎁', name: '扭蛋成瘾', condition: '抽取 5 次回忆扭蛋', unlocked: draws >= 5, description: '你们已经开始把随机回忆当成一项正式娱乐。' },
                     { key: 'telepathy', icon: '🫶', name: '心电感应', condition: '默契问答命中 3 次', unlocked: syncMatches >= 3, description: '不用说出口，也能猜到对方会怎么选。' },
-                    { key: 'planner', icon: '📝', name: '任务派发员', condition: '把 3 个任务盲盒存进心愿', unlocked: taskSaves >= 3, description: '随机小游戏已经开始接管你们的日程。' }
+                    { key: 'planner', icon: '📝', name: '任务派发员', condition: '把 3 个任务盲盒存进心愿', unlocked: taskSaves >= 3, description: '随机小游戏已经开始接管你们的日程。' },
+                    { key: 'spinner', icon: '🎡', name: '今晚你来选', condition: '转盘决定 3 次', unlocked: wheelSpins >= 3, description: '犹豫的时刻被你们做成了更轻松的小游戏。' },
+                    { key: 'director', icon: '🎬', name: '氛围导演', condition: '抽取 3 次剧情盲盒', unlocked: scenarioDraws >= 3, description: '你们已经开始把普通夜晚演成只属于彼此的小片段。' },
+                    { key: 'bingo', icon: '🧩', name: '陪伴通关者', condition: '完成 2 次 Bingo 连线', unlocked: bingoWins >= 2, description: '一起做的小事已经从随机灵感变成了可重复的陪伴节奏。' }
                 ];
             },
             emptyStateText() {
@@ -2033,7 +2267,10 @@
                     this.playStats = {
                         surpriseDraws: Number(parsed.surpriseDraws || 0),
                         syncMatches: Number(parsed.syncMatches || 0),
-                        taskSaves: Number(parsed.taskSaves || 0)
+                        taskSaves: Number(parsed.taskSaves || 0),
+                        wheelSpins: Number(parsed.wheelSpins || 0),
+                        scenarioDraws: Number(parsed.scenarioDraws || 0),
+                        bingoWins: Number(parsed.bingoWins || 0)
                     };
                 } catch (error) {}
             },
@@ -2047,6 +2284,76 @@
                 };
                 this.persistPlayStats();
                 this.checkAchievementUnlocks();
+            },
+            loadBingoBoard() {
+                try {
+                    const raw = localStorage.getItem('orange_play_bingo');
+                    if (!raw) {
+                        this.shuffleBingoBoard();
+                        return;
+                    }
+                    const parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed) || parsed.length !== 9) {
+                        this.shuffleBingoBoard();
+                        return;
+                    }
+                    this.bingoBoard = parsed;
+                } catch (error) {
+                    this.shuffleBingoBoard();
+                }
+            },
+            persistBingoBoard() {
+                localStorage.setItem('orange_play_bingo', JSON.stringify(this.bingoBoard));
+            },
+            shuffleBingoBoard(showFeedback = false) {
+                const pool = this.bingoPromptPool.slice().sort(() => Math.random() - 0.5).slice(0, 8);
+                const board = [];
+                for (let index = 0; index < 9; index += 1) {
+                    if (index === 4) {
+                        board.push({ id: 'free-center', text: 'FREE\n抱一下就算', completed: true, free: true });
+                    } else {
+                        board.push({
+                            id: `${Date.now()}-${index}-${Math.random().toString(16).slice(2)}`,
+                            text: pool.shift(),
+                            completed: false,
+                            free: false
+                        });
+                    }
+                }
+                this.bingoBoard = board;
+                this.persistBingoBoard();
+                if (showFeedback) {
+                    this.launchParticles({ x: '50%', y: '72%' }, 16);
+                    this.showNotice('success', '新棋盘已经洗好');
+                }
+            },
+            resetBingoProgress() {
+                if (this.bingoBoard.length !== 9) {
+                    this.shuffleBingoBoard();
+                    return;
+                }
+                this.bingoBoard = this.bingoBoard.map(cell => ({
+                    ...cell,
+                    completed: cell.free ? true : false
+                }));
+                this.persistBingoBoard();
+                this.showNotice('info', '这张棋盘的进度已清空');
+            },
+            toggleBingoCell(index) {
+                const target = this.bingoBoard[index];
+                if (!target || target.free) return;
+                const previousLines = this.bingoLineCount;
+                this.bingoBoard = this.bingoBoard.map((cell, cellIndex) => cellIndex === index
+                    ? { ...cell, completed: !cell.completed }
+                    : cell);
+                this.persistBingoBoard();
+                const nextLines = this.bingoWinLines.length;
+                if (nextLines > previousLines) {
+                    this.incrementPlayStat('bingoWins', nextLines - previousLines);
+                    this.playSuccessTone();
+                    this.launchParticles({ x: '50%', y: '74%' }, 22);
+                    this.showNotice('success', `Bingo 连成 ${nextLines} 条线了`);
+                }
             },
             playSuccessTone() {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -2243,6 +2550,65 @@
                 this.surpriseTask = this.surpriseTaskDeck[randomIndex];
                 this.launchParticles({ x: '74%', y: '40%' }, 14);
                 this.vibrate([40, 40, 40]);
+            },
+            spinDecisionWheel() {
+                const options = this.decisionOptionsResolved;
+                if (options.length < 2) {
+                    this.showNotice('info', '至少准备两个候选项，转盘才转得起来');
+                    return;
+                }
+                if (this.decisionSpinning) return;
+                this.decisionSpinning = true;
+                this.decisionResult = '';
+                this.decisionHighlightIndex = -1;
+                let steps = 0;
+                const totalSteps = 16 + Math.floor(Math.random() * 10);
+                window.clearInterval(this.decisionSpinTimer);
+                this.vibrate([40, 30, 40, 30, 60]);
+                this.decisionSpinTimer = window.setInterval(() => {
+                    this.decisionHighlightIndex = (this.decisionHighlightIndex + 1) % options.length;
+                    steps += 1;
+                    if (steps >= totalSteps) {
+                        window.clearInterval(this.decisionSpinTimer);
+                        this.decisionResult = options[this.decisionHighlightIndex];
+                        this.decisionSpinning = false;
+                        this.incrementPlayStat('wheelSpins');
+                        this.launchParticles({ x: '74%', y: '55%' }, 16);
+                        this.showNotice('success', `今晚就按「${this.decisionResult}」来`);
+                    }
+                }, 90);
+            },
+            saveDecisionToWish() {
+                if (!this.decisionResult) return;
+                this.switchTab('wish');
+                this.$nextTick(() => {
+                    this.newNote = `今晚就按「${this.decisionResult}」来，不再反复纠结了。`;
+                    this.selectedMood = 'spark';
+                    this.showNotice('success', '决定已经写进心愿输入框');
+                });
+            },
+            drawScenarioBox() {
+                const pick = list => list[Math.floor(Math.random() * list.length)];
+                this.scenarioResult = {
+                    place: pick(this.scenarioPlaces),
+                    vibe: pick(this.scenarioVibes),
+                    line: pick(this.scenarioLines),
+                    mission: pick(this.scenarioMissions),
+                    ending: pick(this.scenarioEndings)
+                };
+                this.incrementPlayStat('scenarioDraws');
+                this.launchParticles({ x: '28%', y: '67%' }, 16);
+                this.vibrate([35, 35, 55]);
+            },
+            saveScenarioToDiary() {
+                if (!this.scenarioResult) return;
+                this.switchTab('diary');
+                this.$nextTick(() => {
+                    this.newTitle = '🎬 今晚的剧情盲盒';
+                    this.newNote = `【场景】${this.scenarioResult.place}\n【气氛】${this.scenarioResult.vibe}\n【开场白】${this.scenarioResult.line}\n【动作线】${this.scenarioResult.mission}\n【收尾】${this.scenarioResult.ending}\n\n【实际发生了什么】\n`;
+                    this.selectedMood = 'spark';
+                    this.showNotice('success', '桥段已经写进随笔草稿');
+                });
             },
             saveSurpriseTaskToWish() {
                 if (!this.surpriseTask) return;
@@ -2600,12 +2966,15 @@
         },
         mounted() { 
             this.loadPlayStats();
+            this.loadBingoBoard();
             const savedBaseDate = localStorage.getItem('orange_relationship_base'); if (savedBaseDate) this.relationshipBaseDate = savedBaseDate;
             const savedUser = localStorage.getItem('orange_user'); if (savedUser) { this.currentUser = savedUser; this.initApp(); }
             const savedTheme = localStorage.getItem('orange_theme'); if (savedTheme === 'dark') { this.isDarkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
             document.addEventListener('click', this.closeCardMenu);
         },
         beforeUnmount() {
+            window.clearInterval(this.decisionSpinTimer);
+            window.clearInterval(this.surpriseRollTimer);
             document.removeEventListener('click', this.closeCardMenu);
         }
     }).mount('#app');
