@@ -283,6 +283,19 @@
         .achievement-modal-title { font-family: var(--font-serif); font-size: 28px; color: var(--ink-main); margin-bottom: 10px; }
         .achievement-modal-text { font-size: 14px; line-height: 1.8; color: var(--ink-light); margin-bottom: 20px; }
         @keyframes modalRise { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .play-shell { display: grid; gap: 22px; }
+        .play-hero { position: relative; overflow: hidden; }
+        .play-hero::before { content: ''; position: absolute; inset: 0; background:
+            radial-gradient(circle at top left, rgba(255, 183, 178, 0.28), transparent 34%),
+            radial-gradient(circle at top right, rgba(130, 202, 255, 0.2), transparent 30%);
+            pointer-events: none; }
+        .play-kicker { font-size: 12px; letter-spacing: 2px; color: var(--ink-light); margin-bottom: 10px; }
+        .play-title { margin: 0 0 8px; font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); color: var(--ink-main); }
+        .play-text { margin: 0; max-width: 640px; line-height: 1.9; color: var(--ink-main); }
+        .play-switchers { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+        .play-chip { border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.42); color: var(--ink-main); padding: 10px 16px; cursor: pointer; transition: 0.2s; }
+        .play-chip.active { background: linear-gradient(135deg, rgba(255,183,178,0.96), rgba(130,202,255,0.96)); color: white; border-color: transparent; transform: translateY(-2px); }
+        .play-panel { display: grid; gap: 20px; }
 
         .timeline-group { margin-bottom: 60px; }
         .timeline-header { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin-bottom: 25px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(15px); padding: 15px 20px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
@@ -431,12 +444,10 @@
                 <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')">随笔</div>
                 <div :class="['tab', {active: currentTab === 'wish'}]" @click="switchTab('wish')">心愿</div>
                 <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')">浮梦</div>
-                <div :class="['tab', {active: currentTab === 'tarot'}]" @click="switchTab('tarot')">星占 🔮</div>
-                <div :class="['tab', {active: currentTab === 'game'}]" @click="switchTab('game')">秘戏 🎲</div>
+                <div :class="['tab', {active: currentTab === 'play'}]" @click="switchTab('play')">游乐 🎲</div>
                 <div :class="['tab', {active: currentTab === 'review'}]" @click="switchTab('review')">回顾 💌</div>
                 <div :class="['tab', {active: currentTab === 'bond'}]" @click="switchTab('bond')">关系 💞</div>
                 <div :class="['tab', {active: currentTab === 'recycle'}]" @click="switchTab('recycle')">回收站 🗑️</div>
-                <div :class="['tab', {active: currentTab === 'surprise'}]" @click="switchTab('surprise')">盲盒 🎁</div>
                 <div :class="['tab', {active: currentTab === 'stats'}]" @click="switchTab('stats')">星图 🌟</div>
             </div>
             <div class="header-actions">
@@ -464,7 +475,19 @@
             </div>
         </div>
 
-        <div v-if="currentTab === 'game'" class="tarot-board midnight-mode">
+        <div v-if="currentTab === 'play'" class="play-shell">
+            <div class="control-panel play-hero">
+                <div class="play-kicker">PLAYGROUND</div>
+                <h2 class="play-title">把星占、秘戏和盲盒收进一个游乐场</h2>
+                <p class="play-text">这里保留原来的玩法，但不再把导航切得很碎。你们可以在同一个入口里切换命运卡牌、午夜秘戏和盲盒乐园。</p>
+                <div class="play-switchers">
+                    <button type="button" :class="['play-chip', { active: playMode === 'tarot' }]" @click="playMode = 'tarot'">星占 🔮</button>
+                    <button type="button" :class="['play-chip', { active: playMode === 'game' }]" @click="playMode = 'game'">秘戏 🎲</button>
+                    <button type="button" :class="['play-chip', { active: playMode === 'surprise' }]" @click="playMode = 'surprise'">盲盒 🎁</button>
+                </div>
+            </div>
+
+            <div v-if="playMode === 'game'" class="tarot-board midnight-mode">
             
             <div class="tarot-title" style="color: #FF4500;">午夜秘戏 (18+)</div>
             <div class="tarot-subtitle" style="color: #E0E0E0;">剥下伪装，直面最深处的渴望与疯狂。你要选哪一个？</div>
@@ -502,9 +525,9 @@
             <button v-if="drawnGameCard" class="action-submit" style="margin-top: 15px; background: transparent; color: #FF4500; border: 1px solid #FF4500; box-shadow: none;" @click="resetGameCard">
                 退缩了？换一张
             </button>
-        </div>
+            </div>
 
-        <div v-if="currentTab === 'tarot'" :class="['tarot-board', {'midnight-mode': isMidnightMode}]">
+            <div v-if="playMode === 'tarot'" :class="['tarot-board', {'midnight-mode': isMidnightMode}]">
             <div class="tarot-title" :style="{ color: isMidnightMode ? '#FF4500' : 'var(--ink-main)' }">
                 {{ isMidnightMode ? '午夜秘境 (18+)' : '命运的指引' }}
             </div>
@@ -535,6 +558,7 @@
             <button v-if="drawnCard" :class="['action-submit', {'action-midnight': isMidnightMode}]" style="margin-top: 20px;" @click="saveTarotReading">💌 将指引刻入随笔</button>
             <button v-if="drawnCard" class="action-submit" :style="{ marginTop: '15px', background: 'transparent', color: isMidnightMode ? '#FF4500' : 'var(--accent-bronze)', border: isMidnightMode ? '1px solid #FF4500' : '1px solid var(--accent-bronze)', boxShadow: 'none' }" @click="resetTarot">再次转动命运之轮</button>
             <button v-if="!drawnCard" :class="['action-submit', {'action-midnight': isMidnightMode}]" @click="drawTarotCard" :disabled="isDrawing">{{ isDrawing ? '命运之轮转动中...' : '揭开命运的卡牌' }}</button>
+            </div>
         </div>
 
         <div v-if="currentTab === 'stats'" class="stats-dashboard">
@@ -901,7 +925,7 @@
             </div>
         </div>
 
-        <div v-if="currentTab === 'surprise'" class="fun-dashboard">
+        <div v-if="currentTab === 'play' && playMode === 'surprise'" class="fun-dashboard">
             <div class="fun-card">
                 <h3 class="fun-title">时光扭蛋</h3>
                 <div class="fun-text">从你们已经写下的内容里随机抽一张，适合深夜重温，也适合没灵感的时候重新打开故事。</div>
@@ -1151,7 +1175,7 @@
     createApp({
         data() {
             return {
-                currentUser: null, loginCode: '', currentTab: 'game', 
+                currentUser: null, loginCode: '', currentTab: 'play', 
                 items: [], allItemsForStats: [],
                 newTitle: '', newNote: '', newDate: '', selectedFiles: [], isUploading: false, 
                 activeCardMenuId: '',
@@ -1184,6 +1208,7 @@
                 activeAchievement: null,
                 achievementQueue: [],
                 playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0 },
+                playMode: 'tarot',
                 syncPhase: 'answering',
                 syncRound: 1,
                 syncQuestionIndex: 0,
@@ -2146,11 +2171,11 @@
                 this.closeCardMenu();
                 this.revokePreviewUrls(this.selectedFilePreviews);
                 this.currentTab = tab; this.selectedFiles = []; this.selectedFilePreviews = []; this.newNote = ''; this.newTitle = ''; this.selectedMood = '';
-                if (tab === 'stats' || tab === 'surprise') this.fetchAllItemsForStats();
+                if (tab === 'stats' || tab === 'play') this.fetchAllItemsForStats();
                 else if (tab === 'bond') this.loadRelationshipHub();
                 else if (tab === 'review') this.loadAnniversaryReview();
-                else if (tab !== 'tarot' && tab !== 'game') this.getItems();
-                if (tab === 'surprise' && !this.surpriseTask) this.drawSurpriseTask();
+                else if (tab !== 'play') this.getItems();
+                if (tab === 'play' && !this.surpriseTask) this.drawSurpriseTask();
             },
             applyFilters() {
                 if (this.currentTab === 'review') this.loadAnniversaryReview();
@@ -2432,7 +2457,7 @@
                     this.selectedFilePreviews = [];
                     const fileInput = document.querySelector('.control-panel input[type="file"]'); if(fileInput) fileInput.value = '';
                     this.getItems();
-                    if (this.currentTab === 'surprise' || this.currentTab === 'stats') this.fetchAllItemsForStats();
+                    if (this.currentTab === 'play' || this.currentTab === 'stats') this.fetchAllItemsForStats();
                     if (options.resetTarot) this.resetTarot();
                     this.showNotice('success', options.successMessage || '内容已保存');
                     this.vibrate([50,50,50]); 
@@ -2562,10 +2587,10 @@
             initApp() {
                 this.newDate = this.getLocalDateString();
                 this.reviewDate = this.getLocalDateString();
-                if (this.currentTab === 'stats' || this.currentTab === 'surprise') this.fetchAllItemsForStats();
+                if (this.currentTab === 'stats' || this.currentTab === 'play') this.fetchAllItemsForStats();
                 else if (this.currentTab === 'bond') this.loadRelationshipHub();
                 else if (this.currentTab === 'review') this.loadAnniversaryReview();
-                else if (this.currentTab !== 'tarot' && this.currentTab !== 'game') this.getItems();
+                else if (this.currentTab !== 'play') this.getItems();
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('/sw.js').catch(() => {
                         this.showNotice('error', '离线能力注册失败');
