@@ -70,6 +70,8 @@
         .notice.info { color: var(--ink-main); }
         [data-theme="dark"] .notice.success { color: #a7e1bb; }
         [data-theme="dark"] .notice.error { color: #ffc0ca; }
+        .undo-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -12px 0 22px; padding: 14px 18px; border-radius: 16px; border: 1px solid rgba(130, 202, 255, 0.28); background: rgba(255,255,255,0.72); backdrop-filter: blur(12px); color: var(--ink-main); }
+        .undo-text { font-size: 14px; line-height: 1.6; }
 
         .control-panel { background: var(--glass-bg); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15); }
         [data-theme="dark"] .control-panel { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); }
@@ -178,6 +180,53 @@
         .review-item-meta { font-size: 12px; color: var(--ink-light); margin-bottom: 8px; }
         .review-item-text { font-size: 14px; line-height: 1.7; color: var(--ink-main); white-space: pre-wrap; }
         .empty-state { text-align: center; padding: 28px; border-radius: 20px; border: 1px dashed var(--border-fine); color: var(--ink-light); background: rgba(255,255,255,0.22); }
+        .empty-state.rich { display: grid; gap: 10px; justify-items: center; padding: 38px 24px; }
+        .empty-state-icon { font-size: 46px; }
+        .empty-state-title { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
+        .empty-state-text { max-width: 520px; font-size: 14px; line-height: 1.8; color: var(--ink-light); }
+        .skeleton-grid { display: grid; gap: 22px; }
+        .skeleton-grid.cards { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+        .skeleton-card { min-height: 220px; border-radius: 24px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.38); overflow: hidden; position: relative; }
+        .skeleton-card::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.52), transparent); animation: shimmer 1.4s infinite; }
+        .skeleton-media { height: 150px; background: rgba(255,255,255,0.38); }
+        .skeleton-body { padding: 18px; display: grid; gap: 10px; }
+        .skeleton-line { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.6); }
+        .skeleton-line.short { width: 38%; }
+        .skeleton-line.medium { width: 64%; }
+        .skeleton-line.long { width: 88%; }
+        @keyframes shimmer { to { transform: translateX(100%); } }
+        .home-shell { display: grid; gap: 24px; }
+        .home-hero { position: relative; overflow: hidden; background:
+            radial-gradient(circle at top left, rgba(255, 183, 178, 0.22), transparent 34%),
+            radial-gradient(circle at top right, rgba(130, 202, 255, 0.18), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.62), rgba(255,240,245,0.36)); }
+        .home-hero::after { content: ''; position: absolute; inset: auto -10% -52% auto; width: 260px; height: 260px; background: radial-gradient(circle, rgba(255,255,255,0.22), transparent 65%); pointer-events: none; }
+        .home-kicker { font-size: 12px; letter-spacing: 3px; color: var(--ink-light); }
+        .home-title { margin: 8px 0 10px; font-family: var(--font-serif); font-size: 34px; color: var(--ink-main); }
+        .home-text { max-width: 700px; font-size: 15px; line-height: 1.9; color: var(--ink-main); }
+        .home-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+        .home-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+        .home-metric { border-radius: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.38); padding: 16px; }
+        .home-metric-label { font-size: 12px; color: var(--ink-light); letter-spacing: 1px; margin-bottom: 8px; }
+        .home-metric-value { font-family: var(--font-serif); font-size: 28px; color: var(--ink-main); }
+        .home-metric-note { font-size: 12px; line-height: 1.6; color: var(--ink-light); margin-top: 6px; }
+        .home-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 24px; }
+        .home-stack { display: grid; gap: 24px; }
+        .home-card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); padding: 26px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.12); backdrop-filter: blur(10px); }
+        .home-card-title { margin: 0 0 10px; font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
+        .home-card-text { font-size: 14px; line-height: 1.8; color: var(--ink-light); margin-bottom: 14px; }
+        .home-recent-list { display: grid; gap: 12px; }
+        .home-recent-item { padding: 14px 16px; border-radius: 18px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.3); cursor: pointer; transition: 0.2s; }
+        .home-recent-item:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(255, 182, 193, 0.12); }
+        .home-recent-title { font-family: var(--font-serif); font-size: 18px; color: var(--ink-main); }
+        .home-recent-meta { font-size: 12px; color: var(--ink-light); margin: 4px 0 8px; }
+        .home-recent-text { font-size: 14px; line-height: 1.7; color: var(--ink-main); }
+        .home-recommend { border-radius: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.28); padding: 18px; display: grid; gap: 10px; }
+        .home-recommend-kicker { font-size: 12px; letter-spacing: 2px; color: var(--ink-light); }
+        .home-recommend-title { font-family: var(--font-serif); font-size: 22px; color: var(--ink-main); }
+        .home-recommend-text { font-size: 14px; line-height: 1.8; color: var(--ink-main); }
+        .home-pill-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .home-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.32); color: var(--ink-main); font-size: 13px; }
         .fun-dashboard { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 8px; }
         .fun-card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); padding: 28px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.14); backdrop-filter: blur(12px); }
         .fun-card.wide { grid-column: span 2; }
@@ -450,6 +499,16 @@
         .card:hover { transform: translateY(-6px); box-shadow: 0 15px 40px rgba(255, 182, 193, 0.3); }
         .card img { width: 100%; height: 280px; object-fit: cover; border-bottom: 1px solid var(--border-fine); display: block; cursor: zoom-in;}
         .card-info { padding: 30px; position: relative; }
+        .card-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+        .card-title-inline { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin: 0; }
+        .card-meta-inline { font-size: 12px; color: var(--ink-light); }
+        .compact-toggle-row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .density-switch { display: flex; gap: 8px; flex-wrap: wrap; }
+        .density-chip { border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.28); color: var(--ink-main); padding: 8px 12px; cursor: pointer; transition: 0.2s; }
+        .density-chip.active { background: linear-gradient(135deg, rgba(255,183,178,0.92), rgba(130,202,255,0.82)); color: white; border-color: transparent; }
+        .card-section-toggle { margin-top: 14px; border: 1px dashed var(--border-fine); background: rgba(255,255,255,0.24); color: var(--ink-main); border-radius: 14px; padding: 10px 14px; cursor: pointer; transition: 0.2s; }
+        .card-section-toggle:hover { transform: translateY(-1px); }
+        .story-preview-note { font-size: 13px; color: var(--ink-light); margin-top: 6px; }
         .actions { position: absolute; top: 15px; right: 15px; z-index: 24; }
         .card-menu-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--ink-light); backdrop-filter: blur(10px); transition: 0.25s; }
         .card-menu-btn:hover { color: white; background: var(--accent-bronze); border-color: var(--accent-bronze); }
@@ -473,6 +532,18 @@
         .album-modal-header { position: sticky; top: 0; padding: 20px 30px; background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-fine); display: flex; justify-content: space-between; align-items: center; z-index: 10;}
         .album-modal-header h2 { margin: 0; font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
         .close-btn { background: var(--card-bg); border: 1px solid var(--border-fine); color: var(--ink-main); width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+        .lightbox-overlay { position: fixed; inset: 0; z-index: 1200; background: rgba(19, 12, 25, 0.92); backdrop-filter: blur(12px); display: flex; flex-direction: column; }
+        .lightbox-header { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 24px; color: #fff6fb; }
+        .lightbox-title { font-family: var(--font-serif); font-size: 22px; }
+        .lightbox-meta { font-size: 13px; color: rgba(255,255,255,0.64); margin-top: 4px; }
+        .lightbox-stage { flex: 1; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 10px 24px 24px; }
+        .lightbox-nav { width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; font-size: 20px; }
+        .lightbox-figure { max-width: min(1100px, 100%); max-height: 100%; display: grid; justify-items: center; gap: 14px; }
+        .lightbox-figure img { max-width: min(1100px, 100%); max-height: calc(100vh - 170px); border-radius: 24px; object-fit: contain; box-shadow: 0 22px 60px rgba(0,0,0,0.3); }
+        .lightbox-thumbs { display: flex; gap: 10px; overflow-x: auto; padding: 0 24px 20px; }
+        .lightbox-thumb { width: 76px; height: 76px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); cursor: pointer; opacity: 0.68; }
+        .lightbox-thumb.active { opacity: 1; border-color: rgba(255,183,178,0.88); transform: translateY(-2px); }
+        .lightbox-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .album-modal-body { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box;}
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
         .gallery-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1; border: 1px solid var(--border-fine); background: var(--card-bg);}
@@ -527,6 +598,8 @@
             .fun-dashboard { grid-template-columns: 1fr; }
             .fun-card.wide { grid-column: auto; }
             .arcade-stats { grid-template-columns: 1fr 1fr; }
+            .home-metrics { grid-template-columns: 1fr 1fr; }
+            .home-grid { grid-template-columns: 1fr; }
             .private-grid { grid-template-columns: 1fr; }
             .night-play-grid { grid-template-columns: 1fr; }
             .utility-grid { grid-template-columns: 1fr; }
@@ -539,6 +612,9 @@
             .bond-split { grid-template-columns: 1fr; }
             .night-dice { width: 100%; min-height: 116px; }
             .night-play-stat { min-width: auto; flex: 1 1 120px; }
+            .lightbox-stage { padding: 0 12px 18px; }
+            .lightbox-header { padding: 16px; }
+            .lightbox-thumbs { padding: 0 16px 16px; }
         }
     </style>
 </head>
@@ -561,8 +637,8 @@
             <div class="album-modal-body">
                 <div v-if="currentAlbum.note" class="album-desc" style="text-align: center; margin-bottom:30px;">{{ currentAlbum.note }}</div>
                 <div v-if="getItemImages(currentAlbum).length > 0" class="gallery-grid">
-                    <div v-for="img in getItemImages(currentAlbum)" :key="img._id || img.public_id || img.url" class="gallery-item">
-                        <img :src="img.url" @error="handleImageError($event)" @click="viewFull(img.url)">
+                    <div v-for="(img, index) in getItemImages(currentAlbum)" :key="img._id || img.public_id || img.url" class="gallery-item">
+                        <img :src="img.url" @error="handleImageError($event)" @click="openItemMedia(currentAlbum, index)">
                         <button v-if="!albumReadOnly && img._id" class="delete-img-btn" @click="deleteImageFromAlbum(currentAlbum._id, img._id)">×</button>
                     </div>
                 </div>
@@ -587,8 +663,37 @@
             </div>
         </div>
 
+        <div v-if="lightboxOpen" class="lightbox-overlay" @click.self="closeLightbox">
+            <div class="lightbox-header">
+                <div>
+                    <div class="lightbox-title">{{ lightboxTitle || '图片预览' }}</div>
+                    <div class="lightbox-meta">第 {{ lightboxIndex + 1 }} / {{ lightboxImages.length }} 张</div>
+                </div>
+                <button class="close-btn" @click="closeLightbox">×</button>
+            </div>
+            <div class="lightbox-stage">
+                <button class="lightbox-nav" @click.stop="showPrevLightbox" :disabled="lightboxImages.length <= 1">‹</button>
+                <div class="lightbox-figure">
+                    <img :src="lightboxCurrentImage.url" :alt="lightboxCurrentImage.alt || lightboxTitle || '预览图片'" @error="handleImageError($event)">
+                </div>
+                <button class="lightbox-nav" @click.stop="showNextLightbox" :disabled="lightboxImages.length <= 1">›</button>
+            </div>
+            <div v-if="lightboxImages.length > 1" class="lightbox-thumbs">
+                <button
+                    v-for="(image, index) in lightboxImages"
+                    :key="`${image.url}-${index}`"
+                    type="button"
+                    :class="['lightbox-thumb', { active: lightboxIndex === index }]"
+                    @click="setLightboxIndex(index)"
+                >
+                    <img :src="image.url" :alt="image.alt || `预览 ${index + 1}`" @error="handleImageError($event)">
+                </button>
+            </div>
+        </div>
+
         <div class="header">
             <div class="nav-tabs">
+                <div :class="['tab', {active: currentTab === 'home'}]" @click="switchTab('home')">首页</div>
                 <div :class="['tab', {active: currentTab === 'memory'}]" @click="switchTab('memory')">纪事</div>
                 <div :class="['tab', {active: currentTab === 'album'}]" @click="switchTab('album')">相册</div>
                 <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')">随笔</div>
@@ -607,6 +712,10 @@
         </div>
 
         <div v-if="notice.text" :class="['notice', notice.type]">{{ notice.text }}</div>
+        <div v-if="undoAction" class="undo-bar">
+            <div class="undo-text">{{ undoAction.label }}</div>
+            <button class="action-submit secondary-btn" @click="undoLastAction">撤销</button>
+        </div>
         <div class="particle-layer">
             <span
                 v-for="particle in particles"
@@ -622,6 +731,101 @@
                 <div class="achievement-modal-title">{{ activeAchievement.name }}</div>
                 <div class="achievement-modal-text">{{ activeAchievement.description }}</div>
                 <button class="action-submit" @click="dismissAchievementModal">收下这枚徽章</button>
+            </div>
+        </div>
+
+        <div v-if="currentTab === 'home'" class="home-shell">
+            <div class="control-panel home-hero">
+                <div class="home-kicker">ORANGE HOME</div>
+                <h2 class="home-title">先从今天最值得打开的东西开始</h2>
+                <div class="home-text">{{ homeSummary }}</div>
+                <div class="home-actions">
+                    <button class="action-submit" @click="switchTab(homeRecommendedAction.tab)">{{ homeRecommendedAction.label }}</button>
+                    <button class="action-submit secondary-btn" @click="switchTab(lastContentTab)">继续浏览 {{ getCategoryLabel(lastContentTab) }}</button>
+                </div>
+                <div class="home-metrics">
+                    <div class="home-metric" v-for="metric in homeMetrics" :key="metric.label">
+                        <div class="home-metric-label">{{ metric.label }}</div>
+                        <div class="home-metric-value">{{ metric.value }}</div>
+                        <div class="home-metric-note">{{ metric.note }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="dashboardLoading" class="skeleton-grid cards">
+                <div v-for="index in 4" :key="`home-skeleton-${index}`" class="skeleton-card">
+                    <div class="skeleton-media"></div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line long"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="home-grid">
+                <div class="home-stack">
+                    <div class="home-card">
+                        <h3 class="home-card-title">最近回忆</h3>
+                        <div class="home-card-text">不用先想去哪一页，直接从最近留下的内容继续。</div>
+                        <div class="home-recent-list">
+                            <div v-for="item in homeRecentItems" :key="item._id" class="home-recent-item" @click="goToItem(item)">
+                                <div class="home-recent-title">{{ getItemDisplayTitle(item) }}</div>
+                                <div class="home-recent-meta">{{ formatDate(item.date) }} · {{ getCategoryLabel(item.category) }} · {{ item.author }}</div>
+                                <div class="home-recent-text">{{ getItemExcerpt(item) }}</div>
+                            </div>
+                            <div v-if="homeRecentItems.length === 0" class="empty-state rich">
+                                <div class="empty-state-icon">📖</div>
+                                <div class="empty-state-title">最近回忆还没有出现</div>
+                                <div class="empty-state-text">等你们写下第一条纪事、相册或随笔，这里会自动变成最方便继续的入口。</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="home-card">
+                        <h3 class="home-card-title">今晚推荐</h3>
+                        <div class="home-recommend">
+                            <div class="home-recommend-kicker">SUGGESTION</div>
+                            <div class="home-recommend-title">{{ homeTonightCard.title }}</div>
+                            <div class="home-recommend-text">{{ homeTonightCard.text }}</div>
+                            <div class="home-pill-row">
+                                <div v-for="tag in homeTonightCard.tags" :key="tag" class="home-pill">{{ tag }}</div>
+                            </div>
+                        </div>
+                        <div class="home-actions">
+                            <button class="action-submit" @click="switchTab(homeTonightCard.primaryTab)">{{ homeTonightCard.primaryLabel }}</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('review')">回顾一下去年今天</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="home-stack">
+                    <div class="home-card">
+                        <h3 class="home-card-title">继续处理</h3>
+                        <div class="home-card-text">把没做完的输入、未完成的心愿和最近常去的入口收在一块。</div>
+                        <div class="home-pill-row">
+                            <div class="home-pill">📝 草稿 {{ composerDraftCount }} 份</div>
+                            <div class="home-pill">🎯 未完成心愿 {{ homePendingWishCount }} 条</div>
+                            <div class="home-pill">📸 相册 {{ homeAlbumCount }} 本</div>
+                        </div>
+                        <div class="home-actions">
+                            <button class="action-submit secondary-btn" @click="switchTab('diary')">打开随笔</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('wish')">查看心愿</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('play')">去游乐区</button>
+                        </div>
+                    </div>
+
+                    <div class="home-card">
+                        <h3 class="home-card-title">现在最常用的几个入口</h3>
+                        <div class="home-card-text">把高频入口放到首页，不用每次都从头找。</div>
+                        <div class="home-actions">
+                            <button class="action-submit secondary-btn" @click="switchTab('memory')">写纪事</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('album')">看相册</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('bond')">去关系页</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1680,7 +1884,13 @@
         </div>
 
         <div class="control-panel filter-panel" v-if="showFilters">
-            <div class="filter-label">{{ currentTab === 'recycle' ? '搜索和筛选回收站里的内容' : '搜索当前分类，并按作者或时间范围筛选' }}</div>
+            <div class="compact-toggle-row">
+                <div class="filter-label">{{ currentTab === 'recycle' ? '搜索和筛选回收站里的内容' : '搜索当前分类，并按作者或时间范围筛选' }}</div>
+                <div class="density-switch">
+                    <button type="button" :class="['density-chip', { active: listDensityMode === 'compact' }]" @click="setListDensityMode('compact')">简洁浏览</button>
+                    <button type="button" :class="['density-chip', { active: listDensityMode === 'expanded' }]" @click="setListDensityMode('expanded')">完整信息</button>
+                </div>
+            </div>
             <div class="input-group">
                 <input type="text" class="note-input" v-model="filterQuery" :placeholder="currentTab === 'recycle' ? '搜索标题、正文或浮梦段落...' : '搜索标题、正文或浮梦段落...'" @keyup.enter="applyFilters">
                 <select class="filter-select" v-model="filterAuthor">
@@ -1735,7 +1945,19 @@
             </div>
         </div>
 
-        <div v-if="showListView" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
+        <div v-if="showListView && itemsLoading" class="skeleton-grid cards">
+            <div v-for="index in 6" :key="`list-skeleton-${index}`" class="skeleton-card">
+                <div class="skeleton-media"></div>
+                <div class="skeleton-body">
+                    <div class="skeleton-line short"></div>
+                    <div class="skeleton-line medium"></div>
+                    <div class="skeleton-line long"></div>
+                    <div class="skeleton-line medium"></div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="showListView && !itemsLoading" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
             <div class="timeline-header">{{ monthYear }}</div>
             <div :class="['grid', getGroupGridClass(itemsInGroup)]">
                 <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': getDisplayCategory(item) === 'story'}]">
@@ -1762,7 +1984,7 @@
                         </div>
                     </template>
                     <template v-else-if="item.url || (item.images && item.images.length > 0)">
-                        <img v-if="getItemImages(item).length > 0" :src="getPrimaryImage(item)" @error="handleImageError($event)" @click="viewFull(getPrimaryImage(item))">
+                        <img v-if="getItemImages(item).length > 0" :src="getPrimaryImage(item)" @error="handleImageError($event)" @click="openItemMedia(item, 0)">
                         <img v-else :src="fallbackImage" @error="handleImageError($event)">
                     </template>
 
@@ -1772,23 +1994,31 @@
                             <div v-if="item.mood" class="mood-badge">{{ getMoodLabel(item.mood) }}</div>
                             <div v-if="getDisplayCategory(item) === 'album'" style="text-align: center; font-family: var(--font-serif); font-size: 20px; font-weight: bold; color: var(--ink-main); cursor:pointer;" @click="openAlbum(item)">《 {{ item.title || '无名相册' }} 》</div>
                             <div v-else-if="getDisplayCategory(item) === 'story'" class="story-title">《 {{ item.title }} 》</div>
+                            <div v-else class="card-topline">
+                                <div class="card-title-inline">{{ getCompactTitle(item) }}</div>
+                                <div class="card-meta-inline">{{ getCategoryLabel(item.category) }}</div>
+                            </div>
                             
                             <div v-if="getDisplayCategory(item) === 'story'" class="story-content">
-                                <p v-for="seg in item.segments" :key="seg.id" :class="['story-seg', seg.author === '小心' ? 'text-xiaoxin' : 'text-xiaocheng']">{{ seg.text }}</p>
+                                <p v-for="seg in getVisibleStorySegments(item)" :key="seg.id" :class="['story-seg', seg.author === '小心' ? 'text-xiaoxin' : 'text-xiaocheng']">{{ seg.text }}</p>
+                                <div v-if="showCompactStoryHint(item)" class="story-preview-note">还有 {{ (item.segments || []).length - getVisibleStorySegments(item).length }} 段内容已折叠。</div>
                             </div>
                             <div v-else-if="getDisplayCategory(item) === 'wish'" class="wish-item">
                                 <input type="checkbox" class="wish-checkbox" :checked="item.completed" :disabled="currentTab === 'recycle'" @change="toggleWish(item, $event)">
-                                <span :class="['note', {'wish-completed': item.completed}]">{{ item.note }}</span>
+                                <span :class="['note', {'wish-completed': item.completed}]">{{ getVisibleNote(item) }}</span>
                             </div>
-                            <div v-else class="note">{{ item.note }}</div>
-                            <div v-if="getItemInteractionCount(item) > 0 && currentTab !== 'recycle'" class="interaction-strip">
+                            <div v-else class="note">{{ getVisibleNote(item) }}</div>
+                            <button v-if="canExpandCard(item)" type="button" class="card-section-toggle" @click="toggleCardExpanded(item._id)">
+                                {{ isCardExpanded(item) ? '收起细节' : '展开内容' }}
+                            </button>
+                            <div v-if="shouldShowExtraDetails(item) && getItemInteractionCount(item) > 0 && currentTab !== 'recycle'" class="interaction-strip">
                                 <button type="button" class="interaction-pill" @click="openReplyFromList(item)">💌 {{ item.replies ? item.replies.length : 0 }} 封回信</button>
                                 <button type="button" class="interaction-pill" @click="openPerspectiveFromList(item)">🪞 {{ item.perspectives ? item.perspectives.length : 0 }} 个视角</button>
                             </div>
-                            <div v-if="getLatestInteractionPreview(item) && currentTab !== 'recycle'" class="interaction-preview" @click="switchTabWithMemory(item, getLatestInteractionPreview(item).type)">
+                            <div v-if="shouldShowExtraDetails(item) && getLatestInteractionPreview(item) && currentTab !== 'recycle'" class="interaction-preview" @click="switchTabWithMemory(item, getLatestInteractionPreview(item).type)">
                                 最近互动 · {{ getLatestInteractionPreview(item).label }}：{{ getLatestInteractionPreview(item).text }}
                             </div>
-                            <div v-if="currentTab !== 'recycle'" class="bond-quick-actions">
+                            <div v-if="shouldShowExtraDetails(item) && currentTab !== 'recycle'" class="bond-quick-actions">
                                 <button type="button" class="interaction-pill action" @click="openReplyFromList(item)">写回信</button>
                                 <button type="button" class="interaction-pill action" @click="openPerspectiveFromList(item)">补个视角</button>
                             </div>
@@ -1822,7 +2052,7 @@
                                 <button class="action-submit btn-cancel" @click="cancelEdit">取消</button>
                             </div>
                         </div>
-                        <div class="author-stamp">
+                        <div v-if="shouldShowExtraDetails(item) || currentTab === 'recycle' || getDisplayCategory(item) === 'album'" class="author-stamp">
                             <span v-if="currentTab === 'recycle'">删除人：{{ item.deletedBy || '未知' }}</span>
                             <span v-else-if="getDisplayCategory(item) === 'story'">共创梦境</span>
                             <span v-else-if="getDisplayCategory(item) === 'album'">建册：{{ item.author }}</span>
@@ -1833,8 +2063,11 @@
             </div>
         </div>
 
-        <div v-if="showListView && Object.keys(groupedItems).length === 0" class="empty-state">
-            {{ emptyStateText }}
+        <div v-if="showListView && !itemsLoading && Object.keys(groupedItems).length === 0" class="empty-state rich">
+            <div class="empty-state-icon">{{ emptyStateMeta.icon }}</div>
+            <div class="empty-state-title">{{ emptyStateMeta.title }}</div>
+            <div class="empty-state-text">{{ emptyStateMeta.text }}</div>
+            <button class="action-submit secondary-btn" @click="handleEmptyStateAction">{{ emptyStateMeta.action }}</button>
         </div>
     </template>
 </div>
@@ -1844,17 +2077,24 @@
     createApp({
         data() {
             return {
-                currentUser: null, loginCode: '', currentTab: 'play', 
+                currentUser: null, loginCode: '', currentTab: 'home', 
                 items: [], allItemsForStats: [],
                 newTitle: '', newNote: '', newDate: '', selectedFiles: [], isUploading: false, 
                 activeCardMenuId: '',
                 editingId: null, editTitle: '', editNote: '', editSegments: [], editMood: '',
                 isDarkMode: false, currentAlbum: null, appendFiles: [], albumReadOnly: false,
+                lightboxOpen: false, lightboxImages: [], lightboxIndex: 0, lightboxTitle: '',
                 selectedFilePreviews: [], appendFilePreviews: [],
                 storyChartObj: null, activityChartObj: null,
+                itemsLoading: false, dashboardLoading: false,
                 notice: { type: '', text: '' },
                 noticeTimer: null,
+                undoAction: null,
+                undoTimer: null,
                 draftSaveTimer: null,
+                expandedCardIds: {},
+                listDensityMode: 'compact',
+                scrollPositions: {},
                 fallbackImage: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='640' viewBox='0 0 640 640'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23ffe4ec'/><stop offset='100%' stop-color='%23f6d4ff'/></linearGradient></defs><rect width='640' height='640' rx='48' fill='url(%23g)'/><text x='50%' y='46%' dominant-baseline='middle' text-anchor='middle' font-size='120'>📸</text><text x='50%' y='60%' dominant-baseline='middle' text-anchor='middle' font-size='34' fill='%237b5c6a'>照片暂时没加载出来</text></svg>",
                 filterQuery: '', filterAuthor: '', filterMood: '', filterFrom: '', filterTo: '',
                 reviewData: null, reviewDate: '', reviewLoading: false, relationshipBaseDate: '',
@@ -2191,7 +2431,16 @@
             }
         },
         computed: {
-            placeholderText() { return '珍藏那一刻的闪光...'; },
+            placeholderText() {
+                const map = {
+                    memory: '今天发生了什么，值得被记住？',
+                    album: '给这本相册留一句封面说明...',
+                    diary: '把这一刻的情绪和细节写下来...',
+                    wish: '想一起做的一件小事是什么？',
+                    story: '从这一段梦境开始续写...'
+                };
+                return map[this.currentTab] || '珍藏那一刻的闪光...';
+            },
             btnText() { return '入卷'; },
             currentDeck() { return this.isMidnightMode ? this.tarotDeckMidnight : this.tarotDeckRomantic; },
             showComposer() { return ['memory', 'album', 'diary', 'wish', 'story'].includes(this.currentTab); },
@@ -2203,8 +2452,89 @@
             currentComposerDraftMeta() {
                 return this.composerDraftMetaByTab[this.currentTab] || { updatedAt: '' };
             },
+            latestDraftTab() {
+                const entries = Object.entries(this.composerDraftMetaByTab || {})
+                    .sort((a, b) => new Date(b[1]?.updatedAt || 0) - new Date(a[1]?.updatedAt || 0));
+                return entries[0]?.[0] || 'diary';
+            },
             currentSyncQuestion() {
                 return this.syncQuestions[this.syncQuestionIndex] || { prompt: '', options: [] };
+            },
+            lightboxCurrentImage() {
+                return this.lightboxImages[this.lightboxIndex] || { url: this.fallbackImage, alt: '预览图片' };
+            },
+            activeItems() {
+                return (this.allItemsForStats || []).filter(item => !item.deletedAt);
+            },
+            homeRecentItems() {
+                return this.activeItems.slice().sort((a, b) => (b.time || 0) - (a.time || 0)).slice(0, 4);
+            },
+            homePendingWishCount() {
+                return this.activeItems.filter(item => item.category === 'wish' && !item.completed).length;
+            },
+            homeAlbumCount() {
+                return this.activeItems.filter(item => item.category === 'album').length;
+            },
+            homeSummary() {
+                if (this.composerDraftCount > 0) {
+                    return `你还有 ${this.composerDraftCount} 份草稿没写完，未完成心愿 ${this.homePendingWishCount} 条。先从最容易继续的一页开始，会比重新找入口顺很多。`;
+                }
+                if (this.homeRecentItems.length > 0) {
+                    return `最近一次记录停在 ${this.formatDate(this.homeRecentItems[0].date)}。首页会把最近内容、今晚推荐和高频入口收在一起，不用再先想“应该点哪一页”。`;
+                }
+                return '这里会把今天最值得先打开的内容放在最前面。等你们开始写下第一条回忆，这里就会慢慢长成真正的首页。';
+            },
+            homeMetrics() {
+                return [
+                    { label: '已留下内容', value: `${this.activeItems.length}`, note: '现在所有还在主宇宙里的记录。' },
+                    { label: '未完成心愿', value: `${this.homePendingWishCount}`, note: '不用很多，先做最近的一条。' },
+                    { label: '本地草稿', value: `${this.composerDraftCount}`, note: '随手写了一半的内容都还在。' },
+                    { label: '夜色玩法', value: `${this.playStats.nightPlays || 0}`, note: '最近夜晚气氛是被怎么玩起来的。' }
+                ];
+            },
+            homeRecommendedAction() {
+                if (this.composerDraftCount > 0) return { tab: this.latestDraftTab, label: '继续写草稿' };
+                if (this.homePendingWishCount > 0) return { tab: 'wish', label: '处理心愿清单' };
+                return { tab: 'play', label: '打开今晚推荐' };
+            },
+            lastContentTab() {
+                const candidates = ['memory', 'album', 'diary', 'wish', 'story'];
+                const raw = localStorage.getItem('orange_ui_state');
+                if (!raw) return 'memory';
+                try {
+                    const parsed = JSON.parse(raw);
+                    return candidates.includes(parsed.lastContentTab) ? parsed.lastContentTab : 'memory';
+                } catch (error) {
+                    return 'memory';
+                }
+            },
+            homeTonightCard() {
+                const hour = new Date().getHours();
+                if (hour >= 21 || hour < 4) {
+                    return {
+                        title: '今晚适合从“夜色玩法”开始',
+                        text: '你们现在更适合用一个轻量的夜间玩法起头，比如一张氛围卡、一个靠近骰子，或者一句能把节奏放慢的话。',
+                        tags: ['🌙 夜间', '🫶 轻起步', '💌 可写进随笔'],
+                        primaryTab: 'play',
+                        primaryLabel: '去夜色玩法'
+                    };
+                }
+                if (this.homePendingWishCount > 0) {
+                    return {
+                        title: '白天更适合把一条心愿落地',
+                        text: '现在不一定要玩更多，选一条最近最容易完成的心愿，把它真的做掉，会比继续收藏更有满足感。',
+                        tags: ['🎯 执行', '📌 低压力', '🌤️ 白天适合'],
+                        primaryTab: 'wish',
+                        primaryLabel: '去心愿清单'
+                    };
+                }
+                return {
+                    title: '现在最适合回看最近一条内容',
+                    text: '如果还没想好要写什么，先回看最近的照片、随笔或纪事。很多新内容，都是从上一条回忆的延长线里长出来的。',
+                    tags: ['📖 回看', '✨ 起灵感', '🌸 不费力'],
+                    primaryTab: this.homeRecentItems[0]?.category || 'memory',
+                    primaryLabel: '去最近内容'
+                };
             },
             decisionOptionsResolved() {
                 const custom = this.decisionOptionsInput
@@ -2554,6 +2884,15 @@
                     ? '没有找到符合筛选条件的内容。'
                     : '这里还没有内容，先写下一点新的回忆吧。';
             },
+            emptyStateMeta() {
+                if (this.currentTab === 'recycle') {
+                    return { icon: '🗑️', title: '回收站还是空的', text: '最近没有被移走的内容。你们删掉的内容会先在这里待一会儿，避免误删。', action: '返回纪事' };
+                }
+                if (this.filterQuery || this.filterAuthor || this.filterMood || this.filterFrom || this.filterTo) {
+                    return { icon: '🔎', title: '没有找到对应内容', text: '这组筛选条件下还没有命中记录，可以清掉部分条件，或者换个关键词再试。', action: '清空筛选' };
+                }
+                return { icon: '🌸', title: '这里还没有内容', text: '先写下一点新的回忆吧。哪怕只是一句今天的状态，首页和回顾页都会很快变得更有东西。', action: '开始记录' };
+            },
             groupedItems() {
                 const groups = {};
                 this.items.forEach(item => {
@@ -2591,8 +2930,100 @@
                 }
                 this.notice = { type: '', text: '' };
             },
+            pushUndoAction(action) {
+                if (!action?.kind) return;
+                if (this.undoTimer) clearTimeout(this.undoTimer);
+                this.undoAction = action;
+                this.undoTimer = window.setTimeout(() => {
+                    this.undoAction = null;
+                    this.undoTimer = null;
+                }, 8000);
+            },
+            clearUndoAction() {
+                if (this.undoTimer) {
+                    clearTimeout(this.undoTimer);
+                    this.undoTimer = null;
+                }
+                this.undoAction = null;
+            },
+            async undoLastAction() {
+                const action = this.undoAction;
+                if (!action) return;
+                this.clearUndoAction();
+                try {
+                    if (action.kind === 'delete') {
+                        await axios.post(`/api/items/${action.id}/restore`);
+                        if (this.showListView) this.getItems();
+                        this.fetchAllItemsForStats();
+                        this.showNotice('success', '刚才删除的内容已经恢复');
+                    } else if (action.kind === 'draft') {
+                        localStorage.setItem(this.getComposerDraftKey(action.tab), action.raw);
+                        this.refreshComposerDraftMeta();
+                        if (action.tab === this.currentTab && this.showComposer) this.loadComposerDraftForTab(action.tab);
+                        this.showNotice('success', '草稿已恢复');
+                    } else if (action.kind === 'wish_toggle') {
+                        await axios.put(`/api/items/${action.id}`, { completed: action.previousCompleted });
+                        if (this.showListView) this.getItems();
+                        this.fetchAllItemsForStats();
+                        this.showNotice('success', '心愿状态已恢复');
+                    }
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '撤销失败'));
+                }
+            },
             getErrorMessage(error, fallback) {
                 return error?.response?.data?.error || fallback;
+            },
+            getUiStateKey() {
+                return 'orange_ui_state';
+            },
+            persistUiState() {
+                try {
+                    const contentTabs = ['memory', 'album', 'diary', 'wish', 'story'];
+                    const payload = {
+                        currentTab: this.currentTab,
+                        playMode: this.playMode,
+                        listDensityMode: this.listDensityMode,
+                        filterQuery: this.filterQuery,
+                        filterAuthor: this.filterAuthor,
+                        filterMood: this.filterMood,
+                        filterFrom: this.filterFrom,
+                        filterTo: this.filterTo,
+                        scrollPositions: this.scrollPositions,
+                        lastContentTab: contentTabs.includes(this.currentTab) ? this.currentTab : (JSON.parse(localStorage.getItem(this.getUiStateKey()) || '{}').lastContentTab || 'memory')
+                    };
+                    localStorage.setItem(this.getUiStateKey(), JSON.stringify(payload));
+                } catch (error) {}
+            },
+            loadUiState() {
+                try {
+                    const raw = localStorage.getItem(this.getUiStateKey());
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    this.currentTab = parsed.currentTab || this.currentTab;
+                    this.playMode = parsed.playMode || this.playMode;
+                    this.listDensityMode = parsed.listDensityMode || this.listDensityMode;
+                    this.filterQuery = parsed.filterQuery || '';
+                    this.filterAuthor = parsed.filterAuthor || '';
+                    this.filterMood = parsed.filterMood || '';
+                    this.filterFrom = parsed.filterFrom || '';
+                    this.filterTo = parsed.filterTo || '';
+                    this.scrollPositions = parsed.scrollPositions || {};
+                } catch (error) {}
+            },
+            saveScrollPosition(tab = this.currentTab) {
+                if (!tab) return;
+                this.scrollPositions = {
+                    ...this.scrollPositions,
+                    [tab]: window.scrollY || 0
+                };
+                this.persistUiState();
+            },
+            restoreScrollPosition(tab = this.currentTab) {
+                const top = Number(this.scrollPositions?.[tab] || 0);
+                window.requestAnimationFrame(() => {
+                    window.scrollTo({ top, behavior: 'auto' });
+                });
             },
             getComposerDraftKey(tab = this.currentTab) {
                 return `orange_draft_${tab}`;
@@ -2648,6 +3079,7 @@
                 } catch (error) {}
             },
             clearComposerDraft(tab = this.currentTab) {
+                const raw = localStorage.getItem(this.getComposerDraftKey(tab));
                 localStorage.removeItem(this.getComposerDraftKey(tab));
                 if (tab === this.currentTab) {
                     this.newTitle = '';
@@ -2656,6 +3088,14 @@
                     this.newDate = this.getLocalDateString();
                 }
                 this.refreshComposerDraftMeta();
+                if (raw) {
+                    this.pushUndoAction({
+                        kind: 'draft',
+                        tab,
+                        raw,
+                        label: '刚清空的草稿可以在 8 秒内恢复。'
+                    });
+                }
                 this.showNotice('info', '当前草稿已清空');
             },
             getLocalDateString() {
@@ -2730,6 +3170,37 @@
             getPrimaryImage(item) {
                 return this.getItemImages(item)[0]?.url || this.fallbackImage;
             },
+            openLightbox(images = [], startIndex = 0, title = '') {
+                if (!Array.isArray(images) || images.length === 0) return;
+                this.lightboxImages = images;
+                this.lightboxIndex = Math.max(0, Math.min(startIndex, images.length - 1));
+                this.lightboxTitle = title;
+                this.lightboxOpen = true;
+                document.body.style.overflow = 'hidden';
+            },
+            closeLightbox() {
+                this.lightboxOpen = false;
+                this.lightboxImages = [];
+                this.lightboxIndex = 0;
+                this.lightboxTitle = '';
+                if (!this.currentAlbum) document.body.style.overflow = 'auto';
+            },
+            setLightboxIndex(index) {
+                if (index < 0 || index >= this.lightboxImages.length) return;
+                this.lightboxIndex = index;
+            },
+            showPrevLightbox() {
+                if (this.lightboxImages.length <= 1) return;
+                this.lightboxIndex = (this.lightboxIndex - 1 + this.lightboxImages.length) % this.lightboxImages.length;
+            },
+            showNextLightbox() {
+                if (this.lightboxImages.length <= 1) return;
+                this.lightboxIndex = (this.lightboxIndex + 1) % this.lightboxImages.length;
+            },
+            openItemMedia(item, index = 0) {
+                const images = this.getItemImages(item).map(image => ({ url: image.url, alt: this.getItemDisplayTitle(item) }));
+                this.openLightbox(images, index, this.getItemDisplayTitle(item));
+            },
             handleImageError(event) {
                 if (event?.target && event.target.src !== this.fallbackImage) {
                     event.target.src = this.fallbackImage;
@@ -2768,6 +3239,60 @@
                     return item.segments.map(seg => seg.text).join(' ').trim().slice(0, 120);
                 }
                 return '这条记录里没有留下更多文字。';
+            },
+            getCompactTitle(item) {
+                if (item.title && item.title.trim()) return item.title.trim();
+                return `${this.getCategoryLabel(item.category)} · ${item.author || '我们'}`;
+            },
+            isCardExpanded(item) {
+                return this.listDensityMode === 'expanded' || Boolean(this.expandedCardIds[item._id]);
+            },
+            toggleCardExpanded(itemId) {
+                this.expandedCardIds = {
+                    ...this.expandedCardIds,
+                    [itemId]: !this.expandedCardIds[itemId]
+                };
+            },
+            getVisibleNote(item) {
+                const note = item?.note || '';
+                if (this.isCardExpanded(item) || note.length <= 120) return note;
+                return `${note.slice(0, 120)}…`;
+            },
+            getVisibleStorySegments(item) {
+                const segments = item?.segments || [];
+                if (this.isCardExpanded(item) || segments.length <= 2) return segments;
+                return segments.slice(0, 2);
+            },
+            showCompactStoryHint(item) {
+                return !this.isCardExpanded(item) && (item?.segments || []).length > 2;
+            },
+            canExpandCard(item) {
+                const category = this.getDisplayCategory(item);
+                if (category === 'album') return false;
+                if (category === 'story') return (item?.segments || []).length > 2 || this.getItemInteractionCount(item) > 0;
+                return (item?.note || '').length > 120 || this.getItemInteractionCount(item) > 0;
+            },
+            shouldShowExtraDetails(item) {
+                return this.isCardExpanded(item) || this.getDisplayCategory(item) === 'album';
+            },
+            setListDensityMode(mode) {
+                this.listDensityMode = mode;
+                this.persistUiState();
+            },
+            handleEmptyStateAction() {
+                if (this.filterQuery || this.filterAuthor || this.filterMood || this.filterFrom || this.filterTo) {
+                    this.clearFilters();
+                    return;
+                }
+                if (this.currentTab === 'recycle') {
+                    this.switchTab('memory');
+                    return;
+                }
+                this.switchTab('memory');
+            },
+            goToItem(item) {
+                if (!item) return;
+                this.switchTab(item.category);
             },
             toggleDeepNightMode() {
                 this.manualDeepNight = !this.manualDeepNight;
@@ -3635,6 +4160,18 @@
             handleGlobalActivity() {
                 if (this.privateUnlocked) this.resetPrivateAutoLockTimer();
             },
+            handleGlobalKeydown(event) {
+                this.handleGlobalActivity();
+                if (!this.lightboxOpen) return;
+                if (event.key === 'Escape') this.closeLightbox();
+                if (event.key === 'ArrowLeft') this.showPrevLightbox();
+                if (event.key === 'ArrowRight') this.showNextLightbox();
+            },
+            handleBeforeUnload() {
+                this.saveScrollPosition(this.currentTab);
+                this.persistComposerDraft();
+                this.persistUiState();
+            },
             exportLocalBackup() {
                 try {
                     const backup = {
@@ -3700,12 +4237,14 @@
                 this.currentUser = null;
                 this.loginCode = '';
                 this.currentAlbum = null;
+                this.lightboxOpen = false;
                 this.albumReadOnly = false;
                 this.privateUnlocked = false;
                 this.privatePasscodeInput = '';
                 window.clearTimeout(this.privateAutoLockTimer);
                 document.body.style.overflow = 'auto';
                 this.clearNotice();
+                this.clearUndoAction();
                 this.vibrate(50);
             },
             toggleTheme() {
@@ -3717,22 +4256,27 @@
             },
             switchTab(tab) {
                 this.vibrate(30);
+                this.saveScrollPosition(this.currentTab);
                 if (this.currentAlbum) this.closeAlbum(false);
+                if (this.lightboxOpen) this.closeLightbox();
                 this.closeCardMenu();
                 this.persistComposerDraft();
                 this.revokePreviewUrls(this.selectedFilePreviews);
                 this.currentTab = tab; this.selectedFiles = []; this.selectedFilePreviews = []; this.newNote = ''; this.newTitle = ''; this.selectedMood = '';
                 this.newDate = this.getLocalDateString();
                 if (['memory', 'album', 'diary', 'wish', 'story'].includes(tab)) this.loadComposerDraftForTab(tab);
-                if (tab === 'stats' || tab === 'play') this.fetchAllItemsForStats();
+                if (tab === 'home' || tab === 'stats' || tab === 'play') this.fetchAllItemsForStats();
                 else if (tab === 'bond') this.loadRelationshipHub();
                 else if (tab === 'review') this.loadAnniversaryReview();
                 else if (tab !== 'play') this.getItems();
                 if (tab === 'play' && !this.surpriseTask) this.drawSurpriseTask();
+                this.persistUiState();
+                this.$nextTick(() => this.restoreScrollPosition(tab));
             },
             applyFilters() {
                 if (this.currentTab === 'review') this.loadAnniversaryReview();
                 else if (this.showListView) this.getItems();
+                this.persistUiState();
             },
             clearFilters() {
                 this.filterQuery = '';
@@ -3741,6 +4285,7 @@
                 this.filterFrom = '';
                 this.filterTo = '';
                 if (this.showListView) this.getItems();
+                this.persistUiState();
             },
             saveRelationshipBaseDate() {
                 if (this.relationshipBaseDate) localStorage.setItem('orange_relationship_base', this.relationshipBaseDate);
@@ -4103,7 +4648,7 @@
                 this.appendFiles = [];
                 this.appendFilePreviews = [];
                 this.albumReadOnly = false;
-                document.body.style.overflow = 'auto';
+                if (!this.lightboxOpen) document.body.style.overflow = 'auto';
                 if (refresh) this.getItems();
             },
             handleAppendFiles(e) {
@@ -4176,6 +4721,7 @@
                 } finally { this.isUploading = false; }
             },
             async fetchAllItemsForStats() {
+                this.dashboardLoading = true;
                 try {
                     const res = await axios.get('/api/items');
                     this.allItemsForStats = res.data;
@@ -4184,6 +4730,9 @@
                 } catch (error) {
                     this.allItemsForStats = [];
                     this.showNotice('error', this.getErrorMessage(error, '统计数据加载失败'));
+                } finally {
+                    this.dashboardLoading = false;
+                    this.$nextTick(() => this.restoreScrollPosition(this.currentTab));
                 }
             },
             renderCharts() {
@@ -4207,6 +4756,7 @@
                 });
             },
             async getItems() {
+                this.itemsLoading = true;
                 try {
                     const params = {};
                     if (this.currentTab === 'recycle') params.deletedOnly = true;
@@ -4221,6 +4771,9 @@
                 } catch (error) {
                     this.items = [];
                     this.showNotice('error', this.getErrorMessage(error, '内容加载失败'));
+                } finally {
+                    this.itemsLoading = false;
+                    this.$nextTick(() => this.restoreScrollPosition(this.currentTab));
                 }
             },
             async deleteItem(id) {
@@ -4229,6 +4782,11 @@
                 if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) {
                     try {
                         await axios.delete(`/api/items/${id}`, { params: { author: this.currentUser } });
+                        this.pushUndoAction({
+                            kind: 'delete',
+                            id,
+                            label: '内容已移入回收站，可在 8 秒内恢复。'
+                        });
                         this.showNotice('success', '内容已移入回收站');
                         this.getItems();
                         this.fetchAllItemsForStats();
@@ -4284,21 +4842,28 @@
             async toggleWish(item, event) {
                 this.vibrate(30);
                 try {
+                    const previousCompleted = Boolean(item.completed);
                     await axios.put(`/api/items/${item._id}`, { completed: event.target.checked });
                     item.completed = event.target.checked;
+                    this.pushUndoAction({
+                        kind: 'wish_toggle',
+                        id: item._id,
+                        previousCompleted,
+                        label: '心愿状态已变更，可在 8 秒内恢复。'
+                    });
                 } catch (error) {
                     event.target.checked = !event.target.checked;
                     this.showNotice('error', this.getErrorMessage(error, '心愿状态更新失败'));
                 }
             },
             isFuture(timestamp) { return timestamp > Date.now(); },
-            viewFull(url) { window.open(url, '_blank'); },
+            viewFull(url) { this.openLightbox([{ url, alt: '预览图片' }], 0, '图片预览'); },
             formatDate(dateString) { return new Date(dateString).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }); },
             initApp() {
                 this.newDate = this.getLocalDateString();
                 this.reviewDate = this.getLocalDateString();
                 if (this.showComposer) this.loadComposerDraftForTab(this.currentTab);
-                if (this.currentTab === 'stats' || this.currentTab === 'play') this.fetchAllItemsForStats();
+                if (this.currentTab === 'home' || this.currentTab === 'stats' || this.currentTab === 'play') this.fetchAllItemsForStats();
                 else if (this.currentTab === 'bond') this.loadRelationshipHub();
                 else if (this.currentTab === 'review') this.loadAnniversaryReview();
                 else if (this.currentTab !== 'play') this.getItems();
@@ -4313,9 +4878,12 @@
             newTitle() { this.scheduleComposerDraftSave(); },
             newNote() { this.scheduleComposerDraftSave(); },
             newDate() { this.scheduleComposerDraftSave(); },
-            selectedMood() { this.scheduleComposerDraftSave(); }
+            selectedMood() { this.scheduleComposerDraftSave(); },
+            playMode() { this.persistUiState(); },
+            listDensityMode() { this.persistUiState(); }
         },
         mounted() { 
+            this.loadUiState();
             this.loadPlayStats();
             this.loadPrivatePlayState();
             this.loadBingoBoard();
@@ -4325,10 +4893,12 @@
             const savedTheme = localStorage.getItem('orange_theme'); if (savedTheme === 'dark') { this.isDarkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
             document.addEventListener('click', this.closeCardMenu);
             document.addEventListener('click', this.handleGlobalActivity, true);
-            document.addEventListener('keydown', this.handleGlobalActivity, true);
+            document.addEventListener('keydown', this.handleGlobalKeydown, true);
+            window.addEventListener('beforeunload', this.handleBeforeUnload);
         },
         beforeUnmount() {
             window.clearTimeout(this.draftSaveTimer);
+            window.clearTimeout(this.undoTimer);
             window.clearTimeout(this.decisionSpinTimer);
             window.clearTimeout(this.nightDiceTimer);
             window.clearTimeout(this.nightGachaTimer);
@@ -4339,7 +4909,8 @@
             window.clearTimeout(this.privateAutoLockTimer);
             document.removeEventListener('click', this.closeCardMenu);
             document.removeEventListener('click', this.handleGlobalActivity, true);
-            document.removeEventListener('keydown', this.handleGlobalActivity, true);
+            document.removeEventListener('keydown', this.handleGlobalKeydown, true);
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
         }
     }).mount('#app');
 </script>
