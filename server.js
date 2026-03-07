@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
+const https = require('https');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
@@ -330,6 +332,51 @@ function normalizeImageUrl(rawUrl) {
     return url.replace(/^http:\/\//i, 'https://');
 }
 
+function isAllowedRemoteImageUrl(rawUrl) {
+    try {
+        const parsed = new URL(normalizeImageUrl(rawUrl));
+        return ['https:', 'http:'].includes(parsed.protocol) && (
+            parsed.hostname === 'res.cloudinary.com' ||
+            parsed.hostname.endsWith('.cloudinary.com')
+        );
+    } catch (error) {
+        return false;
+    }
+}
+
+function proxyRemoteImage(remoteUrl, res, redirectCount = 0) {
+    const normalizedUrl = normalizeImageUrl(remoteUrl);
+    if (!isAllowedRemoteImageUrl(normalizedUrl)) {
+        throw createHttpError(400, '图片地址无效');
+    }
+    if (redirectCount > 3) {
+        throw createHttpError(502, '图片重定向次数过多');
+    }
+
+    const client = normalizedUrl.startsWith('https://') ? https : http;
+    client.get(normalizedUrl, upstreamRes => {
+        const statusCode = upstreamRes.statusCode || 502;
+        if ([301, 302, 303, 307, 308].includes(statusCode) && upstreamRes.headers.location) {
+            upstreamRes.resume();
+            return proxyRemoteImage(upstreamRes.headers.location, res, redirectCount + 1);
+        }
+        if (statusCode >= 400) {
+            upstreamRes.resume();
+            return res.status(statusCode).json({ error: '图片读取失败' });
+        }
+
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        if (upstreamRes.headers['content-type']) res.setHeader('Content-Type', upstreamRes.headers['content-type']);
+        if (upstreamRes.headers['content-length']) res.setHeader('Content-Length', upstreamRes.headers['content-length']);
+        upstreamRes.pipe(res);
+    }).on('error', err => {
+        console.error('图片代理失败:', err);
+        if (!res.headersSent) {
+            res.status(502).json({ error: '图片代理失败' });
+        }
+    });
+}
+
 function normalizeImageEntry(image = {}, fallbackPublicId = '') {
     const url = normalizeImageUrl(image.url || image.path || image.secure_url || '');
     if (!url) return null;
@@ -656,6 +703,18 @@ app.get('/api/random', async (req, res) => {
             { $sample: { size: 1 } }
         ]);
         res.json(randomItems.length > 0 ? toClientItem(randomItems[0]) : null);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+app.get('/api/media/proxy', async (req, res) => {
+    try {
+        const src = typeof req.query.src === 'string' ? req.query.src : '';
+        if (!src) {
+            throw createHttpError(400, '缺少图片地址');
+        }
+        proxyRemoteImage(src, res);
     } catch (err) {
         handleError(res, err);
     }
