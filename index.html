@@ -683,6 +683,9 @@
                             </div>
                         </div>
                     </div>
+                    <div class="bond-actions">
+                        <button class="action-submit secondary-btn" @click="exportWeeklyReportCard">导出周报长图</button>
+                    </div>
                 </div>
 
                 <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
@@ -740,77 +743,91 @@
                     </div>
                 </div>
 
-                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
-                    <h3>夸夸档案</h3>
-                    <div class="bond-subtext">把“喜欢你哪里”“谢谢你今天做的事”留下来，慢慢积成一份长期温柔库存。</div>
-                    <textarea class="bond-textarea" v-model="praiseDraft" placeholder="写一句夸夸，或者记录一个你被照顾到的细节。"></textarea>
-                    <div class="bond-actions">
-                        <button class="action-submit" @click="saveRelationshipEntry('praise')">存进夸夸档案</button>
-                    </div>
-                    <div class="bond-list">
-                        <div v-for="entry in relationshipEntries.praise.slice(0, 5)" :key="entry._id" class="bond-entry">
-                            <div class="bond-entry-meta">{{ entry.author }} · {{ formatDate(entry.date) }}</div>
-                            <div class="bond-entry-text">{{ entry.text }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
-                    <h3>安慰偏好卡</h3>
-                    <div class="bond-subtext">这是第十项。难过的时候，你更想被怎样对待，提前说明比临时猜要有效得多。</div>
-                    <input type="text" class="bond-select" v-model="comfortDraftTitle" placeholder="比如：我低落时最需要什么">
-                    <textarea class="bond-textarea" v-model="comfortDraftText" placeholder="比如：先抱抱我，再听我慢慢讲；或者先别给建议。"></textarea>
-                    <div class="bond-actions">
-                        <button class="action-submit" @click="saveRelationshipEntry('comfort')">保存偏好卡</button>
-                    </div>
-                    <div class="bond-list">
-                        <div v-for="entry in latestComfortEntries" :key="entry._id" class="bond-entry">
-                            <div class="bond-entry-meta">{{ entry.author }}</div>
-                            <div class="bond-entry-title">{{ entry.title }}</div>
-                            <div class="bond-entry-text">{{ entry.text }}</div>
+                <div class="bond-card wide" :class="{ 'bond-night': deepNightActive }">
+                    <h3>互动热力图</h3>
+                    <div class="bond-subtext">这里会把最近 8 周里有互动的日子高亮出来，能一眼看到你们的关系节奏是不是稳定。</div>
+                    <div class="bond-heatmap">
+                        <div class="bond-heatmap-grid">
+                            <div v-for="cell in bondHeatmapCells" :key="cell.date" :class="['bond-heat-cell', `lv${cell.level}`]">
+                                <div class="bond-heat-date">{{ cell.short }}</div>
+                                <div class="bond-heat-count">{{ cell.count }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="bond-card wide" :class="{ 'bond-night': deepNightActive }">
-                    <h3>双人回信</h3>
-                    <div class="bond-subtext">给一条已经存在的回忆写一封短回信，不是重写内容，而是对那一刻再回应一次。</div>
-                    <select class="bond-select" v-model="selectedReplyItemId">
-                        <option value="">选择一条回忆</option>
-                        <option v-for="item in relationshipItems" :key="item._id" :value="item._id">{{ formatMemoryOption(item) }}</option>
-                    </select>
-                    <div v-if="selectedReplyItem" class="bond-highlight" style="margin-top: 14px;">
-                        <div class="bond-entry-title">{{ getItemDisplayTitle(selectedReplyItem) }}</div>
-                        <div class="bond-entry-meta">{{ formatDate(selectedReplyItem.date) }} · {{ getCategoryLabel(selectedReplyItem.category) }} · {{ selectedReplyItem.author }}</div>
-                        <div class="bond-entry-text">{{ getItemExcerpt(selectedReplyItem) }}</div>
+                    <h3>回应工作台</h3>
+                    <div class="bond-subtext">把“回信”和“补一个视角”合并在一起。先选回忆，再决定这次是回应它，还是换个视角补完它。</div>
+                    <div class="bond-tabs">
+                        <button type="button" :class="['bond-tab', { active: responseComposerMode === 'reply' }]" @click="responseComposerMode = 'reply'">💌 写回信</button>
+                        <button type="button" :class="['bond-tab', { active: responseComposerMode === 'perspective' }]" @click="responseComposerMode = 'perspective'">🪞 补视角</button>
                     </div>
-                    <textarea class="bond-textarea" v-model="replyDraft" placeholder="给这条回忆写一封短回信。"></textarea>
-                    <div class="bond-actions">
-                        <button class="action-submit" @click="saveItemReply">发送回信</button>
-                    </div>
-                    <div class="bond-list" v-if="selectedReplyItem && selectedReplyItem.replies && selectedReplyItem.replies.length > 0">
-                        <div v-for="(reply, index) in selectedReplyItem.replies.slice().sort((a, b) => b.time - a.time)" :key="`${reply.author}-${reply.time}-${index}`" class="bond-entry">
-                            <div class="bond-entry-meta">{{ reply.author }} · {{ formatDate(reply.date) }}</div>
-                            <div class="bond-entry-text">{{ reply.text }}</div>
+                    <div class="bond-split">
+                        <div>
+                            <select class="bond-select" v-model="activeMemorySelection">
+                                <option value="">选择一条回忆</option>
+                                <option v-for="item in relationshipItems" :key="item._id" :value="item._id">{{ formatMemoryOption(item) }}</option>
+                            </select>
+                            <div v-if="activeMemoryItem" class="bond-highlight" style="margin-top: 14px;">
+                                <div class="bond-entry-title">{{ getItemDisplayTitle(activeMemoryItem) }}</div>
+                                <div class="bond-entry-meta">{{ formatDate(activeMemoryItem.date) }} · {{ getCategoryLabel(activeMemoryItem.category) }} · {{ activeMemoryItem.author }}</div>
+                                <div class="bond-entry-text">{{ getItemExcerpt(activeMemoryItem) }}</div>
+                            </div>
+                            <textarea
+                                class="bond-textarea"
+                                v-model="activeResponseDraft"
+                                :placeholder="responseComposerMode === 'reply' ? '给这条回忆写一封短回信。' : '从你的角度，补完这段回忆。'"
+                            ></textarea>
+                            <div class="bond-actions">
+                                <button class="action-submit" @click="submitActiveResponse">{{ responseComposerMode === 'reply' ? '发送回信' : '保存视角' }}</button>
+                            </div>
+                        </div>
+                        <div class="bond-mini-list">
+                            <div
+                                v-for="entry in activeResponseEntries"
+                                :key="`${entry.author}-${entry.time}-${entry.text.slice(0, 12)}`"
+                                class="bond-entry"
+                            >
+                                <div class="bond-entry-meta">{{ entry.author }} · {{ formatDate(entry.date) }}</div>
+                                <div class="bond-entry-text">{{ entry.text }}</div>
+                            </div>
+                            <div v-if="activeResponseEntries.length === 0" class="empty-state">这条回忆还没有{{ responseComposerMode === 'reply' ? '回信' : '视角补完' }}。</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="bond-card wide" :class="{ 'bond-night': deepNightActive }">
-                    <h3>回忆补完</h3>
-                    <div class="bond-subtext">同一件事，用另一个人的视角补一句，回忆就会从“记录”变成“双视角”。</div>
-                    <select class="bond-select" v-model="selectedPerspectiveItemId">
-                        <option value="">选择一条回忆</option>
-                        <option v-for="item in relationshipItems" :key="`${item._id}-perspective`" :value="item._id">{{ formatMemoryOption(item) }}</option>
-                    </select>
-                    <textarea class="bond-textarea" v-model="perspectiveDraft" placeholder="从你的角度，补完这段回忆。"></textarea>
-                    <div class="bond-actions">
-                        <button class="action-submit" @click="saveItemPerspective">保存我的视角</button>
-                    </div>
-                    <div class="bond-list" v-if="selectedPerspectiveItem && selectedPerspectiveItem.perspectives && selectedPerspectiveItem.perspectives.length > 0">
-                        <div v-for="(entry, index) in selectedPerspectiveItem.perspectives.slice().sort((a, b) => b.time - a.time)" :key="`${entry.author}-${entry.time}-${index}`" class="bond-entry">
-                            <div class="bond-entry-meta">{{ entry.author }} · {{ formatDate(entry.date) }}</div>
-                            <div class="bond-entry-text">{{ entry.text }}</div>
+                    <h3>温柔档案</h3>
+                    <div class="bond-subtext">把夸夸和安慰偏好合在一起。一个是“我喜欢你什么”，一个是“我低落时希望你怎么靠近我”。</div>
+                    <div class="bond-split">
+                        <div>
+                            <div class="bond-entry-title">夸夸档案</div>
+                            <textarea class="bond-textarea" v-model="praiseDraft" placeholder="写一句夸夸，或者记录一个你被照顾到的细节。"></textarea>
+                            <div class="bond-actions">
+                                <button class="action-submit" @click="saveRelationshipEntry('praise')">存进夸夸档案</button>
+                            </div>
+                            <div class="bond-list">
+                                <div v-for="entry in relationshipEntries.praise.slice(0, 4)" :key="entry._id" class="bond-entry">
+                                    <div class="bond-entry-meta">{{ entry.author }} · {{ formatDate(entry.date) }}</div>
+                                    <div class="bond-entry-text">{{ entry.text }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="bond-entry-title">安慰偏好卡</div>
+                            <input type="text" class="bond-select" v-model="comfortDraftTitle" placeholder="比如：我低落时最需要什么">
+                            <textarea class="bond-textarea" v-model="comfortDraftText" placeholder="比如：先抱抱我，再听我慢慢讲；或者先别给建议。"></textarea>
+                            <div class="bond-actions">
+                                <button class="action-submit" @click="saveRelationshipEntry('comfort')">保存偏好卡</button>
+                            </div>
+                            <div class="bond-list">
+                                <div v-for="entry in latestComfortEntries" :key="entry._id" class="bond-entry">
+                                    <div class="bond-entry-meta">{{ entry.author }}</div>
+                                    <div class="bond-entry-title">{{ entry.title }}</div>
+                                    <div class="bond-entry-text">{{ entry.text }}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -844,53 +861,56 @@
                     </div>
                 </div>
 
-                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
-                    <h3>双人仪式页</h3>
-                    <div class="bond-subtext">每周选一个固定的小仪式，让感情不只靠灵感和情绪推进。</div>
-                    <input type="text" class="bond-select" v-model="ritualDraftTitle" placeholder="比如：周日晚上一起复盘本周">
-                    <input type="date" v-model="ritualDraftDate" class="bond-select" style="margin-top: 12px;">
-                    <textarea class="bond-textarea" v-model="ritualDraftText" placeholder="写下这个仪式怎么进行。"></textarea>
-                    <div class="bond-actions">
-                        <button class="action-submit" @click="saveRelationshipEntry('ritual')">添加仪式</button>
-                    </div>
-                    <div class="bond-list">
-                        <div v-for="entry in relationshipEntries.ritual.slice(0, 4)" :key="entry._id" class="bond-entry">
-                            <div class="bond-entry-title">{{ entry.title }}</div>
-                            <div class="bond-entry-meta">{{ entry.date }} · {{ entry.completed ? '已完成' : '待进行' }}</div>
-                            <div class="bond-entry-text">{{ entry.text || '给彼此留一段固定的小时间。' }}</div>
+                <div class="bond-card wide" :class="{ 'bond-night': deepNightActive }">
+                    <h3>一起去做</h3>
+                    <div class="bond-subtext">把“固定仪式”和“陪伴清单”合并。一个负责稳定关系节奏，一个负责把想做的事拆成能完成的大小。</div>
+                    <div class="bond-split">
+                        <div>
+                            <div class="bond-entry-title">双人仪式</div>
+                            <input type="text" class="bond-select" v-model="ritualDraftTitle" placeholder="比如：周日晚上一起复盘本周">
+                            <input type="date" v-model="ritualDraftDate" class="bond-select" style="margin-top: 12px;">
+                            <textarea class="bond-textarea" v-model="ritualDraftText" placeholder="写下这个仪式怎么进行。"></textarea>
                             <div class="bond-actions">
-                                <button class="action-submit secondary-btn" @click="toggleRelationshipCompleted(entry)">{{ entry.completed ? '标记未完成' : '标记完成' }}</button>
+                                <button class="action-submit" @click="saveRelationshipEntry('ritual')">添加仪式</button>
+                            </div>
+                            <div class="bond-list">
+                                <div v-for="entry in relationshipEntries.ritual.slice(0, 3)" :key="entry._id" class="bond-entry">
+                                    <div class="bond-entry-title">{{ entry.title }}</div>
+                                    <div class="bond-entry-meta">{{ entry.date }} · {{ entry.completed ? '已完成' : '待进行' }}</div>
+                                    <div class="bond-entry-text">{{ entry.text || '给彼此留一段固定的小时间。' }}</div>
+                                    <div class="bond-actions">
+                                        <button class="action-submit secondary-btn" @click="toggleRelationshipCompleted(entry)">{{ entry.completed ? '标记未完成' : '标记完成' }}</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
-                    <h3>陪伴清单</h3>
-                    <div class="bond-subtext">把“想一起做的事”拆成 5 分钟可做、本周可做、以后一定做，减少愿望积灰。</div>
-                    <input type="text" class="bond-select" v-model="companionDraftTitle" placeholder="比如：睡前一起散步 10 分钟">
-                    <textarea class="bond-textarea" v-model="companionDraftText" placeholder="可选：补一句说明。"></textarea>
-                    <div class="bond-chip-row">
-                        <button
-                            v-for="bucket in companionBuckets"
-                            :key="bucket.key"
-                            type="button"
-                            :class="['bond-chip', { active: companionDraftBucket === bucket.key }]"
-                            @click="companionDraftBucket = bucket.key"
-                        >
-                            {{ bucket.label }}
-                        </button>
-                    </div>
-                    <div class="bond-actions">
-                        <button class="action-submit" @click="saveRelationshipEntry('companion')">加入陪伴清单</button>
-                    </div>
-                    <div class="bond-list">
-                        <div v-for="entry in relationshipEntries.companion.slice(0, 6)" :key="entry._id" class="bond-entry">
-                            <div class="bond-entry-title">{{ entry.title }}</div>
-                            <div class="bond-entry-meta">{{ getCompanionBucketLabel(entry.bucket) }} · {{ entry.author }}</div>
-                            <div class="bond-entry-text">{{ entry.text || '先把它放进清单，之后慢慢实现。' }}</div>
+                        <div>
+                            <div class="bond-entry-title">陪伴清单</div>
+                            <input type="text" class="bond-select" v-model="companionDraftTitle" placeholder="比如：睡前一起散步 10 分钟">
+                            <textarea class="bond-textarea" v-model="companionDraftText" placeholder="可选：补一句说明。"></textarea>
+                            <div class="bond-chip-row">
+                                <button
+                                    v-for="bucket in companionBuckets"
+                                    :key="bucket.key"
+                                    type="button"
+                                    :class="['bond-chip', { active: companionDraftBucket === bucket.key }]"
+                                    @click="companionDraftBucket = bucket.key"
+                                >
+                                    {{ bucket.label }}
+                                </button>
+                            </div>
                             <div class="bond-actions">
-                                <button class="action-submit secondary-btn" @click="toggleRelationshipCompleted(entry)">{{ entry.completed ? '取消完成' : '标记完成' }}</button>
+                                <button class="action-submit" @click="saveRelationshipEntry('companion')">加入陪伴清单</button>
+                            </div>
+                            <div class="bond-list">
+                                <div v-for="entry in relationshipEntries.companion.slice(0, 4)" :key="entry._id" class="bond-entry">
+                                    <div class="bond-entry-title">{{ entry.title }}</div>
+                                    <div class="bond-entry-meta">{{ getCompanionBucketLabel(entry.bucket) }} · {{ entry.author }}</div>
+                                    <div class="bond-entry-text">{{ entry.text || '先把它放进清单，之后慢慢实现。' }}</div>
+                                    <div class="bond-actions">
+                                        <button class="action-submit secondary-btn" @click="toggleRelationshipCompleted(entry)">{{ entry.completed ? '取消完成' : '标记完成' }}</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1089,6 +1109,10 @@
                             <div v-if="getLatestInteractionPreview(item) && currentTab !== 'recycle'" class="interaction-preview" @click="switchTabWithMemory(item, getLatestInteractionPreview(item).type)">
                                 最近互动 · {{ getLatestInteractionPreview(item).label }}：{{ getLatestInteractionPreview(item).text }}
                             </div>
+                            <div v-if="currentTab !== 'recycle'" class="bond-quick-actions">
+                                <button type="button" class="interaction-pill action" @click="openReplyFromList(item)">写回信</button>
+                                <button type="button" class="interaction-pill action" @click="openPerspectiveFromList(item)">补个视角</button>
+                            </div>
                         </div>
                         <div v-else>
                             <div class="mood-row" style="margin-bottom: 16px;">
@@ -1156,6 +1180,7 @@
                 relationshipLoading: false,
                 relationshipEntries: { praise: [], repair: [], ritual: [], temperature: [], companion: [], comfort: [] },
                 dailyQuestion: null,
+                responseComposerMode: 'reply',
                 selectedReplyItemId: '', replyDraft: '',
                 selectedPerspectiveItemId: '', perspectiveDraft: '',
                 praiseDraft: '',
@@ -1327,6 +1352,34 @@
             selectedPerspectiveItem() {
                 return this.relationshipItems.find(item => item._id === this.selectedPerspectiveItemId) || null;
             },
+            activeMemorySelection: {
+                get() {
+                    return this.responseComposerMode === 'reply' ? this.selectedReplyItemId : this.selectedPerspectiveItemId;
+                },
+                set(value) {
+                    if (this.responseComposerMode === 'reply') this.selectedReplyItemId = value;
+                    else this.selectedPerspectiveItemId = value;
+                }
+            },
+            activeMemoryItem() {
+                return this.responseComposerMode === 'reply' ? this.selectedReplyItem : this.selectedPerspectiveItem;
+            },
+            activeResponseDraft: {
+                get() {
+                    return this.responseComposerMode === 'reply' ? this.replyDraft : this.perspectiveDraft;
+                },
+                set(value) {
+                    if (this.responseComposerMode === 'reply') this.replyDraft = value;
+                    else this.perspectiveDraft = value;
+                }
+            },
+            activeResponseEntries() {
+                if (!this.activeMemoryItem) return [];
+                const entries = this.responseComposerMode === 'reply'
+                    ? (this.activeMemoryItem.replies || [])
+                    : (this.activeMemoryItem.perspectives || []);
+                return entries.slice().sort((a, b) => (b.time || 0) - (a.time || 0));
+            },
             currentUserDailyAnswer() {
                 if (!this.dailyQuestion || !this.currentUser) return null;
                 return (this.dailyQuestion.answers || []).find(item => item.author === this.currentUser) || null;
@@ -1414,6 +1467,43 @@
                     cursor.setDate(cursor.getDate() - 1);
                 }
                 return streak;
+            },
+            bondHeatmapCells() {
+                const counts = new Map();
+                Object.values(this.relationshipEntries).flat().forEach(entry => {
+                    if (!entry.date) return;
+                    counts.set(entry.date, (counts.get(entry.date) || 0) + 1);
+                });
+                this.relationshipItems.forEach(item => {
+                    (item.replies || []).forEach(entry => {
+                        if (!entry.date) return;
+                        counts.set(entry.date, (counts.get(entry.date) || 0) + 1);
+                    });
+                    (item.perspectives || []).forEach(entry => {
+                        if (!entry.date) return;
+                        counts.set(entry.date, (counts.get(entry.date) || 0) + 1);
+                    });
+                });
+
+                const days = [];
+                const today = new Date();
+                for (let offset = 55; offset >= 0; offset -= 1) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() - offset);
+                    const iso = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+                    const count = counts.get(iso) || 0;
+                    let level = 0;
+                    if (count >= 4) level = 3;
+                    else if (count >= 2) level = 2;
+                    else if (count >= 1) level = 1;
+                    days.push({
+                        date: iso,
+                        count,
+                        level,
+                        short: `${date.getMonth() + 1}/${date.getDate()}`
+                    });
+                }
+                return days;
             },
             achievementCards() {
                 const items = this.allItemsForStats || [];
@@ -1592,17 +1682,21 @@
                 };
             },
             openReplyFromList(item) {
+                this.responseComposerMode = 'reply';
                 this.selectedReplyItemId = item._id;
                 this.switchTab('bond');
             },
             openPerspectiveFromList(item) {
+                this.responseComposerMode = 'perspective';
                 this.selectedPerspectiveItemId = item._id;
                 this.switchTab('bond');
             },
             switchTabWithMemory(item, type) {
                 if (type === 'perspective') {
+                    this.responseComposerMode = 'perspective';
                     this.selectedPerspectiveItemId = item._id;
                 } else {
+                    this.responseComposerMode = 'reply';
                     this.selectedReplyItemId = item._id;
                 }
                 this.switchTab('bond');
@@ -1764,6 +1858,132 @@
                 } catch (error) {
                     this.showNotice('error', this.getErrorMessage(error, '保存视角失败'));
                 }
+            },
+            async submitActiveResponse() {
+                if (this.responseComposerMode === 'reply') {
+                    await this.saveItemReply();
+                } else {
+                    await this.saveItemPerspective();
+                }
+            },
+            async exportWeeklyReportCard() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 1080;
+                    canvas.height = 1520;
+                    const ctx = canvas.getContext('2d');
+                    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    gradient.addColorStop(0, '#fff0f5');
+                    gradient.addColorStop(0.55, '#ffe5ea');
+                    gradient.addColorStop(1, '#edf7ff');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.fillStyle = 'rgba(255,255,255,0.68)';
+                    ctx.strokeStyle = 'rgba(255, 182, 193, 0.28)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.roundRect(56, 56, 968, 1408, 32);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#a8959f';
+                    ctx.font = '26px sans-serif';
+                    ctx.fillText('ORANGE RELATIONSHIP REPORT', 96, 132);
+
+                    ctx.fillStyle = '#7b5c6a';
+                    ctx.font = 'bold 56px serif';
+                    ctx.fillText('这一周，我们怎样靠近了彼此', 96, 210);
+
+                    ctx.font = '30px sans-serif';
+                    this.wrapCanvasText(ctx, this.weeklyBondReport.summary, 96, 270, 880, 48);
+
+                    const metrics = [
+                        ['连续互动', `${this.bondStreakDays} 天`],
+                        ['本周互动', `${this.weeklyBondReport.totalInteractions}`],
+                        ['待完成陪伴', `${this.pendingCompanionCount}`],
+                        ['已完成仪式', `${this.completedRitualCount}`]
+                    ];
+                    metrics.forEach((metric, index) => {
+                        const x = 96 + (index % 2) * 448;
+                        const y = 390 + Math.floor(index / 2) * 176;
+                        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                        ctx.beginPath();
+                        ctx.roundRect(x, y, 352, 132, 24);
+                        ctx.fill();
+                        ctx.fillStyle = '#a8959f';
+                        ctx.font = '22px sans-serif';
+                        ctx.fillText(metric[0], x + 24, y + 42);
+                        ctx.fillStyle = '#7b5c6a';
+                        ctx.font = 'bold 42px serif';
+                        ctx.fillText(metric[1], x + 24, y + 92);
+                    });
+
+                    const lines = [
+                        `回信 ${this.weeklyBondReport.replyCount} 封`,
+                        `双视角补完 ${this.weeklyBondReport.perspectiveCount} 段`,
+                        `夸夸新增 ${this.weeklyBondReport.praiseCount} 条`,
+                        `修复卡新增 ${this.weeklyBondReport.repairCount} 张`,
+                        `已完成陪伴 ${this.weeklyBondReport.completedCompanionCount} 件`,
+                        `已完成仪式 ${this.weeklyBondReport.completedRitualCount} 次`
+                    ];
+                    ctx.fillStyle = '#7b5c6a';
+                    ctx.font = 'bold 36px serif';
+                    ctx.fillText('本周摘要', 96, 780);
+                    ctx.font = '28px sans-serif';
+                    lines.forEach((line, index) => {
+                        ctx.fillStyle = index % 2 === 0 ? '#7b5c6a' : '#906d7c';
+                        ctx.fillText(`• ${line}`, 108, 844 + index * 56);
+                    });
+
+                    ctx.fillStyle = '#7b5c6a';
+                    ctx.font = 'bold 36px serif';
+                    ctx.fillText('最近 8 周互动热力', 96, 1186);
+                    this.bondHeatmapCells.slice(-28).forEach((cell, index) => {
+                        const col = index % 7;
+                        const row = Math.floor(index / 7);
+                        const x = 96 + col * 124;
+                        const y = 1234 + row * 68;
+                        const palette = ['rgba(255,255,255,0.45)', 'rgba(255,219,214,0.88)', 'rgba(255,198,210,0.95)', 'rgba(217,168,236,0.96)'];
+                        ctx.fillStyle = palette[cell.level];
+                        ctx.beginPath();
+                        ctx.roundRect(x, y, 104, 52, 16);
+                        ctx.fill();
+                        ctx.fillStyle = '#7b5c6a';
+                        ctx.font = '18px sans-serif';
+                        ctx.fillText(cell.short, x + 12, y + 22);
+                        ctx.font = 'bold 20px serif';
+                        ctx.fillText(String(cell.count), x + 14, y + 42);
+                    });
+
+                    ctx.fillStyle = '#a8959f';
+                    ctx.font = '22px sans-serif';
+                    ctx.fillText(`导出日期：${this.getLocalDateString()}`, 96, 1420);
+
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = `orange-bond-report-${this.getLocalDateString()}.png`;
+                    link.click();
+                    this.showNotice('success', '周报长图已生成');
+                } catch (error) {
+                    this.showNotice('error', '导出周报失败');
+                }
+            },
+            wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+                const chars = String(text || '').split('');
+                let line = '';
+                let row = 0;
+                chars.forEach(char => {
+                    const testLine = line + char;
+                    if (ctx.measureText(testLine).width > maxWidth && line) {
+                        ctx.fillText(line, x, y + row * lineHeight);
+                        line = char;
+                        row += 1;
+                    } else {
+                        line = testLine;
+                    }
+                });
+                if (line) ctx.fillText(line, x, y + row * lineHeight);
             },
             loadPlayStats() {
                 try {
