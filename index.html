@@ -78,8 +78,41 @@
         input:focus, textarea:focus { border-color: var(--accent-bronze); background: var(--card-bg); outline: none; box-shadow: 0 0 0 4px rgba(230, 168, 215, 0.2);}
         button.action-submit { background: linear-gradient(135deg, var(--color-xiaoxin), var(--color-xiaocheng)); color: #FFFFFF; border: none; padding: 14px 28px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(255, 182, 193, 0.4); transition: 0.3s; }
         button.action-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255, 182, 193, 0.6); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
-        /* ====== 魔法星图看板 (Data Dashboard) ====== */
+        /* ====== 星月塔罗 (Tarot Magic) ====== */
+        .tarot-board { display: flex; flex-direction: column; align-items: center; padding: 20px 0 50px 0; }
+        .tarot-title { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); margin-bottom: 10px; letter-spacing: 3px; font-weight: bold;}
+        .tarot-subtitle { font-family: var(--font-ui); font-size: 14px; color: var(--ink-light); margin-bottom: 40px; }
+        
+        .tarot-card-container { width: 220px; height: 340px; perspective: 1000px; cursor: pointer; margin-bottom: 30px;}
+        .tarot-inner { width: 100%; height: 100%; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; position: relative;}
+        .tarot-card-container.flipped .tarot-inner { transform: rotateY(180deg); }
+        .tarot-card-container.shaking { animation: shake 0.5s infinite; }
+        
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .tarot-front, .tarot-back { width: 100%; height: 100%; position: absolute; backface-visibility: hidden; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid var(--accent-bronze);}
+        .tarot-back { background: linear-gradient(135deg, #2C1A3D, #3B1C32); background-size: 200% 200%; animation: silkGradient 5s ease infinite;}
+        .tarot-back::after { content: '✨ 命运之轮 ✨'; color: rgba(255,255,255,0.7); font-family: var(--font-serif); font-size: 18px; letter-spacing: 2px; writing-mode: vertical-rl;}
+        
+        .tarot-front { background: var(--card-bg); transform: rotateY(180deg); padding: 20px; text-align: center; box-sizing: border-box;}
+        .tarot-emoji { font-size: 60px; margin-bottom: 20px; filter: drop-shadow(0 4px 10px rgba(255,182,193,0.5));}
+        .tarot-name { font-family: var(--font-serif); font-size: 20px; font-weight: bold; color: var(--accent-bronze); margin-bottom: 10px; border-bottom: 1px solid var(--border-fine); padding-bottom: 10px; width: 100%;}
+        .tarot-meaning { font-family: var(--font-ui); font-size: 15px; color: var(--ink-main); line-height: 1.8;}
+
         .stats-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;}
         .stats-card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); padding: 30px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.15); backdrop-filter: blur(10px); text-align: center;}
         [data-theme="dark"] .stats-card { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
@@ -159,7 +192,6 @@
             .file-upload-wrapper { width: 100%; box-sizing: border-box; }
             .actions { opacity: 1; }
             .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-            /* 星图在手机上变成上下堆叠 */
             .stats-dashboard { grid-template-columns: 1fr; }
         }
     </style>
@@ -207,6 +239,7 @@
                 <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')">随笔</div>
                 <div :class="['tab', {active: currentTab === 'wish'}]" @click="switchTab('wish')">心愿</div>
                 <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')">浮梦</div>
+                <div :class="['tab', {active: currentTab === 'tarot'}]" @click="switchTab('tarot')">星占 🔮</div>
                 <div :class="['tab', {active: currentTab === 'stats'}]" @click="switchTab('stats')">星图 🌟</div>
             </div>
             <div class="header-actions">
@@ -215,22 +248,44 @@
             </div>
         </div>
 
+        <div v-if="currentTab === 'tarot'" class="tarot-board">
+            <div class="tarot-title">命运的指引</div>
+            <div class="tarot-subtitle">闭上眼睛，在心里默念你们的名字，然后翻开魔法牌。</div>
+            
+            <div :class="['tarot-card-container', { 'flipped': drawnCard !== null, 'shaking': isDrawing }]" @click="drawTarotCard">
+                <div class="tarot-inner">
+                    <div class="tarot-back"></div>
+                    <div class="tarot-front" v-if="drawnCard">
+                        <div class="tarot-emoji">{{ drawnCard.emoji }}</div>
+                        <div class="tarot-name">{{ drawnCard.name }}</div>
+                        <div class="tarot-meaning">{{ drawnCard.meaning }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <button v-if="drawnCard" class="action-submit" style="margin-top: 20px;" @click="saveTarotReading">
+                💌 将指引刻入随笔
+            </button>
+            <button v-if="drawnCard" class="action-submit" style="margin-top: 15px; background: transparent; color: var(--accent-bronze); border: 1px solid var(--accent-bronze); box-shadow: none;" @click="resetTarot">
+                重新抽取
+            </button>
+            <button v-if="!drawnCard" class="action-submit" @click="drawTarotCard" :disabled="isDrawing">
+                {{ isDrawing ? '命运之轮转动中...' : '揭开命运的卡牌' }}
+            </button>
+        </div>
+
         <div v-if="currentTab === 'stats'" class="stats-dashboard">
             <div class="stats-card">
                 <div class="stats-title">📝 梦境字数贡献度</div>
-                <div class="chart-container">
-                    <canvas id="storyChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="storyChart"></canvas></div>
             </div>
             <div class="stats-card">
                 <div class="stats-title">👣 时空魔法轨迹</div>
-                <div class="chart-container">
-                    <canvas id="activityChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="activityChart"></canvas></div>
             </div>
         </div>
 
-        <div class="control-panel" v-if="currentTab !== 'stats'">
+        <div class="control-panel" v-if="currentTab !== 'stats' && currentTab !== 'tarot'">
             <input v-if="currentTab === 'story' || currentTab === 'album'" type="text" v-model="newTitle" class="title-input" :placeholder="currentTab === 'album' ? '《 相册名称 》 (如：2026跨年之旅)' : '《 篇章名 》'">
             <div class="input-group">
                 <div class="file-upload-wrapper" v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story' || currentTab === 'album'">
@@ -244,7 +299,7 @@
             </div>
         </div>
 
-        <div v-if="currentTab !== 'stats'" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
+        <div v-if="currentTab !== 'stats' && currentTab !== 'tarot'" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
             <div class="timeline-header">🌸 {{ monthYear }}</div>
             <div :class="['grid', (currentTab === 'memory' || currentTab === 'album') ? 'grid-memory' : 'grid-list']">
                 <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': currentTab === 'story'}]">
@@ -315,16 +370,28 @@
     createApp({
         data() {
             return {
-                currentUser: null,
-                loginCode: '',
-                currentTab: 'memory', 
-                items: [],
-                allItemsForStats: [], // 缓存所有数据用于图表分析
+                currentUser: null, loginCode: '', currentTab: 'tarot', 
+                items: [], allItemsForStats: [],
                 newTitle: '', newNote: '', newDate: '', selectedFiles: [], isUploading: false, 
                 editingId: null, editTitle: '', editNote: '', editSegments: [],
                 isDarkMode: false, currentAlbum: null, appendFiles: [],
+                storyChartObj: null, activityChartObj: null,
                 
-                storyChartObj: null, activityChartObj: null // 存储图表实例
+                // 🔮 塔罗牌数据库 (专属情侣解析版)
+                tarotDeck: [
+                    { name: '愚者 (The Fool)', emoji: '🎒', meaning: '充满无限可能的全新开始！也许今天非常适合和对方一起去探索未知的角落，来一场说走就走的浪漫约会吧！' },
+                    { name: '魔术师 (The Magician)', emoji: '🪄', meaning: '奇迹就在你们手中。今天你们之间的沟通会充满默契，想要实现的小心愿，不妨大声对彼此说出来！' },
+                    { name: '女祭司 (The High Priestess)', emoji: '🌙', meaning: '倾听内心的声音。今天适合安静地陪伴彼此，哪怕只是依偎在一起看书或听音乐，也能感受到灵魂的共鸣。' },
+                    { name: '皇后 (The Empress)', emoji: '👑', meaning: '爱与丰饶的包容。这是一个充满被宠爱感的时刻，尽情享受对方的温柔，或者给对方做一顿丰盛的晚餐吧！' },
+                    { name: '皇帝 (The Emperor)', emoji: '🛡️', meaning: '坚实的依靠与保护。今天的你们会给彼此带来满满的安全感，有什么重要的计划都可以放心地交给对方。' },
+                    { name: '恋人 (The Lovers)', emoji: '💞', meaning: '极致的浪漫与羁绊！这是专属于你们的卡牌，爱意满溢，无论今天做什么都会觉得超级甜蜜！' },
+                    { name: '战车 (The Chariot)', emoji: '🎠', meaning: '携手共进的动力。面对生活或学业上的小挑战，只要你们并肩作战，就一定能所向披靡！' },
+                    { name: '星星 (The Star)', emoji: '🌟', meaning: '充满希望的宁静。美好的愿望正在慢慢实现，今晚不妨一起抬头看看星空，许下一个共同的星愿。' },
+                    { name: '太阳 (The Sun)', emoji: '☀️', meaning: '热情、快乐与活力！今天将会是非常开心、充满欢笑的一天，所有的阴霾都会被你们的笑容驱散。' },
+                    { name: '世界 (The World)', emoji: '🌍', meaning: '完美的圆满。你们就是彼此的世界，目前的感情达到了一个非常和谐的阶段，请好好珍惜当下的幸福。' }
+                ],
+                drawnCard: null,
+                isDrawing: false
             }
         },
         computed: {
@@ -363,133 +430,98 @@
                 localStorage.setItem('orange_user', this.currentUser);
                 this.initApp();
             },
-            logout() {
-                localStorage.removeItem('orange_user');
-                this.currentUser = null;
-                this.loginCode = '';
-            },
+            logout() { localStorage.removeItem('orange_user'); this.currentUser = null; this.loginCode = ''; },
             toggleTheme() {
                 this.isDarkMode = !this.isDarkMode;
                 document.documentElement.setAttribute('data-theme', this.isDarkMode ? 'dark' : 'light');
                 localStorage.setItem('orange_theme', this.isDarkMode ? 'dark' : 'light');
-                if(this.currentTab === 'stats') this.renderCharts(); // 主题切换时重绘图表
+                if(this.currentTab === 'stats') this.renderCharts(); 
             },
             switchTab(tab) {
-                this.currentTab = tab;
-                this.selectedFiles = []; this.newNote = ''; this.newTitle = '';
-                if (tab === 'stats') {
-                    this.fetchAllItemsForStats();
-                } else {
-                    this.getItems();
-                }
+                this.currentTab = tab; this.selectedFiles = []; this.newNote = ''; this.newTitle = '';
+                if (tab === 'stats') this.fetchAllItemsForStats();
+                else if (tab !== 'tarot') this.getItems();
             },
             
-            // ========== 星图核心魔法 (数据可视化) ==========
+            // ========== 🔮 塔罗牌占卜逻辑 ==========
+            drawTarotCard() {
+                if (this.isDrawing || this.drawnCard) return; // 如果正在抽或者已经抽了，就不响应
+                this.isDrawing = true;
+                
+                // 模拟洗牌动画的时间
+                setTimeout(() => {
+                    const randomIndex = Math.floor(Math.random() * this.tarotDeck.length);
+                    this.drawnCard = this.tarotDeck[randomIndex];
+                    this.isDrawing = false;
+                }, 1200);
+            },
+            resetTarot() {
+                this.drawnCard = null;
+            },
+            saveTarotReading() {
+                // 将占卜结果填入控制台并切换到随笔界面保存
+                this.newTitle = `🔮 星占指引：${this.drawnCard.name}`;
+                this.newNote = `【今日牌意】${this.drawnCard.meaning}`;
+                this.switchTab('diary'); // 切换到随笔模块
+                // 自动点击上传按钮
+                setTimeout(() => { this.uploadItem(); }, 200);
+            },
+
+            // 图表逻辑
             async fetchAllItemsForStats() {
-                // 星图需要分析所有类别的数据，不加 category 过滤
-                const res = await axios.get('/api/items');
-                this.allItemsForStats = res.data;
-                this.renderCharts();
+                const res = await axios.get('/api/items'); this.allItemsForStats = res.data; this.renderCharts();
             },
             renderCharts() {
                 this.$nextTick(() => {
-                    let textCount = { '小橙': 0, '小心': 0 };
-                    let monthlyActivity = {};
-
-                    // 数据解析引擎
+                    let textCount = { '小橙': 0, '小心': 0 }; let monthlyActivity = {};
                     this.allItemsForStats.forEach(item => {
-                        // 1. 统计小说字数
                         if (item.category === 'story' && item.segments) {
-                            item.segments.forEach(seg => {
-                                if (seg.author === '小橙') textCount['小橙'] += seg.text.length;
-                                if (seg.author === '小心') textCount['小心'] += seg.text.length;
-                            });
+                            item.segments.forEach(seg => { if (seg.author === '小橙') textCount['小橙'] += seg.text.length; if (seg.author === '小心') textCount['小心'] += seg.text.length; });
                         }
-                        // 2. 统计活动足迹 (按月)
-                        const month = item.date.substring(0, 7);
-                        monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
+                        const month = item.date.substring(0, 7); monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
                     });
-
-                    // 销毁旧图表防止重叠渲染
-                    if (this.storyChartObj) this.storyChartObj.destroy();
-                    if (this.activityChartObj) this.activityChartObj.destroy();
-
-                    // 动态自适应字体颜色
+                    if (this.storyChartObj) this.storyChartObj.destroy(); if (this.activityChartObj) this.activityChartObj.destroy();
                     const fontColor = this.isDarkMode ? '#F5E6E8' : '#7B5C6A';
-
-                    // 绘制甜甜圈图：共创字数
+                    
                     const ctx1 = document.getElementById('storyChart');
                     if (ctx1 && (textCount['小橙'] > 0 || textCount['小心'] > 0)) {
                         this.storyChartObj = new Chart(ctx1, {
-                            type: 'doughnut',
-                            data: {
-                                labels: ['小橙执笔 (字)', '小心执笔 (字)'],
-                                datasets: [{
-                                    data: [textCount['小橙'], textCount['小心']],
-                                    backgroundColor: ['#82CAFF', '#FFB7B2'],
-                                    borderColor: this.isDarkMode ? '#1E293B' : '#FFFFFF',
-                                    borderWidth: 3
-                                }]
-                            },
+                            type: 'doughnut', data: { labels: ['小橙执笔 (字)', '小心执笔 (字)'], datasets: [{ data: [textCount['小橙'], textCount['小心']], backgroundColor: ['#82CAFF', '#FFB7B2'], borderColor: this.isDarkMode ? '#1E293B' : '#FFFFFF', borderWidth: 3 }] },
                             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: fontColor, font: { family: 'Noto Serif SC'} } } } }
                         });
                     }
-
-                    // 绘制柱状图：时间足迹
-                    const sortedMonths = Object.keys(monthlyActivity).sort();
-                    const monthData = sortedMonths.map(m => monthlyActivity[m]);
-                    
+                    const sortedMonths = Object.keys(monthlyActivity).sort(); const monthData = sortedMonths.map(m => monthlyActivity[m]);
                     const ctx2 = document.getElementById('activityChart');
                     if (ctx2 && sortedMonths.length > 0) {
                         this.activityChartObj = new Chart(ctx2, {
-                            type: 'bar',
-                            data: {
-                                labels: sortedMonths,
-                                datasets: [{
-                                    label: '留下的足迹 (条)',
-                                    data: monthData,
-                                    backgroundColor: '#E6A8D7',
-                                    borderRadius: 6
-                                }]
-                            },
+                            type: 'bar', data: { labels: sortedMonths, datasets: [{ label: '留下的足迹 (条)', data: monthData, backgroundColor: '#E6A8D7', borderRadius: 6 }] },
                             options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: fontColor } }, y: { ticks: { color: fontColor, stepSize: 1 } } }, plugins: { legend: { labels: { color: fontColor, font: { family: 'Noto Serif SC'} } } } }
                         });
                     }
                 });
             },
 
-            // 基本上传与处理逻辑
+            // 常规CRUD逻辑
             handleFiles(e) { this.selectedFiles = Array.from(e.target.files); },
             openAlbum(item) { this.currentAlbum = item; document.body.style.overflow = 'hidden'; },
             closeAlbum() { this.currentAlbum = null; this.appendFiles = []; document.body.style.overflow = 'auto'; this.getItems(); },
             handleAppendFiles(e) { this.appendFiles = Array.from(e.target.files); },
             async submitAppendPhotos() {
                 if(this.appendFiles.length === 0) return;
-                this.isUploading = true;
-                const fd = new FormData();
-                this.appendFiles.forEach(file => fd.append('files', file));
-                try {
-                    const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd);
-                    this.currentAlbum = res.data; this.appendFiles = [];
-                    document.querySelector('.append-area input[type="file"]').value = '';
-                } catch (e) {} finally { this.isUploading = false; }
+                this.isUploading = true; const fd = new FormData(); this.appendFiles.forEach(file => fd.append('files', file));
+                try { const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd); this.currentAlbum = res.data; this.appendFiles = []; document.querySelector('.append-area input[type="file"]').value = ''; } catch (e) {} finally { this.isUploading = false; }
             },
             async deleteImageFromAlbum(albumId, imageId) {
-                if(confirm("确定要把这张照片从相册移出吗？")) {
-                    const res = await axios.delete(`/api/items/${albumId}/images/${imageId}`);
-                    this.currentAlbum = res.data;
-                }
+                if(confirm("确定要把这张照片从相册移出吗？")) { const res = await axios.delete(`/api/items/${albumId}/images/${imageId}`); this.currentAlbum = res.data; }
             },
             async uploadItem() {
                 if (!this.newNote && this.selectedFiles.length === 0 && this.newTitle === '') return alert("总得留下点魔法痕迹吧？");
-                this.isUploading = true;
-                const fd = new FormData();
+                this.isUploading = true; const fd = new FormData();
                 this.selectedFiles.forEach(file => fd.append('files', file));
                 fd.append('category', this.currentTab); fd.append('title', this.newTitle); fd.append('author', this.currentUser); 
                 if (this.newDate) fd.append('date', this.newDate);
-                if (this.currentTab === 'story') {
-                    fd.append('segments', JSON.stringify([{ id: Date.now().toString(), author: this.currentUser, text: this.newNote }]));
-                } else { fd.append('note', this.newNote); }
+                if (this.currentTab === 'story') fd.append('segments', JSON.stringify([{ id: Date.now().toString(), author: this.currentUser, text: this.newNote }]));
+                else fd.append('note', this.newNote);
                 try {
                     await axios.post('/api/items', fd);
                     this.newNote = ''; this.newTitle = ''; this.newDate = new Date().toISOString().split('T')[0]; this.selectedFiles = [];
@@ -497,13 +529,8 @@
                     this.getItems();
                 } catch (error) {} finally { this.isUploading = false; }
             },
-            async getItems() {
-                const res = await axios.get(`/api/items?category=${this.currentTab}`);
-                this.items = res.data;
-            },
-            async deleteItem(id) {
-                if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) { await axios.delete(`/api/items/${id}`); this.getItems(); }
-            },
+            async getItems() { const res = await axios.get(`/api/items?category=${this.currentTab}`); this.items = res.data; },
+            async deleteItem(id) { if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) { await axios.delete(`/api/items/${id}`); this.getItems(); } },
             startEdit(item) { this.editingId = item._id; this.editTitle = item.title || ''; this.editNote = item.note || ''; 
                 if (this.currentTab === 'story') { this.editSegments = item.segments ? JSON.parse(JSON.stringify(item.segments)) : [{ id: Date.now().toString(), author: item.author, text: item.note }]; }
             },
@@ -511,32 +538,24 @@
             cancelEdit() { this.editingId = null; },
             async saveEdit(id) {
                 let payload = { title: this.editTitle };
-                if (this.currentTab === 'story') payload.segments = this.editSegments.filter(seg => seg.text.trim() !== '');
-                else payload.note = this.editNote;
+                if (this.currentTab === 'story') payload.segments = this.editSegments.filter(seg => seg.text.trim() !== ''); else payload.note = this.editNote;
                 try { await axios.put(`/api/items/${id}`, payload); this.editingId = null; this.getItems(); } catch (e) {}
             },
             async toggleWish(item, event) {
-                try { await axios.put(`/api/items/${item._id}`, { completed: event.target.checked }); item.completed = event.target.checked; } 
-                catch (e) { event.target.checked = !event.target.checked; }
+                try { await axios.put(`/api/items/${item._id}`, { completed: event.target.checked }); item.completed = event.target.checked; } catch (e) { event.target.checked = !event.target.checked; }
             },
             isFuture(timestamp) { return timestamp > Date.now(); },
             viewFull(url) { window.open(url, '_blank'); },
             formatDate(dateString) { return new Date(dateString).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }); },
             initApp() {
                 this.newDate = new Date().toISOString().split('T')[0];
-                this.currentTab === 'stats' ? this.fetchAllItemsForStats() : this.getItems();
-                
-                // PWA Service Worker 注册魔法
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js');
-                }
+                this.currentTab === 'stats' ? this.fetchAllItemsForStats() : (this.currentTab !== 'tarot' && this.getItems());
+                if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
             }
         },
         mounted() { 
-            const savedUser = localStorage.getItem('orange_user');
-            if (savedUser) { this.currentUser = savedUser; this.initApp(); }
-            const savedTheme = localStorage.getItem('orange_theme');
-            if (savedTheme === 'dark') { this.isDarkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
+            const savedUser = localStorage.getItem('orange_user'); if (savedUser) { this.currentUser = savedUser; this.initApp(); }
+            const savedTheme = localStorage.getItem('orange_theme'); if (savedTheme === 'dark') { this.isDarkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
         }
     }).mount('#app');
 </script>
