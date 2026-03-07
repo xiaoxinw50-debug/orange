@@ -218,6 +218,12 @@
         .private-highlight-label { font-size: 12px; letter-spacing: 2px; color: rgba(246, 237, 244, 0.56); margin-bottom: 8px; }
         .private-highlight-text { font-family: var(--font-serif); font-size: 22px; line-height: 1.7; color: #fff8fc; }
         .private-note { font-size: 13px; line-height: 1.7; color: rgba(246, 237, 244, 0.66); margin-top: 10px; }
+        .private-meter { display: grid; gap: 8px; margin-top: 14px; }
+        .private-range { width: 100%; accent-color: #ffb7b2; }
+        .private-meter-scale { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: rgba(246, 237, 244, 0.56); }
+        .private-checklist { display: grid; gap: 10px; margin-top: 14px; }
+        .private-check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(246, 237, 244, 0.8); }
+        .private-check input { accent-color: #ffb7b2; }
         .surprise-display { min-height: 220px; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-radius: 20px; border: 1px dashed var(--border-fine); padding: 22px; background: rgba(255,255,255,0.24); }
         .surprise-display.rolling { position: relative; overflow: hidden; }
         .surprise-display.rolling::after { content: ''; position: absolute; inset: -40%; background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%); animation: capsuleSweep 1.2s linear infinite; }
@@ -1046,6 +1052,41 @@
 
                 <div v-else class="private-grid">
                     <div class="private-panel">
+                        <div class="private-panel-title">今晚主题包</div>
+                        <div class="private-panel-text">{{ currentPrivateThemeMeta.desc }}</div>
+                        <div class="private-row" style="margin-top: 14px;">
+                            <button
+                                v-for="option in privateThemeOptions"
+                                :key="option.key"
+                                type="button"
+                                :class="['private-chip', { active: privateTheme === option.key }]"
+                                @click="setPrivateTheme(option.key)"
+                            >
+                                {{ option.label }}
+                            </button>
+                        </div>
+
+                        <div class="private-panel-title" style="margin-top: 18px;">同意协议卡</div>
+                        <div class="private-panel-text">先确认信号、暂停权和照顾方式。越成熟，越需要把“可以停”说在前面。</div>
+                        <div class="private-row" style="margin-top: 14px;">
+                            <button
+                                v-for="option in privateConsentSignals"
+                                :key="option.key"
+                                type="button"
+                                :class="['private-chip', { active: privateConsentSignal === option.key }]"
+                                @click="setPrivateConsentSignal(option.key)"
+                            >
+                                {{ option.label }}
+                            </button>
+                        </div>
+                        <div class="private-checklist">
+                            <label v-for="item in privateConsentChecklistOptions" :key="item.key" class="private-check">
+                                <input type="checkbox" :checked="privateConsentChecklist[item.key]" @change="togglePrivateConsent(item.key)">
+                                <span>{{ item.label }}</span>
+                            </label>
+                        </div>
+                        <input type="text" class="private-input" style="margin-top: 14px;" v-model="privateSafeWord" @change="persistPrivatePlayState" placeholder="可选：写一个暂停词，比如“慢一点”">
+
                         <div class="private-panel-title">今晚边界</div>
                         <div class="private-panel-text">先把想要的节奏讲清楚。越成熟的亲密，越需要在开始前说清“今天可以到哪里”。</div>
                         <div class="private-row" style="margin-top: 14px;">
@@ -1055,6 +1096,19 @@
                                 type="button"
                                 :class="['private-chip', { active: privateBoundary === option.key }]"
                                 @click="setPrivateBoundary(option.key)"
+                            >
+                                {{ option.label }}
+                            </button>
+                        </div>
+
+                        <div class="private-panel-title" style="margin-top: 18px;">角色氛围包</div>
+                        <div class="private-row" style="margin-top: 14px;">
+                            <button
+                                v-for="option in privateRoleOptions"
+                                :key="option.key"
+                                type="button"
+                                :class="['private-chip', { active: privateRoleMode === option.key }]"
+                                @click="setPrivateRoleMode(option.key)"
                             >
                                 {{ option.label }}
                             </button>
@@ -1070,6 +1124,28 @@
                                 @click="setPrivateAtmosphere(option.key)"
                             >
                                 {{ option.label }}
+                            </button>
+                        </div>
+
+                        <div class="private-panel-title" style="margin-top: 18px;">强度仪表</div>
+                        <div class="private-meter">
+                            <input class="private-range" type="range" min="1" max="3" step="1" v-model.number="privateIntensity" @change="persistPrivatePlayState">
+                            <div class="private-meter-scale">
+                                <span v-for="item in privateIntensityLabels" :key="item.level">{{ item.label }}</span>
+                            </div>
+                            <div class="private-note">当前倾向：{{ currentPrivateIntensityLabel }}</div>
+                        </div>
+
+                        <div class="private-panel-title" style="margin-top: 18px;">私密记录标签</div>
+                        <div class="private-row" style="margin-top: 14px;">
+                            <button
+                                v-for="option in privateTagOptions"
+                                :key="option"
+                                type="button"
+                                :class="['private-chip', { active: privateSelectedTags.includes(option) }]"
+                                @click="togglePrivateTag(option)"
+                            >
+                                #{{ option }}
                             </button>
                         </div>
 
@@ -1098,6 +1174,23 @@
                         </div>
                         <div class="fun-actions">
                             <button class="action-submit" @click="drawPrivateTask">换一个今晚任务</button>
+                        </div>
+
+                        <div class="private-highlight" style="margin-top: 14px;">
+                            <div class="private-highlight-label">AFTERCARE</div>
+                            <div class="private-note" style="margin-top: 0;">结束后希望怎么照顾彼此，可以先说清楚，别等到累了才猜。</div>
+                            <div class="private-row" style="margin-top: 14px;">
+                                <button
+                                    v-for="option in privateAftercareOptions"
+                                    :key="option"
+                                    type="button"
+                                    :class="['private-chip', { active: privateSelectedAftercare.includes(option) }]"
+                                    @click="togglePrivateAftercare(option)"
+                                >
+                                    {{ option }}
+                                </button>
+                            </div>
+                            <div class="private-note">{{ currentPrivateAftercareSummary }}</div>
                         </div>
                     </div>
                 </div>
@@ -1509,8 +1602,16 @@
                 privatePasscodeInput: '',
                 privateHasPasscode: false,
                 privateUnlocked: false,
+                privateTheme: 'soft',
+                privateConsentSignal: 'green',
+                privateConsentChecklist: { boundary: true, pause: true, aftercare: false },
+                privateSafeWord: '',
                 privateBoundary: 'soft',
+                privateRoleMode: 'care',
                 privateAtmosphere: 'lamp',
+                privateIntensity: 2,
+                privateSelectedTags: ['夜聊'],
+                privateSelectedAftercare: ['抱一会儿'],
                 privateAftercareNote: '',
                 privateQuestionIndex: 0,
                 privateTask: '关掉大灯，只留一盏小灯，认真看对方半分钟。',
@@ -1552,31 +1653,64 @@
                     { key: 'weekly', label: '本周可做' },
                     { key: 'someday', label: '以后一定做' }
                 ],
+                privateThemeOptions: [
+                    { key: 'soft', label: '温柔夜聊', desc: '适合慢慢说、慢慢靠近，先把安全感垫起来。' },
+                    { key: 'spark', label: '暧昧升温', desc: '更偏心动、张力和电影感，但不越界。' },
+                    { key: 'repair', label: '修复靠近', desc: '适合关系有点绷的时候，把距离一点点拉回来。' }
+                ],
+                privateConsentSignals: [
+                    { key: 'green', label: '绿灯 · 可以继续' },
+                    { key: 'yellow', label: '黄灯 · 慢一点' },
+                    { key: 'red', label: '红灯 · 先停一下' }
+                ],
+                privateConsentChecklistOptions: [
+                    { key: 'boundary', label: '今晚边界已经说清楚' },
+                    { key: 'pause', label: '任何时候都可以暂停' },
+                    { key: 'aftercare', label: '结束后的照顾方式有共识' }
+                ],
                 privateBoundaryOptions: [
                     { key: 'soft', label: '只想慢慢靠近' },
                     { key: 'warm', label: '可以更暧昧一点' },
                     { key: 'talk', label: '今晚更适合深聊' }
+                ],
+                privateRoleOptions: [
+                    { key: 'lead', label: '主导感' },
+                    { key: 'care', label: '被照顾感' },
+                    { key: 'ritual', label: '仪式感' }
                 ],
                 privateAtmosphereOptions: [
                     { key: 'lamp', label: '小灯和低声说话' },
                     { key: 'music', label: '歌单和身体靠近' },
                     { key: 'window', label: '窗边和夜风' }
                 ],
+                privateIntensityLabels: [
+                    { level: 1, label: '安静贴近' },
+                    { level: 2, label: '暧昧升温' },
+                    { level: 3, label: '强烈靠近' }
+                ],
+                privateTagOptions: ['夜聊', '边界', '心动', '修复', '照顾', '仪式感'],
+                privateAftercareOptions: ['抱一会儿', '喝水', '聊五分钟', '安静靠着', '洗澡后再说'],
                 privateQuestions: [
-                    '如果今晚只能用一句话告诉我你最想被怎样靠近，你会怎么说？',
-                    '什么样的语气或小动作，会让你一下子从紧绷变得放松？',
-                    '你希望今晚的节奏更像安静陪伴，还是一点点升温的电影镜头？',
-                    '如果我想更懂你，今晚最值得问你的那个问题是什么？',
-                    '在成熟的亲密里，你最在意被尊重的是哪一部分？',
-                    '你现在最想听我认真说出口的一句是什么？'
+                    { theme: 'soft', text: '如果今晚只能用一句话告诉我你最想被怎样靠近，你会怎么说？' },
+                    { theme: 'soft', text: '什么样的语气或小动作，会让你一下子从紧绷变得放松？' },
+                    { theme: 'soft', text: '你现在最想听我认真说出口的一句是什么？' },
+                    { theme: 'spark', text: '你希望今晚的节奏更像安静陪伴，还是一点点升温的电影镜头？' },
+                    { theme: 'spark', text: '如果我要让你今晚更心动一点，最有效的细节会是什么？' },
+                    { theme: 'spark', text: '哪种暧昧感最像你真正会沦陷的那个瞬间？' },
+                    { theme: 'repair', text: '如果我想更懂你，今晚最值得问你的那个问题是什么？' },
+                    { theme: 'repair', text: '在成熟的亲密里，你最在意被尊重的是哪一部分？' },
+                    { theme: 'repair', text: '如果今天有一点点别扭，你最希望我怎样重新靠近你？' }
                 ],
                 privateTaskDeck: [
-                    '关掉顶灯，只留一盏小灯，面对面坐着，慢慢说出今晚的边界和期待。',
-                    '手心贴手心 30 秒，不抢着说话，先感受节奏是不是合拍。',
-                    '轮流用低一点的声音，说一句平时不会在白天讲的话。',
-                    '给对方一个比平时更慢的拥抱，抱到其中一个人先放松下来。',
-                    '一起挑一首适合今晚的歌，听完整首，再决定接下来做什么。',
-                    '坐近一点，认真看着对方，说出“你这样会让我很安心”的一个细节。'
+                    { theme: 'soft', text: '关掉顶灯，只留一盏小灯，面对面坐着，慢慢说出今晚的边界和期待。' },
+                    { theme: 'soft', text: '手心贴手心 30 秒，不抢着说话，先感受节奏是不是合拍。' },
+                    { theme: 'soft', text: '给对方一个比平时更慢的拥抱，抱到其中一个人先放松下来。' },
+                    { theme: 'spark', text: '一起挑一首适合今晚的歌，听完整首，再决定接下来做什么。' },
+                    { theme: 'spark', text: '轮流用更低一点的声音，说一句平时不会在白天讲的话。' },
+                    { theme: 'spark', text: '坐近一点，认真看着对方，说出“你这样会让我很心动”的一个细节。' },
+                    { theme: 'repair', text: '先别急着解释，轮流说一句“刚才我真正想表达的是”。' },
+                    { theme: 'repair', text: '抱着对方说完一句“你其实没有站在我的对立面”。' },
+                    { theme: 'repair', text: '一起选一句更温柔的说法，把今天最刺人的那句话重新说一次。' }
                 ],
                 repairPrompts: [
                     { title: '真正想被理解', prompt: '这件事里，我最想让你理解的不是表面行为，而是我心里真正卡住的那一层。' },
@@ -1782,8 +1916,28 @@
                 }
                 return '游乐区改成了更集中的面板：回忆扭蛋负责回看，任务和剧情负责起头，转盘负责做决定，Bingo 负责把小互动落到手上。';
             },
+            currentPrivateThemeMeta() {
+                return this.privateThemeOptions.find(item => item.key === this.privateTheme) || this.privateThemeOptions[0] || { desc: '' };
+            },
+            filteredPrivateQuestions() {
+                const filtered = this.privateQuestions.filter(item => item.theme === this.privateTheme);
+                return filtered.length > 0 ? filtered : this.privateQuestions;
+            },
             currentPrivateQuestion() {
-                return this.privateQuestions[this.privateQuestionIndex] || this.privateQuestions[0] || '';
+                return this.filteredPrivateQuestions[this.privateQuestionIndex]?.text || this.filteredPrivateQuestions[0]?.text || '';
+            },
+            filteredPrivateTasks() {
+                const filtered = this.privateTaskDeck.filter(item => item.theme === this.privateTheme);
+                return filtered.length > 0 ? filtered : this.privateTaskDeck;
+            },
+            currentPrivateIntensityLabel() {
+                return this.privateIntensityLabels.find(item => item.level === this.privateIntensity)?.label || '暧昧升温';
+            },
+            currentPrivateAftercareSummary() {
+                if (this.privateSelectedAftercare.length === 0) {
+                    return '还没选事后照顾方式，今晚结束后别让彼此靠猜。';
+                }
+                return `结束后优先：${this.privateSelectedAftercare.join(' / ')}`;
             },
             relationshipItems() {
                 return (this.allItemsForStats || []).filter(item => !item.deletedAt).slice().sort((a, b) => b.time - a.time).slice(0, 24);
@@ -2519,8 +2673,19 @@
                     const raw = localStorage.getItem('orange_private_state');
                     if (!raw) return;
                     const parsed = JSON.parse(raw);
+                    this.privateTheme = parsed.privateTheme || this.privateTheme;
+                    this.privateConsentSignal = parsed.privateConsentSignal || this.privateConsentSignal;
+                    this.privateConsentChecklist = {
+                        ...this.privateConsentChecklist,
+                        ...(parsed.privateConsentChecklist || {})
+                    };
+                    this.privateSafeWord = parsed.privateSafeWord || '';
                     this.privateBoundary = parsed.privateBoundary || this.privateBoundary;
+                    this.privateRoleMode = parsed.privateRoleMode || this.privateRoleMode;
                     this.privateAtmosphere = parsed.privateAtmosphere || this.privateAtmosphere;
+                    this.privateIntensity = Number(parsed.privateIntensity || this.privateIntensity);
+                    this.privateSelectedTags = Array.isArray(parsed.privateSelectedTags) && parsed.privateSelectedTags.length > 0 ? parsed.privateSelectedTags : this.privateSelectedTags;
+                    this.privateSelectedAftercare = Array.isArray(parsed.privateSelectedAftercare) && parsed.privateSelectedAftercare.length > 0 ? parsed.privateSelectedAftercare : this.privateSelectedAftercare;
                     this.privateAftercareNote = parsed.privateAftercareNote || '';
                     this.privateQuestionIndex = Number.isInteger(parsed.privateQuestionIndex) ? parsed.privateQuestionIndex : 0;
                     this.privateTask = parsed.privateTask || this.privateTask;
@@ -2528,8 +2693,16 @@
             },
             persistPrivatePlayState() {
                 localStorage.setItem('orange_private_state', JSON.stringify({
+                    privateTheme: this.privateTheme,
+                    privateConsentSignal: this.privateConsentSignal,
+                    privateConsentChecklist: this.privateConsentChecklist,
+                    privateSafeWord: this.privateSafeWord,
                     privateBoundary: this.privateBoundary,
+                    privateRoleMode: this.privateRoleMode,
                     privateAtmosphere: this.privateAtmosphere,
+                    privateIntensity: this.privateIntensity,
+                    privateSelectedTags: this.privateSelectedTags,
+                    privateSelectedAftercare: this.privateSelectedAftercare,
                     privateAftercareNote: this.privateAftercareNote,
                     privateQuestionIndex: this.privateQuestionIndex,
                     privateTask: this.privateTask
@@ -2573,8 +2746,29 @@
                 this.privatePasscodeInput = '';
                 this.showNotice('info', '私密模式已重新上锁');
             },
+            setPrivateTheme(key) {
+                this.privateTheme = key;
+                this.privateQuestionIndex = 0;
+                this.drawPrivateTask(false);
+                this.persistPrivatePlayState();
+            },
+            setPrivateConsentSignal(key) {
+                this.privateConsentSignal = key;
+                this.persistPrivatePlayState();
+            },
+            togglePrivateConsent(key) {
+                this.privateConsentChecklist = {
+                    ...this.privateConsentChecklist,
+                    [key]: !this.privateConsentChecklist[key]
+                };
+                this.persistPrivatePlayState();
+            },
             setPrivateBoundary(key) {
                 this.privateBoundary = key;
+                this.persistPrivatePlayState();
+            },
+            setPrivateRoleMode(key) {
+                this.privateRoleMode = key;
                 this.persistPrivatePlayState();
             },
             setPrivateAtmosphere(key) {
@@ -2582,14 +2776,31 @@
                 this.persistPrivatePlayState();
             },
             nextPrivateQuestion() {
-                if (this.privateQuestions.length > 1) {
-                    this.privateQuestionIndex = (this.privateQuestionIndex + 1) % this.privateQuestions.length;
+                if (this.filteredPrivateQuestions.length > 1) {
+                    this.privateQuestionIndex = (this.privateQuestionIndex + 1) % this.filteredPrivateQuestions.length;
+                }
+                this.persistPrivatePlayState();
+            },
+            togglePrivateTag(tag) {
+                if (this.privateSelectedTags.includes(tag)) {
+                    this.privateSelectedTags = this.privateSelectedTags.filter(item => item !== tag);
+                } else {
+                    this.privateSelectedTags = [...this.privateSelectedTags, tag];
+                }
+                this.persistPrivatePlayState();
+            },
+            togglePrivateAftercare(option) {
+                if (this.privateSelectedAftercare.includes(option)) {
+                    this.privateSelectedAftercare = this.privateSelectedAftercare.filter(item => item !== option);
+                } else {
+                    this.privateSelectedAftercare = [...this.privateSelectedAftercare, option];
                 }
                 this.persistPrivatePlayState();
             },
             drawPrivateTask(showNotice = true) {
-                const randomIndex = Math.floor(Math.random() * this.privateTaskDeck.length);
-                this.privateTask = this.privateTaskDeck[randomIndex];
+                const pool = this.filteredPrivateTasks;
+                const randomIndex = Math.floor(Math.random() * pool.length);
+                this.privateTask = pool[randomIndex]?.text || this.privateTask;
                 this.persistPrivatePlayState();
                 if (showNotice) this.showNotice('success', '今晚任务已换新');
             },
@@ -2597,10 +2808,17 @@
                 this.persistPrivatePlayState();
                 this.switchTab('diary');
                 this.$nextTick(() => {
+                    const theme = this.currentPrivateThemeMeta.label;
+                    const signal = this.privateConsentSignals.find(item => item.key === this.privateConsentSignal)?.label || this.privateConsentSignal;
+                    const role = this.privateRoleOptions.find(item => item.key === this.privateRoleMode)?.label || this.privateRoleMode;
                     const boundary = this.privateBoundaryOptions.find(item => item.key === this.privateBoundary)?.label || this.privateBoundary;
                     const atmosphere = this.privateAtmosphereOptions.find(item => item.key === this.privateAtmosphere)?.label || this.privateAtmosphere;
+                    const agreed = this.privateConsentChecklistOptions
+                        .filter(item => this.privateConsentChecklist[item.key])
+                        .map(item => item.label)
+                        .join(' / ') || '待确认';
                     this.newTitle = '🌙 私密模式随笔';
-                    this.newNote = `【今晚边界】${boundary}\n【今晚气氛】${atmosphere}\n【深夜问题】${this.currentPrivateQuestion}\n【今晚任务】${this.privateTask}\n【希望被如何照顾】${this.privateAftercareNote || '先靠近，再慢慢说。'}\n\n【后来发生了什么】\n`;
+                    this.newNote = `【主题包】${theme}\n【同意信号】${signal}\n【已确认】${agreed}\n【暂停词】${this.privateSafeWord || '未设置'}\n【今晚边界】${boundary}\n【角色氛围】${role}\n【今晚气氛】${atmosphere}\n【强度仪表】${this.currentPrivateIntensityLabel}\n【记录标签】${this.privateSelectedTags.length > 0 ? this.privateSelectedTags.map(item => `#${item}`).join(' ') : '未标记'}\n【深夜问题】${this.currentPrivateQuestion}\n【今晚任务】${this.privateTask}\n【事后照顾】${this.privateSelectedAftercare.length > 0 ? this.privateSelectedAftercare.join(' / ') : '未设置'}\n【希望被如何照顾】${this.privateAftercareNote || '先靠近，再慢慢说。'}\n\n【后来发生了什么】\n`;
                     this.selectedMood = 'sweet';
                     this.showNotice('success', '私密提示已写进随笔草稿');
                 });
