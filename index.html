@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         :root {
-            /* 白昼模式：珍珠与晨曦 */
             --paper-bg: #FFF0F5; 
             --card-bg: rgba(255, 255, 255, 0.85);
             --ink-main: #7B5C6A; 
@@ -16,14 +15,12 @@
             --accent-main: #F4C2C2; 
             --accent-bronze: #E6A8D7; 
             --accent-red: #FFB6C1; 
-            --accent-indigo: #B3CEE5;
             --glass-bg: rgba(255, 255, 255, 0.6); 
             --border-fine: rgba(255, 182, 193, 0.4);
             --story-bg: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,240,245,0.6) 100%);
             
             --color-xiaocheng: #82CAFF; 
             --color-xiaoxin: #FFB7B2;   
-            
             --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
         }
@@ -36,19 +33,14 @@
             --accent-main: #DDA0DD; 
             --accent-bronze: #B3CEE5; 
             --accent-red: #FFB7B2; 
-            --accent-indigo: #E6A8D7;
             --glass-bg: rgba(44, 26, 61, 0.7); 
             --border-fine: rgba(221, 160, 221, 0.2);
             --story-bg: linear-gradient(180deg, rgba(60,35,80,0.8) 0%, rgba(44,26,61,0.8) 100%);
-            
             --color-xiaocheng: #AEC6CF; 
             --color-xiaoxin: #F8C8DC;   
         }
 
-        body { 
-            font-family: var(--font-ui); background: linear-gradient(-45deg, #FFE4E1, #FFF0F5, #E6E6FA, #F0F8FF); background-size: 400% 400%; animation: silkGradient 15s ease infinite; margin: 0; padding: 0; color: var(--ink-main); -webkit-font-smoothing: antialiased; 
-        }
-
+        body { font-family: var(--font-ui); background: linear-gradient(-45deg, #FFE4E1, #FFF0F5, #E6E6FA, #F0F8FF); background-size: 400% 400%; animation: silkGradient 15s ease infinite; margin: 0; padding: 0; color: var(--ink-main); -webkit-font-smoothing: antialiased; }
         [data-theme="dark"] body { background: linear-gradient(-45deg, #2C1A3D, #1A1A2E, #3B1C32, #16213E); background-size: 400% 400%; }
         @keyframes silkGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
@@ -59,11 +51,11 @@
         .login-box { text-align: center; background: var(--glass-bg); padding: 50px; border-radius: 30px; box-shadow: 0 15px 35px rgba(255, 182, 193, 0.2); border: 1px solid var(--border-fine); backdrop-filter: blur(20px);}
         [data-theme="dark"] .login-box { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); }
         .login-box h1 { font-family: var(--font-serif); font-size: 32px; letter-spacing: 4px; margin-bottom: 30px; color: var(--ink-main); }
-        .login-box input { width: 220px; text-align: center; letter-spacing: 2px; padding: 15px; border-radius: 20px; border: 2px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); outline: none; font-size: 16px; transition: 0.3s;}
-        .login-box input:focus { border-color: var(--accent-bronze); background: var(--card-bg); box-shadow: 0 0 15px rgba(255, 182, 193, 0.4);}
+        .login-box input { width: 220px; text-align: center; letter-spacing: 2px; padding: 15px; border-radius: 20px; border: 2px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); outline: none; font-size: 16px;}
+        .login-box input:focus { border-color: var(--accent-bronze); background: var(--card-bg);}
 
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .nav-tabs { display: flex; gap: 25px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
+        .nav-tabs { display: flex; gap: 20px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
         .nav-tabs::-webkit-scrollbar { display: none; }
         .tab { font-family: var(--font-serif); font-size: 18px; cursor: pointer; padding-bottom: 5px; color: var(--ink-light); white-space: nowrap; position: relative;}
         .tab::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 3px; background: linear-gradient(90deg, var(--color-xiaoxin), var(--color-xiaocheng)); transition: 0.3s; border-radius: 3px;}
@@ -76,14 +68,9 @@
         .user-badge { font-family: var(--font-serif); font-size: 14px; color: var(--ink-main); background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4)); border: 1px solid var(--border-fine); padding: 6px 16px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); backdrop-filter: blur(10px);}
         [data-theme="dark"] .user-badge { background: rgba(0,0,0,0.2); }
 
-        .memory-flashback { text-align: center; margin-bottom: 40px; padding: 25px; border-radius: 20px; background: linear-gradient(90deg, transparent, var(--glass-bg), transparent); border: 1px solid var(--border-fine); }
-        .memory-title { font-family: var(--font-serif); font-size: 14px; color: var(--accent-bronze); margin-bottom: 12px; letter-spacing: 2px; }
-        .memory-text { font-family: var(--font-serif); font-size: 16px; font-style: italic; cursor: pointer; line-height: 1.6;}
-
-        .control-panel { background: var(--glass-bg); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15); position: relative; overflow: hidden;}
+        .control-panel { background: var(--glass-bg); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15); }
         [data-theme="dark"] .control-panel { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); }
         
-        /* 自定义文件上传UI */
         .file-upload-wrapper { position: relative; flex: none; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.5); border: 1px dashed var(--accent-bronze); border-radius: 12px; padding: 0 15px; height: 50px; cursor: pointer; transition: 0.3s;}
         [data-theme="dark"] .file-upload-wrapper { background: rgba(0,0,0,0.2); }
         .file-upload-wrapper:hover { background: var(--card-bg); }
@@ -91,42 +78,60 @@
         .file-upload-text { font-family: var(--font-ui); color: var(--accent-bronze); font-size: 14px; font-weight: bold;}
 
         .input-group { display: flex; gap: 15px; align-items: center; position: relative; z-index: 1;}
-        .title-input { font-family: var(--font-serif); font-size: 18px; padding: 14px; border-radius: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); width: 100%; box-sizing: border-box; text-align: center; letter-spacing: 2px; color: var(--ink-main); transition: 0.3s;}
-        .note-input { font-family: var(--font-ui); padding: 14px; border-radius: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); flex: 1; color: var(--ink-main); transition: 0.3s;}
-        [data-theme="dark"] .title-input, [data-theme="dark"] .note-input { background: rgba(0,0,0,0.2); }
+        .title-input, .note-input { padding: 14px; border-radius: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); transition: 0.3s;}
+        .title-input { font-family: var(--font-serif); font-size: 18px; width: 100%; box-sizing: border-box; text-align: center; letter-spacing: 2px; }
+        .note-input { font-family: var(--font-ui); flex: 1; }
+        [data-theme="dark"] .title-input, [data-theme="dark"] .note-input, [data-theme="dark"] input[type="date"] { background: rgba(0,0,0,0.2); }
         input[type="date"] { padding: 12px; border-radius: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); font-family: var(--font-ui); }
-        [data-theme="dark"] input[type="date"] { background: rgba(0,0,0,0.2); color: var(--ink-main); }
         input:focus, textarea:focus { border-color: var(--accent-bronze); background: var(--card-bg); outline: none; box-shadow: 0 0 0 4px rgba(230, 168, 215, 0.2);}
         
-        button.action-submit { background: linear-gradient(135deg, var(--color-xiaoxin), var(--color-xiaocheng)); color: #FFFFFF; border: none; padding: 14px 28px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(255, 182, 193, 0.4); transition: transform 0.3s, box-shadow 0.3s; }
+        button.action-submit { background: linear-gradient(135deg, var(--color-xiaoxin), var(--color-xiaocheng)); color: #FFFFFF; border: none; padding: 14px 28px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(255, 182, 193, 0.4); transition: 0.3s; }
         button.action-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255, 182, 193, 0.6); }
         button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
         .timeline-group { margin-bottom: 60px; }
         .timeline-header { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin-bottom: 25px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(15px); padding: 15px 20px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .grid { display: grid; gap: 30px; }
-        .grid-memory { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } /* 加宽了一点以适应拼图 */
+        .grid-memory { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
         .grid-list { grid-template-columns: 1fr; }
 
         .card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.15); backdrop-filter: blur(10px); }
         [data-theme="dark"] .card { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .card:hover { transform: translateY(-6px); box-shadow: 0 15px 40px rgba(255, 182, 193, 0.3); }
+        .card img { width: 100%; height: 280px; object-fit: cover; border-bottom: 1px solid var(--border-fine); display: block; cursor: zoom-in;}
         .card-info { padding: 30px; position: relative; }
-        
-        /* ================= 魔法图集 (相册九宫格) ================= */
-        .album-grid { display: grid; gap: 4px; border-bottom: 1px solid var(--border-fine); background: var(--card-bg);}
-        .album-grid.cols-1 { grid-template-columns: 1fr; }
-        .album-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-        .album-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
-        
-        .album-img-wrap { position: relative; overflow: hidden; aspect-ratio: 1; cursor: zoom-in;}
-        .album-grid.cols-1 .album-img-wrap { aspect-ratio: auto; height: 280px; } /* 单图保持长方形 */
-        .album-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; display: block;}
-        .album-img-wrap:hover img { transform: scale(1.08); }
 
-        .author-stamp { position: absolute; bottom: 15px; right: 25px; font-family: var(--font-serif); font-size: 12px; color: var(--ink-light); display: flex; align-items: center; gap: 4px;}
+        /* ====== 相册封面专属样式 (叠放效果) ====== */
+        .album-cover { position: relative; cursor: pointer; background: #fff;}
+        .album-cover::before, .album-cover::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--card-bg); border: 1px solid var(--border-fine); border-radius: 24px 24px 0 0; z-index: -1; transition: 0.3s;}
+        .album-cover::before { transform: rotate(-3deg) scale(0.98); }
+        .album-cover::after { transform: rotate(3deg) scale(0.98); }
+        .card:hover .album-cover::before { transform: rotate(-5deg) scale(0.98); }
+        .card:hover .album-cover::after { transform: rotate(5deg) scale(0.98); }
+        .album-badge { position: absolute; bottom: 15px; right: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(5px); padding: 6px 12px; border-radius: 20px; font-size: 12px; color: var(--ink-main); font-weight: bold; border: 1px solid var(--border-fine); pointer-events: none;}
+        
+        /* ====== 相册内页画廊 (模态框) ====== */
+        .album-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--paper-bg); z-index: 1000; display: flex; flex-direction: column; overflow-y: auto; backdrop-filter: blur(20px); }
+        .album-modal-header { position: sticky; top: 0; padding: 20px 30px; background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-fine); display: flex; justify-content: space-between; align-items: center; z-index: 10;}
+        .album-modal-header h2 { margin: 0; font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
+        .close-btn { background: var(--card-bg); border: 1px solid var(--border-fine); color: var(--ink-main); width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+        .album-modal-body { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box;}
+        .album-desc { text-align: center; font-family: var(--font-serif); font-size: 16px; color: var(--ink-light); margin-bottom: 30px; line-height: 2;}
+        
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .gallery-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1; border: 1px solid var(--border-fine); background: var(--card-bg);}
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; transition: 0.4s; }
+        .gallery-item:hover img { transform: scale(1.05); }
+        .delete-img-btn { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; background: rgba(255,255,255,0.9); border-radius: 50%; border: none; color: #FF9AA2; cursor: pointer; opacity: 0; transition: 0.3s; font-size: 16px;}
+        .gallery-item:hover .delete-img-btn { opacity: 1; }
+        
+        .append-area { margin-top: 40px; padding: 30px; text-align: center; border: 2px dashed var(--accent-bronze); border-radius: 20px; background: rgba(255,255,255,0.3); }
+        [data-theme="dark"] .append-area { background: rgba(0,0,0,0.2); }
+
+        .author-stamp { position: absolute; bottom: 15px; right: 25px; font-family: var(--font-serif); font-size: 12px; color: var(--ink-light); }
         .date { font-size: 13px; color: var(--ink-light); margin-bottom: 15px; display: block; text-align: center; letter-spacing: 1px;}
         
+        /* 浮梦小说 */
         .story-title { font-family: var(--font-serif); font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 25px; letter-spacing: 2px; color: var(--ink-main);}
         .card-story { background: var(--story-bg); border: 1px solid var(--border-fine); }
         .story-content { font-family: var(--font-serif); font-size: 16px; line-height: 2.2; text-align: justify; }
@@ -134,51 +139,33 @@
         .text-xiaoxin { color: var(--color-xiaoxin); }
         .story-seg { border-radius: 8px; padding: 4px 10px; margin-bottom: 10px; white-space: pre-wrap; word-wrap: break-word; display: block; transition: 0.3s;}
         .story-seg:hover { background: rgba(255, 182, 193, 0.1); }
-
         .story-legend { text-align: center; font-family: var(--font-serif); font-size: 13px; margin-bottom: 25px; background: var(--glass-bg); padding: 10px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; position: relative; left: 50%; transform: translateX(-50%);}
         .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 6px; box-shadow: 0 0 8px currentColor;}
 
-        .edit-title { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 18px; padding: 12px; margin-bottom: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); border-radius: 12px; text-align: center;}
+        /* 编辑模式 */
+        .edit-title, .seg-textarea, .edit-area { width: 100%; box-sizing: border-box; font-family: var(--font-serif); padding: 15px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); border-radius: 12px; outline: none; }
         .edit-seg-row { display: flex; gap: 12px; margin-bottom: 15px; align-items: flex-start; }
         .seg-author-badge { font-family: var(--font-serif); font-size: 12px; padding: 6px 10px; border-radius: 8px; color: white; white-space: nowrap; margin-top: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
         .bg-xiaocheng { background: var(--color-xiaocheng); }
         .bg-xiaoxin { background: var(--color-xiaoxin); }
-        .seg-textarea { flex: 1; font-family: var(--font-serif); font-size: 16px; line-height: 2; padding: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); border-radius: 12px; outline: none; resize: vertical; min-height: 80px; }
-        .add-seg-btn { width: 100%; background: rgba(255, 255, 255, 0.3); border: 2px dashed var(--accent-bronze); color: var(--ink-main); padding: 12px; margin-top: 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; font-family: var(--font-serif);}
-        .add-seg-btn:hover { background: var(--accent-bronze); color: white; }
+        .add-seg-btn { width: 100%; background: rgba(255, 255, 255, 0.3); border: 2px dashed var(--accent-bronze); color: var(--ink-main); padding: 12px; margin-top: 10px; border-radius: 12px; cursor: pointer; transition: 0.3s;}
         [data-theme="dark"] .edit-title, [data-theme="dark"] .seg-textarea, [data-theme="dark"] .edit-area { background: rgba(0,0,0,0.3); }
-
-        .edit-area { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 16px; line-height: 2; padding: 15px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); border-radius: 12px; outline: none; resize: vertical; min-height: 120px; }
-        .edit-actions { display: flex; gap: 15px; margin-top: 25px; justify-content: center;}
-        .btn-cancel { background: transparent !important; border: 1px solid var(--border-fine) !important; color: var(--ink-main) !important; box-shadow: none !important; }
 
         .actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; opacity: 0; z-index: 20;}
         .card:hover .actions { opacity: 1; }
-        .action-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink-light); backdrop-filter: blur(10px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s;}
+        .action-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink-light); backdrop-filter: blur(10px); transition: 0.3s;}
         .action-btn:hover { color: white; background: var(--accent-bronze); border-color: var(--accent-bronze); transform: scale(1.1);}
-        .btn-delete:hover { background: #FF9AA2; border-color: #FF9AA2; }
-
-        .wish-item { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.4); padding: 10px 15px; border-radius: 12px; border: 1px solid var(--border-fine);}
-        [data-theme="dark"] .wish-item { background: rgba(0,0,0,0.2); }
-        .wish-checkbox { width: 22px; height: 22px; accent-color: var(--accent-bronze); cursor: pointer;}
-        .wish-completed { text-decoration: line-through; color: var(--ink-light); opacity: 0.7;}
-        .note { font-family: var(--font-serif); font-size: 16px; line-height: 2.2; color: var(--ink-main); white-space: pre-wrap; }
-        
-        .capsule-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 280px; background: var(--glass-bg); backdrop-filter: blur(20px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; }
-        .capsule-overlay div:first-child { font-size: 32px; filter: drop-shadow(0 4px 10px rgba(255,182,193,0.5)); }
 
         @media (max-width: 600px) {
             #app { padding: 20px 15px; }
             .header { margin-bottom: 25px; }
-            .nav-tabs { gap: 20px; }
-            .tab { font-size: 16px; }
+            .nav-tabs { gap: 15px; }
             .control-panel { padding: 20px; margin-bottom: 30px;}
             .input-group { flex-direction: column; align-items: stretch; gap: 12px; }
             .file-upload-wrapper { width: 100%; box-sizing: border-box; }
-            button.action-submit { width: 100%; padding: 15px; font-size: 16px; }
-            .actions { opacity: 1; background: var(--glass-bg); padding: 6px; border-radius: 25px; border: 1px solid var(--border-fine); backdrop-filter: blur(10px);}
-            .action-btn { width: 30px; height: 30px; font-size: 12px;}
-            .card-info { padding: 25px 20px 40px 20px; }
+            .actions { opacity: 1; }
+            .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+            .delete-img-btn { opacity: 1; background: var(--card-bg); }
         }
     </style>
 </head>
@@ -189,133 +176,110 @@
         <div class="login-box">
             <h1>开启梦境 🎀</h1>
             <input type="password" v-model="loginCode" @keyup.enter="login" placeholder="输入魔法暗号...">
-            <div style="margin-top:20px; font-size:12px; color:var(--ink-light);">
-                (悄悄话：xiaoxin 或 xiaocheng)
-            </div>
         </div>
     </div>
 
     <template v-else>
+        <div v-if="currentAlbum" class="album-modal">
+            <div class="album-modal-header">
+                <h2>《 {{ currentAlbum.title || '无名相册' }} 》</h2>
+                <button class="close-btn" @click="closeAlbum">×</button>
+            </div>
+            <div class="album-modal-body">
+                <div v-if="currentAlbum.note" class="album-desc">{{ currentAlbum.note }}</div>
+                
+                <div class="gallery-grid">
+                    <div v-for="img in currentAlbum.images" :key="img.public_id" class="gallery-item">
+                        <img :src="img.url" @click="viewFull(img.url)">
+                        <button class="delete-img-btn" @click="deleteImageFromAlbum(currentAlbum._id, img._id)" title="移除此照片">×</button>
+                    </div>
+                </div>
+
+                <div class="append-area">
+                    <div class="file-upload-wrapper" style="max-width: 300px; margin: 0 auto; margin-bottom: 15px;">
+                        <input type="file" @change="handleAppendFiles" accept="image/*" multiple>
+                        <span class="file-upload-text">{{ appendFiles.length > 0 ? `已选 ${appendFiles.length} 张图片 🌸` : '+ 挑选新照片入册' }}</span>
+                    </div>
+                    <button class="action-submit" @click="submitAppendPhotos" v-if="appendFiles.length > 0" :disabled="isUploading">
+                        {{ isUploading ? '✨ 传送中...' : '确认追加照片' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="header">
             <div class="nav-tabs">
                 <div :class="['tab', {active: currentTab === 'memory'}]" @click="switchTab('memory')">纪事</div>
+                <div :class="['tab', {active: currentTab === 'album'}]" @click="switchTab('album')">相册</div>
                 <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')">随笔</div>
                 <div :class="['tab', {active: currentTab === 'wish'}]" @click="switchTab('wish')">心愿</div>
                 <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')">浮梦</div>
             </div>
-            
             <div class="header-actions">
-                <button class="theme-toggle" @click="toggleTheme" :title="isDarkMode ? '切换至晨曦' : '切换至星空'">
-                    {{ isDarkMode ? '🌙' : '✨' }}
-                </button>
-                <div class="user-badge" @click="logout" title="点击可退出">
-                    👑 {{ currentUser }}
-                </div>
+                <button class="theme-toggle" @click="toggleTheme">{{ isDarkMode ? '🌙' : '✨' }}</button>
+                <div class="user-badge" @click="logout">👑 {{ currentUser }}</div>
             </div>
         </div>
 
-        <div v-if="currentTab === 'story'" class="story-legend">
-            <span class="legend-dot bg-xiaocheng"></span> 小橙字迹 &nbsp;&nbsp;&nbsp;
-            <span class="legend-dot bg-xiaoxin"></span> 小心字迹
-        </div>
-
         <div class="control-panel">
-            <input v-if="currentTab === 'story'" type="text" v-model="newTitle" class="title-input" placeholder="《 篇章名 》 (如：仲夏夜之梦)...">
+            <input v-if="currentTab === 'story' || currentTab === 'album'" type="text" v-model="newTitle" class="title-input" :placeholder="currentTab === 'album' ? '《 相册名称 》 (如：2026跨年之旅)' : '《 篇章名 》'">
             <div class="input-group">
-                <div class="file-upload-wrapper" v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story'">
-                    <input type="file" @change="handleFiles" accept="image/*" multiple>
-                    <span class="file-upload-text">{{ selectedFiles.length > 0 ? `已选 ${selectedFiles.length} 张图片 🌸` : '📸 唤醒记忆 (可多选)' }}</span>
+                <div class="file-upload-wrapper" v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story' || currentTab === 'album'">
+                    <input type="file" @change="handleFiles" accept="image/*" :multiple="currentTab === 'album'">
+                    <span class="file-upload-text">{{ selectedFiles.length > 0 ? `已选 ${selectedFiles.length} 张 🌸` : (currentTab==='album' ? '📸 批量选择照片' : '📸 唤醒记忆') }}</span>
                 </div>
                 
                 <input type="date" v-model="newDate">
                 <input type="text" class="note-input" v-model="newNote" :placeholder="placeholderText" @keyup.enter="uploadItem">
-                <button class="action-submit" @click="uploadItem" :disabled="isUploading">
-                    {{ isUploading ? '✨ 施展魔法中...' : btnText }}
-                </button>
+                <button class="action-submit" @click="uploadItem" :disabled="isUploading">{{ isUploading ? '✨ 施展魔法中...' : btnText }}</button>
             </div>
         </div>
 
         <div v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
             <div class="timeline-header">🌸 {{ monthYear }}</div>
             
-            <div :class="['grid', currentTab === 'memory' ? 'grid-memory' : 'grid-list']">
+            <div :class="['grid', (currentTab === 'memory' || currentTab === 'album') ? 'grid-memory' : 'grid-list']">
                 <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': currentTab === 'story'}]">
                     
                     <div class="actions">
-                        <button class="action-btn" @click="startEdit(item)" title="施展魔法(修改)">✎</button>
-                        <button class="action-btn btn-delete" @click="deleteItem(item._id)" title="消除回忆">×</button>
+                        <button v-if="currentTab !== 'album'" class="action-btn" @click="startEdit(item)">✎</button>
+                        <button class="action-btn btn-delete" @click="deleteItem(item._id)">×</button>
                     </div>
 
-                    <template v-if="(item.url || (item.images && item.images.length > 0)) && (currentTab === 'memory' || currentTab === 'story')">
-                        <div v-if="isFuture(item.time)" class="capsule-overlay">
-                            <div>💌</div>
-                            <div style="font-family: var(--font-serif); color:var(--ink-main); font-weight:bold; letter-spacing:2px; margin-top:10px;">魔法尚未解封</div>
-                        </div>
-                        
-                        <img v-if="item.url && (!item.images || item.images.length === 0)" :src="item.url" @click="!isFuture(item.time) && viewFull(item.url)">
-                        
-                        <div v-if="item.images && item.images.length > 0" :class="['album-grid', getGridClass(item.images.length)]">
-                            <div v-for="(img, idx) in item.images" :key="idx" class="album-img-wrap" @click="!isFuture(item.time) && viewFull(img.url)">
-                                <img :src="img.url" loading="lazy">
-                            </div>
+                    <template v-if="currentTab === 'album'">
+                        <div class="album-cover" @click="openAlbum(item)">
+                            <img :src="item.images && item.images.length > 0 ? item.images[0].url : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100\' height=\'100\' fill=\'%23F4C2C2\'/></svg>'">
+                            <div class="album-badge">共 {{ item.images ? item.images.length : 0 }} 张相片</div>
                         </div>
                     </template>
-                    
-                    <img v-if="currentTab === 'wish' && item.images && item.images.length > 0" :src="item.images[0].url" style="height: 160px;">
-                    <img v-else-if="currentTab === 'wish' && item.url" :src="item.url" style="height: 160px;">
+
+                    <template v-else-if="item.url || (item.images && item.images.length > 0)">
+                        <img v-if="item.images && item.images.length > 0" :src="item.images[0].url" @click="viewFull(item.images[0].url)">
+                        <img v-else :src="item.url" @click="viewFull(item.url)">
+                    </template>
 
                     <div class="card-info">
                         <span class="date">✦ {{ formatDate(item.date) }} ✦</span>
                         
-                        <div v-if="editingId === item._id">
-                            <template v-if="currentTab === 'story'">
-                                <input type="text" class="edit-title" v-model="editTitle" placeholder="篇章名">
-                                <div v-for="(seg, index) in editSegments" :key="index" class="edit-seg-row">
-                                    <span :class="['seg-author-badge', seg.author === '小心' ? 'bg-xiaoxin' : 'bg-xiaocheng']">
-                                        {{ seg.author }}
-                                    </span>
-                                    <textarea class="seg-textarea" v-model="seg.text"></textarea>
-                                    <button @click="editSegments.splice(index, 1)" class="action-btn" style="margin-top:10px;" title="删除此段">×</button>
-                                </div>
-                                <button class="add-seg-btn" @click="addNewSegment">✨ 续写新的魔法段落</button>
-                            </template>
-                            
-                            <template v-else>
-                                <textarea class="edit-area" v-model="editNote"></textarea>
-                            </template>
-
-                            <div class="edit-actions">
-                                <button class="action-submit" @click="saveEdit(item._id)">保存魔法</button>
-                                <button class="action-submit btn-cancel" @click="cancelEdit">取消</button>
+                        <div v-if="editingId !== item._id">
+                            <div v-if="currentTab === 'album'" style="text-align: center; font-family: var(--font-serif); font-size: 20px; font-weight: bold; color: var(--ink-main); cursor:pointer;" @click="openAlbum(item)">
+                                《 {{ item.title || '无名相册' }} 》
                             </div>
-                        </div>
-
-                        <div v-else>
-                            <template v-if="currentTab === 'story'">
-                                <div v-if="item.title" class="story-title">《 {{ item.title }} 》</div>
-                                <div class="story-content">
-                                    <p v-for="seg in item.segments" :key="seg.id" 
-                                          :class="['story-seg', seg.author === '小心' ? 'text-xiaoxin' : 'text-xiaocheng']"
-                                          :title="'本段作者: ' + seg.author">
-                                        {{ seg.text }}
-                                    </p>
-                                </div>
-                            </template>
-
-                            <template v-else>
-                                <div v-if="currentTab === 'wish'" class="wish-item">
-                                    <input type="checkbox" class="wish-checkbox" :checked="item.completed" @change="toggleWish(item, $event)">
-                                    <span :class="['note', {'wish-completed': item.completed}]">{{ item.note }}</span>
-                                </div>
-                                <div v-else class="note">
-                                    <template v-if="currentTab === 'memory' && isFuture(item.time)">[ 沉睡在时光里的胶囊 ]</template>
-                                    <template v-else>{{ item.note }}</template>
-                                </div>
-                            </template>
+                            <div v-else-if="currentTab === 'story'" class="story-title">《 {{ item.title }} 》</div>
+                            
+                            <div v-if="currentTab === 'story'" class="story-content">
+                                <p v-for="seg in item.segments" :key="seg.id" :class="['story-seg', seg.author === '小心' ? 'text-xiaoxin' : 'text-xiaocheng']">{{ seg.text }}</p>
+                            </div>
+                            <div v-else-if="currentTab === 'wish'" class="wish-item">
+                                <input type="checkbox" class="wish-checkbox" :checked="item.completed" @change="toggleWish(item, $event)">
+                                <span :class="['note', {'wish-completed': item.completed}]">{{ item.note }}</span>
+                            </div>
+                            <div v-else class="note">{{ item.note }}</div>
                         </div>
 
                         <div class="author-stamp">
                             <span v-if="currentTab === 'story'">共创梦境</span>
+                            <span v-else-if="currentTab === 'album'">建册：{{ item.author }}</span>
                             <span v-else>落笔：{{ item.author }}</span>
                         </div>
                     </div>
@@ -332,24 +296,29 @@
             return {
                 currentUser: null,
                 loginCode: '',
-                currentTab: 'memory', 
+                currentTab: 'album', // 默认打开相册方便测试
                 items: [],
                 newTitle: '', newNote: '', newDate: '', 
-                selectedFiles: [], // 改为数组，支持多文件
-                isUploading: false, // 增加上传状态
-                randomMemory: null,
+                selectedFiles: [], 
+                isUploading: false, 
                 editingId: null, editTitle: '', editNote: '', editSegments: [],
-                isDarkMode: false
+                isDarkMode: false,
+                
+                // 相册画廊状态
+                currentAlbum: null,
+                appendFiles: [] // 用于向已有相册追加图片
             }
         },
         computed: {
             placeholderText() {
+                if (this.currentTab === 'album') return '写一段相册简介...';
                 if (this.currentTab === 'memory') return '珍藏那一刻的闪光...';
                 if (this.currentTab === 'diary') return '写下今天的碎碎念...';
                 if (this.currentTab === 'story') return '在这个世界里，你写下了第一句魔法...';
                 return '许下属于我们的星愿...';
             },
             btnText() {
+                if (this.currentTab === 'album') return '创建相册';
                 if (this.currentTab === 'memory') return '入卷';
                 if (this.currentTab === 'diary') return '落笔';
                 if (this.currentTab === 'story') return '筑梦';
@@ -373,7 +342,6 @@
                 if (this.loginCode === 'xiaoxin') this.currentUser = '小心';
                 else if (this.loginCode === 'xiaocheng') this.currentUser = '小橙';
                 else return alert('魔法暗号不对哦，门扉紧闭');
-                
                 localStorage.setItem('orange_user', this.currentUser);
                 this.initApp();
             },
@@ -396,33 +364,54 @@
                 this.newTitle = '';
             },
             handleFiles(e) { 
-                // 将选择的文件转为数组
-                const files = Array.from(e.target.files);
-                if (files.length > 9) {
-                    alert('一次最多只能施展 9 张照片的魔法哦！');
-                    e.target.value = '';
-                    this.selectedFiles = [];
-                } else {
-                    this.selectedFiles = files;
+                this.selectedFiles = Array.from(e.target.files);
+            },
+            // ======== 相册专属逻辑 ========
+            openAlbum(item) {
+                this.currentAlbum = item;
+                document.body.style.overflow = 'hidden'; // 禁止底色滚动
+            },
+            closeAlbum() {
+                this.currentAlbum = null;
+                this.appendFiles = [];
+                document.body.style.overflow = 'auto';
+                this.getItems(); // 刷新外层封面数量
+            },
+            handleAppendFiles(e) {
+                this.appendFiles = Array.from(e.target.files);
+            },
+            async submitAppendPhotos() {
+                if(this.appendFiles.length === 0) return;
+                this.isUploading = true;
+                const fd = new FormData();
+                this.appendFiles.forEach(file => fd.append('files', file));
+                
+                try {
+                    const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd);
+                    this.currentAlbum = res.data; // 立即更新画廊展示
+                    this.appendFiles = [];
+                    document.querySelector('.append-area input[type="file"]').value = '';
+                } catch (e) {
+                    alert("追加照片失败啦");
+                } finally {
+                    this.isUploading = false;
                 }
             },
-            // 计算图集应该用几列的排版
-            getGridClass(count) {
-                if (count === 1) return 'cols-1';
-                if (count === 2 || count === 4) return 'cols-2';
-                return 'cols-3'; // 3,5,6,7,8,9 张图都用三宫格
+            async deleteImageFromAlbum(albumId, imageId) {
+                if(confirm("确定要把这张照片从相册移出吗？")) {
+                    try {
+                        const res = await axios.delete(`/api/items/${albumId}/images/${imageId}`);
+                        this.currentAlbum = res.data; // 更新画廊
+                    } catch(e) { alert("删除失败"); }
+                }
             },
+            // ==============================
             async uploadItem() {
-                if (!this.newNote && this.selectedFiles.length === 0) return alert("总得留下点魔法痕迹吧？");
+                if (!this.newNote && this.selectedFiles.length === 0 && this.newTitle === '') return alert("总得留下点魔法痕迹吧？");
                 
                 this.isUploading = true;
                 const fd = new FormData();
-                
-                // 循环将所有文件添加到 formData
-                this.selectedFiles.forEach(file => {
-                    fd.append('files', file);
-                });
-                
+                this.selectedFiles.forEach(file => fd.append('files', file));
                 fd.append('category', this.currentTab);
                 fd.append('title', this.newTitle);
                 fd.append('author', this.currentUser); 
@@ -440,9 +429,8 @@
                     this.newNote = ''; this.newTitle = '';
                     this.newDate = new Date().toISOString().split('T')[0];
                     this.selectedFiles = [];
-                    const fileInput = document.querySelector('input[type="file"]');
+                    const fileInput = document.querySelector('.control-panel input[type="file"]');
                     if(fileInput) fileInput.value = '';
-                    
                     this.getItems();
                 } catch (error) { 
                     alert("记录失败，请稍后再试"); 
@@ -455,45 +443,15 @@
                 this.items = res.data;
             },
             async deleteItem(id) {
-                if (confirm("真的要消除这段回忆吗？")) {
+                if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) {
                     await axios.delete(`/api/items/${id}`);
                     this.getItems();
                 }
             },
-            startEdit(item) {
-                this.editingId = item._id;
-                this.editTitle = item.title || '';
-                this.editNote = item.note || '';
-                
-                if (this.currentTab === 'story') {
-                    if (item.segments && item.segments.length > 0) {
-                        this.editSegments = JSON.parse(JSON.stringify(item.segments));
-                    } else if (item.note) {
-                        this.editSegments = [{ id: Date.now().toString(), author: item.author, text: item.note }];
-                    } else {
-                        this.editSegments = [];
-                    }
-                }
-            },
-            addNewSegment() {
-                this.editSegments.push({
-                    id: Date.now().toString(),
-                    author: this.currentUser,
-                    text: ''
-                });
-            },
-            cancelEdit() {
-                this.editingId = null;
-            },
+            startEdit(item) { this.editingId = item._id; this.editTitle = item.title || ''; this.editNote = item.note || ''; },
+            cancelEdit() { this.editingId = null; },
             async saveEdit(id) {
-                let payload = { title: this.editTitle };
-                
-                if (this.currentTab === 'story') {
-                    payload.segments = this.editSegments.filter(seg => seg.text.trim() !== '');
-                } else {
-                    payload.note = this.editNote;
-                }
-
+                let payload = { title: this.editTitle, note: this.editNote };
                 try {
                     await axios.put(`/api/items/${id}`, payload);
                     this.editingId = null;
@@ -516,16 +474,9 @@
         },
         mounted() { 
             const savedUser = localStorage.getItem('orange_user');
-            if (savedUser) {
-                this.currentUser = savedUser;
-                this.initApp();
-            }
-            
+            if (savedUser) { this.currentUser = savedUser; this.initApp(); }
             const savedTheme = localStorage.getItem('orange_theme');
-            if (savedTheme === 'dark') {
-                this.isDarkMode = true;
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
+            if (savedTheme === 'dark') { this.isDarkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
         }
     }).mount('#app');
 </script>
