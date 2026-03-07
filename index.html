@@ -412,11 +412,10 @@
                 isDarkMode: false, currentAlbum: null, appendFiles: [],
                 storyChartObj: null, activityChartObj: null,
                 
-                isMidnightMode: false, // 18+ 模式开关
+                isMidnightMode: false, 
                 drawnCard: null,
                 isDrawing: false,
 
-                // 🌸 白昼模式 (22张完整版 恋爱指引)
                 tarotDeckRomantic: [
                     { name: '0. 愚者 (The Fool)', emoji: '🎒', keywords: '天马行空、说走就走', meaning: '今天是个充满奇思妙想的日子！别管什么严谨的计划表了，顺从内心的直觉，勇敢地踏出舒适圈吧。在感情里，这张牌意味着像孩子般纯粹的快乐。', action: '拉着对方的手去探索一个没去过的角落，或者尝试一家新奇的餐厅。' },
                     { name: '1. 魔术师 (The Magician)', emoji: '🪄', keywords: '默契满分、创造惊喜', meaning: '奇迹就在你们手中。你们之间的心灵感应正在发挥奇效，只要敢想，今天就能把平淡的日子变成魔法。想要实现的小心愿，不妨大声对彼此说出来！', action: '主动给对方制造一个小惊喜，哪怕是一杯突然出现的奶茶。' },
@@ -442,7 +441,6 @@
                     { name: '21. 世界 (The World)', emoji: '🌍', keywords: '完美拼图、你即世界', meaning: '极致的圆满！“你在我身边，就是全世界。” 这张牌是对你们感情最高的赞美与祝福。一切都恰到好处，请好好享受这份确定的、完美的幸福吧。', action: '给对方一个最深、最紧的拥抱，用心庆祝在茫茫人海中遇到彼此。' }
                 ],
                 
-                // 💋 午夜模式 (18+ BDSM 专属指令)
                 tarotDeckMidnight: [
                     { name: '0. 愚者 (The Fool)', emoji: '🙈', keywords: '盲眼探索、未知刺激', meaning: '剥夺视觉会让人对其他感官更加敏感。这是对信任的绝对考验，也是将自己完全交付的开始。', action: '使用眼罩（或领带/丝巾）蒙住抽牌者的眼睛，由另一方主导接下来的 15 分钟探索。' },
                     { name: '1. 魔术师 (The Magician)', emoji: '🧊', keywords: '感官魔法、道具掌控', meaning: '手指能做到的终究有限，今天是引入“魔法道具”的时刻。温度、材质的差异会让神经末梢战栗。', action: '准备冰块和羽毛（或类似软物），在对方敏感地带交替使用，体验冰火两重天的刺激。' },
@@ -501,42 +499,60 @@
             }
         },
         methods: {
+            // ✨ 震动触觉核心魔法
+            vibrate(pattern = 50) {
+                if ('vibrate' in navigator) {
+                    try { navigator.vibrate(pattern); } catch (e) {} // 忽略权限阻挡
+                }
+            },
             login() {
                 if (this.loginCode === 'xiaoxin') this.currentUser = '小心';
                 else if (this.loginCode === 'xiaocheng') this.currentUser = '小橙';
                 else return alert('魔法暗号不对哦');
+                this.vibrate(50);
                 localStorage.setItem('orange_user', this.currentUser);
                 this.initApp();
             },
-            logout() { localStorage.removeItem('orange_user'); this.currentUser = null; this.loginCode = ''; },
+            logout() { localStorage.removeItem('orange_user'); this.currentUser = null; this.loginCode = ''; this.vibrate(50); },
             toggleTheme() {
+                this.vibrate(30);
                 this.isDarkMode = !this.isDarkMode;
                 document.documentElement.setAttribute('data-theme', this.isDarkMode ? 'dark' : 'light');
                 localStorage.setItem('orange_theme', this.isDarkMode ? 'dark' : 'light');
                 if(this.currentTab === 'stats') this.renderCharts(); 
             },
             switchTab(tab) {
+                this.vibrate(30);
                 this.currentTab = tab; this.selectedFiles = []; this.newNote = ''; this.newTitle = '';
                 if (tab === 'stats') this.fetchAllItemsForStats();
                 else if (tab !== 'tarot') this.getItems();
             },
             
-            // 🔮 塔罗牌双模式方法
+            // 🔮 塔罗牌双模式方法 (带震动)
             toggleMidnightMode() {
                 this.isMidnightMode = !this.isMidnightMode;
-                this.resetTarot(); // 切换模式时重置卡牌状态
+                this.resetTarot(); 
+                // 开启午夜时，模拟心跳震动
+                this.vibrate(this.isMidnightMode ? [150, 50, 200] : [50, 50, 50]); 
             },
             drawTarotCard() {
                 if (this.isDrawing || this.drawnCard) return; 
                 this.isDrawing = true;
+                this.vibrate([30, 50, 30, 50, 30]); // 洗牌时手机微微颤抖
+                
                 setTimeout(() => {
                     const randomIndex = Math.floor(Math.random() * this.currentDeck.length);
                     this.drawnCard = this.currentDeck[randomIndex];
                     this.isDrawing = false;
+                    this.vibrate([100, 50, 100]); // 翻开时的重击
                 }, 1200);
             },
-            resetTarot() { this.drawnCard = null; },
+            resetTarot() { 
+                this.drawnCard = null; 
+                this.vibrate(40);
+            },
             saveTarotReading() {
+                this.vibrate(50);
                 const prefix = this.isMidnightMode ? '⛓️ 午夜指令' : '🔮 星月指引';
                 const actionTitle = this.isMidnightMode ? '【⛓️ 午夜执行】' : '【💡 今日互动】';
                 
@@ -552,25 +568,28 @@
                 catch (error) { console.error("图片压缩失败", error); return file; }
             },
 
-            handleFiles(e) { this.selectedFiles = Array.from(e.target.files); },
-            openAlbum(item) { this.currentAlbum = item; document.body.style.overflow = 'hidden'; },
-            closeAlbum() { this.currentAlbum = null; this.appendFiles = []; document.body.style.overflow = 'auto'; this.getItems(); },
-            handleAppendFiles(e) { this.appendFiles = Array.from(e.target.files); },
+            handleFiles(e) { this.selectedFiles = Array.from(e.target.files); this.vibrate(30);},
+            openAlbum(item) { this.vibrate(30); this.currentAlbum = item; document.body.style.overflow = 'hidden'; },
+            closeAlbum() { this.vibrate(30); this.currentAlbum = null; this.appendFiles = []; document.body.style.overflow = 'auto'; this.getItems(); },
+            handleAppendFiles(e) { this.appendFiles = Array.from(e.target.files); this.vibrate(30);},
             async submitAppendPhotos() {
                 if(this.appendFiles.length === 0) return;
+                this.vibrate(50);
                 this.isUploading = true; const fd = new FormData(); 
                 for (let i = 0; i < this.appendFiles.length; i++) {
                     const compressed = await this.compressImage(this.appendFiles[i]);
                     fd.append('files', compressed, compressed.name);
                 }
-                try { const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd); this.currentAlbum = res.data; this.appendFiles = []; document.querySelector('.append-area input[type="file"]').value = ''; } 
+                try { const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd); this.currentAlbum = res.data; this.appendFiles = []; document.querySelector('.append-area input[type="file"]').value = ''; this.vibrate([50,50,50]); } 
                 catch (e) {} finally { this.isUploading = false; }
             },
             async deleteImageFromAlbum(albumId, imageId) {
+                this.vibrate(30);
                 if(confirm("确定要把这张照片从相册移出吗？")) { const res = await axios.delete(`/api/items/${albumId}/images/${imageId}`); this.currentAlbum = res.data; }
             },
             async uploadItem() {
                 if (!this.newNote && this.selectedFiles.length === 0 && this.newTitle === '') return alert("总得留下点魔法痕迹吧？");
+                this.vibrate(50);
                 this.isUploading = true; const fd = new FormData();
                 for (let i = 0; i < this.selectedFiles.length; i++) {
                     const compressed = await this.compressImage(this.selectedFiles[i]);
@@ -585,6 +604,7 @@
                     this.newNote = ''; this.newTitle = ''; this.newDate = new Date().toISOString().split('T')[0]; this.selectedFiles = [];
                     const fileInput = document.querySelector('.control-panel input[type="file"]'); if(fileInput) fileInput.value = '';
                     this.getItems();
+                    this.vibrate([50,50,50]); // 成功发布时的欢快震动
                 } catch (error) {} finally { this.isUploading = false; }
             },
 
@@ -611,12 +631,12 @@
                 });
             },
             async getItems() { const res = await axios.get(`/api/items?category=${this.currentTab}`); this.items = res.data; },
-            async deleteItem(id) { if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) { await axios.delete(`/api/items/${id}`); this.getItems(); } },
-            startEdit(item) { this.editingId = item._id; this.editTitle = item.title || ''; this.editNote = item.note || ''; if (this.currentTab === 'story') { this.editSegments = item.segments ? JSON.parse(JSON.stringify(item.segments)) : [{ id: Date.now().toString(), author: item.author, text: item.note }]; } },
-            addNewSegment() { this.editSegments.push({ id: Date.now().toString(), author: this.currentUser, text: '' }); },
-            cancelEdit() { this.editingId = null; },
-            async saveEdit(id) { let payload = { title: this.editTitle }; if (this.currentTab === 'story') payload.segments = this.editSegments.filter(seg => seg.text.trim() !== ''); else payload.note = this.editNote; try { await axios.put(`/api/items/${id}`, payload); this.editingId = null; this.getItems(); } catch (e) {} },
-            async toggleWish(item, event) { try { await axios.put(`/api/items/${item._id}`, { completed: event.target.checked }); item.completed = event.target.checked; } catch (e) { event.target.checked = !event.target.checked; } },
+            async deleteItem(id) { this.vibrate(30); if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) { await axios.delete(`/api/items/${id}`); this.getItems(); } },
+            startEdit(item) { this.vibrate(30); this.editingId = item._id; this.editTitle = item.title || ''; this.editNote = item.note || ''; if (this.currentTab === 'story') { this.editSegments = item.segments ? JSON.parse(JSON.stringify(item.segments)) : [{ id: Date.now().toString(), author: item.author, text: item.note }]; } },
+            addNewSegment() { this.vibrate(30); this.editSegments.push({ id: Date.now().toString(), author: this.currentUser, text: '' }); },
+            cancelEdit() { this.vibrate(30); this.editingId = null; },
+            async saveEdit(id) { this.vibrate(50); let payload = { title: this.editTitle }; if (this.currentTab === 'story') payload.segments = this.editSegments.filter(seg => seg.text.trim() !== ''); else payload.note = this.editNote; try { await axios.put(`/api/items/${id}`, payload); this.editingId = null; this.getItems(); } catch (e) {} },
+            async toggleWish(item, event) { this.vibrate(30); try { await axios.put(`/api/items/${item._id}`, { completed: event.target.checked }); item.completed = event.target.checked; } catch (e) { event.target.checked = !event.target.checked; } },
             isFuture(timestamp) { return timestamp > Date.now(); },
             viewFull(url) { window.open(url, '_blank'); },
             formatDate(dateString) { return new Date(dateString).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }); },
