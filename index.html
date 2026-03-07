@@ -201,6 +201,27 @@
         .badge-icon { font-size: 34px; margin-bottom: 10px; }
         .badge-name { font-family: var(--font-serif); font-size: 17px; color: var(--ink-main); margin-bottom: 8px; }
         .badge-desc { font-size: 13px; color: var(--ink-light); line-height: 1.6; }
+        .bond-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 8px; }
+        .bond-card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); padding: 26px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.12); backdrop-filter: blur(12px); }
+        .bond-card.wide { grid-column: span 2; }
+        .bond-card h3 { margin: 0 0 10px; font-family: var(--font-serif); font-size: 22px; color: var(--ink-main); }
+        .bond-subtext { font-size: 13px; color: var(--ink-light); line-height: 1.8; margin-bottom: 14px; }
+        .bond-list { display: grid; gap: 12px; margin-top: 14px; }
+        .bond-entry { border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.3); padding: 14px 16px; }
+        .bond-entry-title { font-family: var(--font-serif); font-size: 16px; color: var(--ink-main); margin-bottom: 6px; }
+        .bond-entry-meta { font-size: 12px; color: var(--ink-light); margin-bottom: 6px; }
+        .bond-entry-text { font-size: 14px; line-height: 1.8; color: var(--ink-main); white-space: pre-wrap; }
+        .bond-chip-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+        .bond-chip { border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.42); color: var(--ink-main); padding: 9px 14px; cursor: pointer; transition: 0.2s; }
+        .bond-chip.active { background: linear-gradient(135deg, rgba(255,183,178,0.96), rgba(130,202,255,0.96)); color: white; border-color: transparent; transform: translateY(-2px); }
+        .bond-chip.soft-active { background: rgba(255,183,178,0.22); border-color: rgba(255,183,178,0.5); }
+        .bond-select, .bond-textarea { width: 100%; box-sizing: border-box; border-radius: 14px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.45); color: var(--ink-main); padding: 13px 14px; font-family: var(--font-ui); }
+        .bond-textarea { min-height: 96px; resize: vertical; }
+        .bond-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+        .bond-highlight { border-radius: 18px; padding: 18px; background: linear-gradient(135deg, rgba(255,183,178,0.18), rgba(130,202,255,0.18)); border: 1px solid var(--border-fine); }
+        .bond-summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .bond-night { position: relative; overflow: hidden; }
+        .bond-night::before { content: ''; position: absolute; inset: 0; border-radius: 24px; background: linear-gradient(135deg, rgba(31, 23, 50, 0.14), rgba(87, 56, 110, 0.08)); pointer-events: none; }
         .quiz-stage { display: grid; gap: 14px; }
         .quiz-prompt { font-family: var(--font-serif); font-size: 22px; color: var(--ink-main); line-height: 1.7; }
         .quiz-meta { font-size: 13px; color: var(--ink-light); }
@@ -303,6 +324,8 @@
             .review-card.wide { grid-column: auto; }
             .fun-dashboard { grid-template-columns: 1fr; }
             .fun-card.wide { grid-column: auto; }
+            .bond-grid { grid-template-columns: 1fr; }
+            .bond-card.wide { grid-column: auto; }
         }
     </style>
 </head>
@@ -361,6 +384,7 @@
                 <div :class="['tab', {active: currentTab === 'tarot'}]" @click="switchTab('tarot')">星占 🔮</div>
                 <div :class="['tab', {active: currentTab === 'game'}]" @click="switchTab('game')">秘戏 🎲</div>
                 <div :class="['tab', {active: currentTab === 'review'}]" @click="switchTab('review')">回顾 💌</div>
+                <div :class="['tab', {active: currentTab === 'bond'}]" @click="switchTab('bond')">关系 💞</div>
                 <div :class="['tab', {active: currentTab === 'recycle'}]" @click="switchTab('recycle')">回收站 🗑️</div>
                 <div :class="['tab', {active: currentTab === 'surprise'}]" @click="switchTab('surprise')">盲盒 🎁</div>
                 <div :class="['tab', {active: currentTab === 'stats'}]" @click="switchTab('stats')">星图 🌟</div>
@@ -554,6 +578,231 @@
                         </div>
                     </div>
                     <div v-else class="empty-state">这一天在往年还没有留下故事。</div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="currentTab === 'bond'">
+            <div class="control-panel" :class="{ 'bond-night': deepNightActive }">
+                <div class="bond-summary">
+                    <div>
+                        <div class="filter-label">这里把“记录”变成“互动”。回信、小问、夸夸、修复和仪式，都集中在这一页。</div>
+                        <div class="bond-subtext">{{ relationshipSummary }}</div>
+                    </div>
+                    <button class="action-submit secondary-btn" @click="toggleDeepNightMode">{{ deepNightActive ? '退出深夜模式' : '进入深夜模式' }}</button>
+                </div>
+            </div>
+
+            <div class="bond-grid">
+                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
+                    <h3>今日小问</h3>
+                    <div class="bond-subtext">每天一题，两个人都答完才揭晓，适合低压力地聊一点真心话。</div>
+                    <div v-if="dailyQuestion" class="bond-highlight">
+                        <div class="bond-entry-title">{{ dailyQuestion.prompt }}</div>
+                        <div class="bond-entry-meta">{{ dailyQuestion.date }} · 已回答 {{ dailyQuestion.answers.length }}/2</div>
+                        <div v-if="!currentUserDailyAnswer" class="bond-chip-row">
+                            <button
+                                v-for="option in dailyQuestion.options"
+                                :key="option"
+                                type="button"
+                                class="bond-chip"
+                                @click="answerDailyQuestion(option)"
+                            >
+                                {{ option }}
+                            </button>
+                        </div>
+                        <div v-else class="bond-entry-text">你今天的答案已封存：{{ currentUserDailyAnswer.answer }}</div>
+                        <div class="bond-list" v-if="dailyQuestion.answers.length >= 2">
+                            <div v-for="answer in dailyQuestion.answers" :key="answer.author" class="bond-entry">
+                                <div class="bond-entry-meta">{{ answer.author }}</div>
+                                <div class="bond-entry-text">{{ answer.answer }}</div>
+                            </div>
+                        </div>
+                        <div v-else class="bond-subtext" style="margin-top: 12px;">等另一个人答完，再一起看揭晓结果。</div>
+                    </div>
+                    <div v-else class="empty-state">正在准备今天的问题...</div>
+                </div>
+
+                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
+                    <h3>关系温度计</h3>
+                    <div class="bond-subtext">不做分数排名，只记录你今天更想靠近、平稳，还是需要一个抱抱。</div>
+                    <div class="bond-chip-row">
+                        <button
+                            v-for="option in temperatureOptions"
+                            :key="option.key"
+                            type="button"
+                            :class="['bond-chip', { active: temperatureDraftState === option.key }]"
+                            @click="temperatureDraftState = option.key"
+                        >
+                            {{ option.label }}
+                        </button>
+                    </div>
+                    <textarea class="bond-textarea" v-model="temperatureDraftText" placeholder="可选：补一句，比如今天最想被怎样对待。"></textarea>
+                    <div class="bond-actions">
+                        <button class="action-submit" @click="saveTemperatureEntry">记录今天的温度</button>
+                    </div>
+                    <div class="bond-list">
+                        <div v-for="entry in todayTemperatureEntries" :key="entry._id" class="bond-entry">
+                            <div class="bond-entry-meta">{{ entry.author }} · {{ getTemperatureLabel(entry.state) }}</div>
+                            <div class="bond-entry-text">{{ entry.text || '今天先用一个状态表达就够了。' }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
+                    <h3>夸夸档案</h3>
+                    <div class="bond-subtext">把“喜欢你哪里”“谢谢你今天做的事”留下来，慢慢积成一份长期温柔库存。</div>
+                    <textarea class="bond-textarea" v-model="praiseDraft" placeholder="写一句夸夸，或者记录一个你被照顾到的细节。"></textarea>
+                    <div class="bond-actions">
+                        <button class="action-submit" @click="saveRelationshipEntry('praise')">存进夸夸档案</button>
+                    </div>
+                    <div class="bond-list">
+                        <div v-for="entry in relationshipEntries.praise.slice(0, 5)" :key="entry._id" class="bond-entry">
+                            <div class="bond-entry-meta">{{ entry.author }} · {{ formatDate(entry.date) }}</div>
+                            <div class="bond-entry-text">{{ entry.text }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
+                    <h3>安慰偏好卡</h3>
+                    <div class="bond-subtext">这是第十项。难过的时候，你更想被怎样对待，提前说明比临时猜要有效得多。</div>
+                    <input type="text" class="bond-select" v-model="comfortDraftTitle" placeholder="比如：我低落时最需要什么">
+                    <textarea class="bond-textarea" v-model="comfortDraftText" placeholder="比如：先抱抱我，再听我慢慢讲；或者先别给建议。"></textarea>
+                    <div class="bond-actions">
+                        <button class="action-submit" @click="saveRelationshipEntry('comfort')">保存偏好卡</button>
+                    </div>
+                    <div class="bond-list">
+                        <div v-for="entry in latestComfortEntries" :key="entry._id" class="bond-entry">
+                            <div class="bond-entry-meta">{{ entry.author }}</div>
+                            <div class="bond-entry-title">{{ entry.title }}</div>
+                            <div class="bond-entry-text">{{ entry.text }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bond-card wide" :class="{ 'bond-night': deepNightActive }">
+                    <h3>双人回信</h3>
+                    <div class="bond-subtext">给一条已经存在的回忆写一封短回信，不是重写内容，而是对那一刻再回应一次。</div>
+                    <select class="bond-select" v-model="selectedReplyItemId">
+                        <option value="">选择一条回忆</option>
+                        <option v-for="item in relationshipItems" :key="item._id" :value="item._id">{{ formatMemoryOption(item) }}</option>
+                    </select>
+                    <div v-if="selectedReplyItem" class="bond-highlight" style="margin-top: 14px;">
+                        <div class="bond-entry-title">{{ getItemDisplayTitle(selectedReplyItem) }}</div>
+                        <div class="bond-entry-meta">{{ formatDate(selectedReplyItem.date) }} · {{ getCategoryLabel(selectedReplyItem.category) }} · {{ selectedReplyItem.author }}</div>
+                        <div class="bond-entry-text">{{ getItemExcerpt(selectedReplyItem) }}</div>
+                    </div>
+                    <textarea class="bond-textarea" v-model="replyDraft" placeholder="给这条回忆写一封短回信。"></textarea>
+                    <div class="bond-actions">
+                        <button class="action-submit" @click="saveItemReply">发送回信</button>
+                    </div>
+                    <div class="bond-list" v-if="selectedReplyItem && selectedReplyItem.replies && selectedReplyItem.replies.length > 0">
+                        <div v-for="(reply, index) in selectedReplyItem.replies.slice().sort((a, b) => b.time - a.time)" :key="`${reply.author}-${reply.time}-${index}`" class="bond-entry">
+                            <div class="bond-entry-meta">{{ reply.author }} · {{ formatDate(reply.date) }}</div>
+                            <div class="bond-entry-text">{{ reply.text }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bond-card wide" :class="{ 'bond-night': deepNightActive }">
+                    <h3>回忆补完</h3>
+                    <div class="bond-subtext">同一件事，用另一个人的视角补一句，回忆就会从“记录”变成“双视角”。</div>
+                    <select class="bond-select" v-model="selectedPerspectiveItemId">
+                        <option value="">选择一条回忆</option>
+                        <option v-for="item in relationshipItems" :key="`${item._id}-perspective`" :value="item._id">{{ formatMemoryOption(item) }}</option>
+                    </select>
+                    <textarea class="bond-textarea" v-model="perspectiveDraft" placeholder="从你的角度，补完这段回忆。"></textarea>
+                    <div class="bond-actions">
+                        <button class="action-submit" @click="saveItemPerspective">保存我的视角</button>
+                    </div>
+                    <div class="bond-list" v-if="selectedPerspectiveItem && selectedPerspectiveItem.perspectives && selectedPerspectiveItem.perspectives.length > 0">
+                        <div v-for="(entry, index) in selectedPerspectiveItem.perspectives.slice().sort((a, b) => b.time - a.time)" :key="`${entry.author}-${entry.time}-${index}`" class="bond-entry">
+                            <div class="bond-entry-meta">{{ entry.author }} · {{ formatDate(entry.date) }}</div>
+                            <div class="bond-entry-text">{{ entry.text }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bond-card wide" :class="{ 'bond-night': deepNightActive }">
+                    <h3>冲突修复卡</h3>
+                    <div class="bond-subtext">不是为了辩论输赢，而是帮你们在情绪高的时候，用更低压的方式说清楚真正需要什么。</div>
+                    <div class="bond-chip-row">
+                        <button
+                            v-for="card in repairPrompts"
+                            :key="card.title"
+                            type="button"
+                            :class="['bond-chip', { active: repairDraftTitle === card.title }]"
+                            @click="selectRepairPrompt(card)"
+                        >
+                            {{ card.title }}
+                        </button>
+                    </div>
+                    <div class="bond-highlight" v-if="repairDraftPrompt">{{ repairDraftPrompt }}</div>
+                    <textarea class="bond-textarea" v-model="repairDraftText" placeholder="先写你真正想让对方知道的那一层。"></textarea>
+                    <div class="bond-actions">
+                        <button class="action-submit" @click="saveRelationshipEntry('repair')">存一张修复卡</button>
+                    </div>
+                    <div class="bond-list">
+                        <div v-for="entry in relationshipEntries.repair.slice(0, 4)" :key="entry._id" class="bond-entry">
+                            <div class="bond-entry-title">{{ entry.title }}</div>
+                            <div class="bond-entry-meta">{{ entry.author }} · {{ formatDate(entry.date) }}</div>
+                            <div class="bond-entry-text">{{ entry.prompt }}</div>
+                            <div class="bond-entry-text" style="margin-top: 8px;">{{ entry.text }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
+                    <h3>双人仪式页</h3>
+                    <div class="bond-subtext">每周选一个固定的小仪式，让感情不只靠灵感和情绪推进。</div>
+                    <input type="text" class="bond-select" v-model="ritualDraftTitle" placeholder="比如：周日晚上一起复盘本周">
+                    <input type="date" v-model="ritualDraftDate" class="bond-select" style="margin-top: 12px;">
+                    <textarea class="bond-textarea" v-model="ritualDraftText" placeholder="写下这个仪式怎么进行。"></textarea>
+                    <div class="bond-actions">
+                        <button class="action-submit" @click="saveRelationshipEntry('ritual')">添加仪式</button>
+                    </div>
+                    <div class="bond-list">
+                        <div v-for="entry in relationshipEntries.ritual.slice(0, 4)" :key="entry._id" class="bond-entry">
+                            <div class="bond-entry-title">{{ entry.title }}</div>
+                            <div class="bond-entry-meta">{{ entry.date }} · {{ entry.completed ? '已完成' : '待进行' }}</div>
+                            <div class="bond-entry-text">{{ entry.text || '给彼此留一段固定的小时间。' }}</div>
+                            <div class="bond-actions">
+                                <button class="action-submit secondary-btn" @click="toggleRelationshipCompleted(entry)">{{ entry.completed ? '标记未完成' : '标记完成' }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bond-card" :class="{ 'bond-night': deepNightActive }">
+                    <h3>陪伴清单</h3>
+                    <div class="bond-subtext">把“想一起做的事”拆成 5 分钟可做、本周可做、以后一定做，减少愿望积灰。</div>
+                    <input type="text" class="bond-select" v-model="companionDraftTitle" placeholder="比如：睡前一起散步 10 分钟">
+                    <textarea class="bond-textarea" v-model="companionDraftText" placeholder="可选：补一句说明。"></textarea>
+                    <div class="bond-chip-row">
+                        <button
+                            v-for="bucket in companionBuckets"
+                            :key="bucket.key"
+                            type="button"
+                            :class="['bond-chip', { active: companionDraftBucket === bucket.key }]"
+                            @click="companionDraftBucket = bucket.key"
+                        >
+                            {{ bucket.label }}
+                        </button>
+                    </div>
+                    <div class="bond-actions">
+                        <button class="action-submit" @click="saveRelationshipEntry('companion')">加入陪伴清单</button>
+                    </div>
+                    <div class="bond-list">
+                        <div v-for="entry in relationshipEntries.companion.slice(0, 6)" :key="entry._id" class="bond-entry">
+                            <div class="bond-entry-title">{{ entry.title }}</div>
+                            <div class="bond-entry-meta">{{ getCompanionBucketLabel(entry.bucket) }} · {{ entry.author }}</div>
+                            <div class="bond-entry-text">{{ entry.text || '先把它放进清单，之后慢慢实现。' }}</div>
+                            <div class="bond-actions">
+                                <button class="action-submit secondary-btn" @click="toggleRelationshipCompleted(entry)">{{ entry.completed ? '取消完成' : '标记完成' }}</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -806,6 +1055,18 @@
                 fallbackImage: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='640' viewBox='0 0 640 640'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23ffe4ec'/><stop offset='100%' stop-color='%23f6d4ff'/></linearGradient></defs><rect width='640' height='640' rx='48' fill='url(%23g)'/><text x='50%' y='46%' dominant-baseline='middle' text-anchor='middle' font-size='120'>📸</text><text x='50%' y='60%' dominant-baseline='middle' text-anchor='middle' font-size='34' fill='%237b5c6a'>照片暂时没加载出来</text></svg>",
                 filterQuery: '', filterAuthor: '', filterMood: '', filterFrom: '', filterTo: '',
                 reviewData: null, reviewDate: '', reviewLoading: false, relationshipBaseDate: '',
+                relationshipLoading: false,
+                relationshipEntries: { praise: [], repair: [], ritual: [], temperature: [], companion: [], comfort: [] },
+                dailyQuestion: null,
+                selectedReplyItemId: '', replyDraft: '',
+                selectedPerspectiveItemId: '', perspectiveDraft: '',
+                praiseDraft: '',
+                repairDraftTitle: '', repairDraftPrompt: '', repairDraftText: '',
+                ritualDraftTitle: '', ritualDraftText: '', ritualDraftDate: '',
+                temperatureDraftState: 'steady', temperatureDraftText: '',
+                companionDraftTitle: '', companionDraftText: '', companionDraftBucket: 'quick',
+                comfortDraftTitle: '', comfortDraftText: '',
+                manualDeepNight: false,
                 selectedMood: '',
                 surpriseItem: null, surpriseTask: null, surpriseLoading: false, surpriseRollingText: '回忆扭蛋准备中',
                 particles: [],
@@ -828,6 +1089,22 @@
                     { key: 'dream', label: '🌙 梦游' },
                     { key: 'brave', label: '🦁 勇敢' },
                     { key: 'calm', label: '🍵 平静' }
+                ],
+                temperatureOptions: [
+                    { key: 'close', label: '🤍 想靠近' },
+                    { key: 'steady', label: '🌿 平稳舒服' },
+                    { key: 'need_hug', label: '🫂 需要抱抱' }
+                ],
+                companionBuckets: [
+                    { key: 'quick', label: '5 分钟可做' },
+                    { key: 'weekly', label: '本周可做' },
+                    { key: 'someday', label: '以后一定做' }
+                ],
+                repairPrompts: [
+                    { title: '真正想被理解', prompt: '这件事里，我最想让你理解的不是表面行为，而是我心里真正卡住的那一层。' },
+                    { title: '我最怕失去什么', prompt: '如果我此刻反应很大，通常不是为了争赢，而是我在害怕失去某样重要的东西。' },
+                    { title: '现在更需要什么', prompt: '比起解决方案，我现在更需要的是：被听完、被安抚，还是一起想办法。' },
+                    { title: '请你这样靠近我', prompt: '如果你愿意重新靠近我，请告诉我，你希望对方现在怎样做会最有效。' }
                 ],
                 surpriseTaskDeck: [
                     { tag: '轻互动', title: '三分钟夸夸挑战', text: '轮流用 90 秒时间，认真夸对方三个平时不常说出口的优点。' },
@@ -942,6 +1219,46 @@
             },
             currentSyncPlayer() {
                 return this.syncCurrentPlayer;
+            },
+            relationshipItems() {
+                return (this.allItemsForStats || []).filter(item => !item.deletedAt).slice().sort((a, b) => b.time - a.time).slice(0, 24);
+            },
+            selectedReplyItem() {
+                return this.relationshipItems.find(item => item._id === this.selectedReplyItemId) || null;
+            },
+            selectedPerspectiveItem() {
+                return this.relationshipItems.find(item => item._id === this.selectedPerspectiveItemId) || null;
+            },
+            currentUserDailyAnswer() {
+                if (!this.dailyQuestion || !this.currentUser) return null;
+                return (this.dailyQuestion.answers || []).find(item => item.author === this.currentUser) || null;
+            },
+            todayTemperatureEntries() {
+                const today = this.getLocalDateString();
+                return (this.relationshipEntries.temperature || [])
+                    .filter(item => item.date === today)
+                    .sort((a, b) => b.time - a.time);
+            },
+            latestComfortEntries() {
+                const latestByAuthor = new Map();
+                (this.relationshipEntries.comfort || []).forEach(entry => {
+                    if (!latestByAuthor.has(entry.author)) {
+                        latestByAuthor.set(entry.author, entry);
+                    }
+                });
+                return Array.from(latestByAuthor.values());
+            },
+            deepNightActive() {
+                const hour = new Date().getHours();
+                return this.manualDeepNight || hour >= 22 || hour < 5;
+            },
+            relationshipSummary() {
+                const todayAnswers = this.dailyQuestion?.answers?.length || 0;
+                const tempCount = this.todayTemperatureEntries.length;
+                if (this.deepNightActive) {
+                    return `现在是更适合温柔说话的时段。今日小问已回答 ${todayAnswers}/2，今天的温度记录有 ${tempCount} 条。`;
+                }
+                return `今天的小问已回答 ${todayAnswers}/2，温度计记录 ${tempCount} 条，陪伴清单里还有 ${this.relationshipEntries.companion.filter(item => !item.completed).length} 件待完成小事。`;
             },
             achievementCards() {
                 const items = this.allItemsForStats || [];
@@ -1097,6 +1414,167 @@
                 }
                 return '这条记录里没有留下更多文字。';
             },
+            toggleDeepNightMode() {
+                this.manualDeepNight = !this.manualDeepNight;
+            },
+            formatMemoryOption(item) {
+                return `${this.formatDate(item.date)} · ${this.getCategoryLabel(item.category)} · ${this.getItemDisplayTitle(item)}`;
+            },
+            getTemperatureLabel(state) {
+                const target = this.temperatureOptions.find(item => item.key === state);
+                return target ? target.label : '未标记';
+            },
+            getCompanionBucketLabel(bucket) {
+                const target = this.companionBuckets.find(item => item.key === bucket);
+                return target ? target.label : '未分类';
+            },
+            selectRepairPrompt(card) {
+                this.repairDraftTitle = card.title;
+                this.repairDraftPrompt = card.prompt;
+            },
+            setRelationshipEntries(entries) {
+                const nextEntries = { praise: [], repair: [], ritual: [], temperature: [], companion: [], comfort: [] };
+                entries.forEach(entry => {
+                    if (nextEntries[entry.type]) nextEntries[entry.type].push(entry);
+                });
+                this.relationshipEntries = nextEntries;
+            },
+            ensureRelationshipSelections() {
+                const firstItemId = this.relationshipItems[0]?._id || '';
+                if (!this.selectedReplyItemId || !this.relationshipItems.some(item => item._id === this.selectedReplyItemId)) {
+                    this.selectedReplyItemId = firstItemId;
+                }
+                if (!this.selectedPerspectiveItemId || !this.relationshipItems.some(item => item._id === this.selectedPerspectiveItemId)) {
+                    this.selectedPerspectiveItemId = firstItemId;
+                }
+            },
+            replaceItemInCollections(updatedItem) {
+                this.items = this.items.map(item => item._id === updatedItem._id ? updatedItem : item);
+                this.allItemsForStats = this.allItemsForStats.map(item => item._id === updatedItem._id ? updatedItem : item);
+                if (this.currentAlbum && this.currentAlbum._id === updatedItem._id) {
+                    this.currentAlbum = updatedItem;
+                }
+                this.ensureRelationshipSelections();
+            },
+            async loadRelationshipHub() {
+                this.relationshipLoading = true;
+                try {
+                    const today = this.getLocalDateString();
+                    const [itemsRes, entriesRes, questionRes] = await Promise.all([
+                        axios.get('/api/items'),
+                        axios.get('/api/relationship/entries'),
+                        axios.get('/api/relationship/daily-question', { params: { date: today } })
+                    ]);
+                    this.allItemsForStats = itemsRes.data;
+                    this.setRelationshipEntries(entriesRes.data);
+                    this.dailyQuestion = questionRes.data;
+                    if (this.currentTab === 'stats') this.renderCharts();
+                    this.ensureRelationshipSelections();
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '关系页数据加载失败'));
+                } finally {
+                    this.relationshipLoading = false;
+                }
+            },
+            async answerDailyQuestion(answer) {
+                try {
+                    const res = await axios.post('/api/relationship/daily-question/answer', {
+                        date: this.getLocalDateString(),
+                        author: this.currentUser,
+                        answer
+                    });
+                    this.dailyQuestion = res.data;
+                    this.showNotice('success', '今天的小问已经封存');
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '提交答案失败'));
+                }
+            },
+            async saveRelationshipEntry(type) {
+                let payload = { type, author: this.currentUser, date: this.getLocalDateString() };
+                if (type === 'praise') {
+                    payload.text = this.praiseDraft;
+                } else if (type === 'repair') {
+                    payload.title = this.repairDraftTitle;
+                    payload.prompt = this.repairDraftPrompt;
+                    payload.text = this.repairDraftText;
+                } else if (type === 'ritual') {
+                    payload.title = this.ritualDraftTitle;
+                    payload.text = this.ritualDraftText;
+                    payload.date = this.ritualDraftDate || this.getLocalDateString();
+                } else if (type === 'temperature') {
+                    payload.state = this.temperatureDraftState;
+                    payload.text = this.temperatureDraftText;
+                } else if (type === 'companion') {
+                    payload.title = this.companionDraftTitle;
+                    payload.text = this.companionDraftText;
+                    payload.bucket = this.companionDraftBucket;
+                } else if (type === 'comfort') {
+                    payload.title = this.comfortDraftTitle;
+                    payload.text = this.comfortDraftText;
+                }
+
+                try {
+                    const res = await axios.post('/api/relationship/entries', payload);
+                    this.setRelationshipEntries([res.data, ...Object.values(this.relationshipEntries).flat()]);
+                    if (type === 'praise') this.praiseDraft = '';
+                    if (type === 'repair') { this.repairDraftTitle = ''; this.repairDraftPrompt = ''; this.repairDraftText = ''; }
+                    if (type === 'ritual') { this.ritualDraftTitle = ''; this.ritualDraftText = ''; this.ritualDraftDate = ''; }
+                    if (type === 'temperature') { this.temperatureDraftState = 'steady'; this.temperatureDraftText = ''; }
+                    if (type === 'companion') { this.companionDraftTitle = ''; this.companionDraftText = ''; this.companionDraftBucket = 'quick'; }
+                    if (type === 'comfort') { this.comfortDraftTitle = ''; this.comfortDraftText = ''; }
+                    this.showNotice('success', '关系页内容已保存');
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '保存失败'));
+                }
+            },
+            async saveTemperatureEntry() {
+                await this.saveRelationshipEntry('temperature');
+            },
+            async toggleRelationshipCompleted(entry) {
+                try {
+                    const res = await axios.put(`/api/relationship/entries/${entry._id}`, { completed: !entry.completed });
+                    const merged = Object.values(this.relationshipEntries).flat().map(item => item._id === res.data._id ? res.data : item);
+                    this.setRelationshipEntries(merged);
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '状态更新失败'));
+                }
+            },
+            async saveItemReply() {
+                if (!this.selectedReplyItemId) {
+                    this.showNotice('info', '先选择一条回忆');
+                    return;
+                }
+                try {
+                    const res = await axios.post(`/api/items/${this.selectedReplyItemId}/replies`, {
+                        author: this.currentUser,
+                        text: this.replyDraft,
+                        date: this.getLocalDateString()
+                    });
+                    this.replyDraft = '';
+                    this.replaceItemInCollections(res.data);
+                    this.showNotice('success', '回信已经贴到这条回忆上');
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '发送回信失败'));
+                }
+            },
+            async saveItemPerspective() {
+                if (!this.selectedPerspectiveItemId) {
+                    this.showNotice('info', '先选择一条回忆');
+                    return;
+                }
+                try {
+                    const res = await axios.post(`/api/items/${this.selectedPerspectiveItemId}/perspectives`, {
+                        author: this.currentUser,
+                        text: this.perspectiveDraft,
+                        date: this.getLocalDateString()
+                    });
+                    this.perspectiveDraft = '';
+                    this.replaceItemInCollections(res.data);
+                    this.showNotice('success', '你的视角已经补进这条回忆了');
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '保存视角失败'));
+                }
+            },
             loadPlayStats() {
                 try {
                     const raw = localStorage.getItem('orange_play_stats');
@@ -1243,6 +1721,7 @@
                 this.revokePreviewUrls(this.selectedFilePreviews);
                 this.currentTab = tab; this.selectedFiles = []; this.selectedFilePreviews = []; this.newNote = ''; this.newTitle = ''; this.selectedMood = '';
                 if (tab === 'stats' || tab === 'surprise') this.fetchAllItemsForStats();
+                else if (tab === 'bond') this.loadRelationshipHub();
                 else if (tab === 'review') this.loadAnniversaryReview();
                 else if (tab !== 'tarot' && tab !== 'game') this.getItems();
                 if (tab === 'surprise' && !this.surpriseTask) this.drawSurpriseTask();
@@ -1655,6 +2134,7 @@
                 this.newDate = this.getLocalDateString();
                 this.reviewDate = this.getLocalDateString();
                 if (this.currentTab === 'stats' || this.currentTab === 'surprise') this.fetchAllItemsForStats();
+                else if (this.currentTab === 'bond') this.loadRelationshipHub();
                 else if (this.currentTab === 'review') this.loadAnniversaryReview();
                 else if (this.currentTab !== 'tarot' && this.currentTab !== 'game') this.getItems();
                 if ('serviceWorker' in navigator) {
