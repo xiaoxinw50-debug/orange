@@ -73,6 +73,14 @@
 
         .control-panel { background: var(--glass-bg); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15); }
         [data-theme="dark"] .control-panel { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); }
+        .filter-panel { margin-bottom: 22px; }
+        .filter-label { font-family: var(--font-serif); font-size: 14px; color: var(--ink-light); letter-spacing: 1px; }
+        .filter-select { padding: 12px; border-radius: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); font-family: var(--font-ui); min-width: 120px; }
+        [data-theme="dark"] .filter-select { background: rgba(0,0,0,0.2); }
+        .secondary-btn { background: transparent; color: var(--accent-bronze); border: 1px solid var(--accent-bronze); box-shadow: none; }
+        .secondary-btn:hover { background: rgba(255,255,255,0.35); }
+        .danger-btn { background: linear-gradient(135deg, #ff9aa2, #ff6b81); }
+        .danger-btn:hover { box-shadow: 0 10px 25px rgba(255, 107, 129, 0.45); }
         
         .file-upload-wrapper { position: relative; flex: none; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.5); border: 1px dashed var(--accent-bronze); border-radius: 12px; padding: 0 15px; height: 50px; cursor: pointer; transition: 0.3s;}
         [data-theme="dark"] .file-upload-wrapper { background: rgba(0,0,0,0.2); }
@@ -152,6 +160,19 @@
         [data-theme="dark"] .stats-card { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .stats-title { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin-bottom: 20px; font-weight: bold;}
         .chart-container { position: relative; height: 250px; width: 100%; display: flex; justify-content: center; align-items: center;}
+        .review-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 10px; }
+        .review-card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); padding: 26px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.12); backdrop-filter: blur(12px); }
+        .review-card.wide { grid-column: span 2; }
+        .review-card h3 { margin: 0 0 12px; font-family: var(--font-serif); font-size: 22px; color: var(--ink-main); }
+        .review-kicker { font-size: 13px; color: var(--ink-light); margin-bottom: 10px; letter-spacing: 1px; }
+        .review-metric { font-family: var(--font-serif); font-size: 34px; color: var(--ink-main); margin-bottom: 8px; }
+        .review-desc { font-size: 14px; color: var(--ink-light); line-height: 1.8; }
+        .review-list { display: grid; gap: 14px; }
+        .review-item { padding: 16px 18px; border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.35); }
+        .review-item-title { font-family: var(--font-serif); font-size: 17px; color: var(--ink-main); margin-bottom: 6px; }
+        .review-item-meta { font-size: 12px; color: var(--ink-light); margin-bottom: 8px; }
+        .review-item-text { font-size: 14px; line-height: 1.7; color: var(--ink-main); white-space: pre-wrap; }
+        .empty-state { text-align: center; padding: 28px; border-radius: 20px; border: 1px dashed var(--border-fine); color: var(--ink-light); background: rgba(255,255,255,0.22); }
 
         .timeline-group { margin-bottom: 60px; }
         .timeline-header { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin-bottom: 25px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(15px); padding: 15px 20px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
@@ -185,6 +206,7 @@
         .append-area { margin-top: 40px; padding: 30px; text-align: center; border: 2px dashed var(--accent-bronze); border-radius: 20px; background: rgba(255,255,255,0.3); }
 
         .author-stamp { position: absolute; bottom: 15px; right: 25px; font-family: var(--font-serif); font-size: 12px; color: var(--ink-light); }
+        .deleted-stamp { position: absolute; top: 18px; left: 18px; font-size: 12px; color: #b25463; background: rgba(255,255,255,0.92); padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 154, 162, 0.35); z-index: 5; }
         .date { font-size: 13px; color: var(--ink-light); margin-bottom: 15px; display: block; text-align: center; letter-spacing: 1px;}
         
         .story-title { font-family: var(--font-serif); font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 25px; letter-spacing: 2px; color: var(--ink-main);}
@@ -222,6 +244,8 @@
             .actions { opacity: 1; }
             .gallery-grid { grid-template-columns: repeat(2, 1fr); }
             .stats-dashboard { grid-template-columns: 1fr; }
+            .review-grid { grid-template-columns: 1fr; }
+            .review-card.wide { grid-column: auto; }
         }
     </style>
 </head>
@@ -246,10 +270,10 @@
                 <div class="gallery-grid">
                     <div v-for="img in currentAlbum.images" :key="img.public_id" class="gallery-item">
                         <img :src="img.url" @click="viewFull(img.url)">
-                        <button class="delete-img-btn" @click="deleteImageFromAlbum(currentAlbum._id, img._id)">×</button>
+                        <button v-if="!albumReadOnly" class="delete-img-btn" @click="deleteImageFromAlbum(currentAlbum._id, img._id)">×</button>
                     </div>
                 </div>
-                <div class="append-area">
+                <div v-if="!albumReadOnly" class="append-area">
                     <div class="file-upload-wrapper" style="max-width: 300px; margin: 0 auto; margin-bottom: 15px;">
                         <input type="file" @change="handleAppendFiles" accept="image/*" multiple>
                         <span class="file-upload-text">{{ appendFiles.length > 0 ? `已选 ${appendFiles.length} 张图片 🌸` : '+ 挑选新照片入册' }}</span>
@@ -257,6 +281,9 @@
                     <button class="action-submit" @click="submitAppendPhotos" v-if="appendFiles.length > 0" :disabled="isUploading">
                         {{ isUploading ? '✨ 传送中...' : '确认追加照片' }}
                     </button>
+                </div>
+                <div v-else class="append-area" style="border-style: solid;">
+                    回收站中的相册仅支持查看，恢复后才能继续追加或删除照片。
                 </div>
             </div>
         </div>
@@ -270,6 +297,8 @@
                 <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')">浮梦</div>
                 <div :class="['tab', {active: currentTab === 'tarot'}]" @click="switchTab('tarot')">星占 🔮</div>
                 <div :class="['tab', {active: currentTab === 'game'}]" @click="switchTab('game')">秘戏 🎲</div>
+                <div :class="['tab', {active: currentTab === 'review'}]" @click="switchTab('review')">回顾 💌</div>
+                <div :class="['tab', {active: currentTab === 'recycle'}]" @click="switchTab('recycle')">回收站 🗑️</div>
                 <div :class="['tab', {active: currentTab === 'stats'}]" @click="switchTab('stats')">星图 🌟</div>
             </div>
             <div class="header-actions">
@@ -364,7 +393,107 @@
             </div>
         </div>
 
-        <div class="control-panel" v-if="currentTab !== 'stats' && currentTab !== 'tarot' && currentTab !== 'game'">
+        <div v-if="currentTab === 'review'">
+            <div class="control-panel">
+                <div class="filter-label">周年回顾会按照你选择的日期，自动整理“第 N 天”“去年今天”“历年同日”的卡片。</div>
+                <div class="input-group">
+                    <input type="date" v-model="reviewDate">
+                    <input type="date" v-model="relationshipBaseDate">
+                    <button class="action-submit secondary-btn" @click="saveRelationshipBaseDate">保存纪念起点</button>
+                    <button class="action-submit" @click="loadAnniversaryReview">刷新回顾</button>
+                </div>
+            </div>
+
+            <div v-if="reviewLoading" class="empty-state">正在整理这一天的回忆...</div>
+            <div v-else-if="reviewData" class="review-grid">
+                <div class="review-card">
+                    <div class="review-kicker">TODAY</div>
+                    <h3>纪念日计数</h3>
+                    <div v-if="reviewData.relationship" class="review-metric">第 {{ reviewData.relationship.dayCount }} 天</div>
+                    <div v-else class="review-metric" style="font-size: 22px;">先设置纪念起点</div>
+                    <div class="review-desc">
+                        <template v-if="reviewData.relationship">从 {{ reviewData.relationship.baseDate }} 算起，今天是你们一起走过的第 {{ reviewData.relationship.dayCount }} 天。</template>
+                        <template v-else>右侧日期框可以设置“在一起”的起点，之后这里会自动生成第 N 天卡片。</template>
+                    </div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-kicker">SNAPSHOT</div>
+                    <h3>回忆概览</h3>
+                    <div class="review-desc">总共记录了 {{ reviewData.stats.totalItems }} 条内容，今天命中的“历年同日”回忆有 {{ reviewData.stats.sameDayHistoryCount }} 条，去年今天留下了 {{ reviewData.stats.lastYearCount }} 条。</div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-kicker">LATEST</div>
+                    <h3>最近一次记录</h3>
+                    <template v-if="reviewData.cards.latestMemory">
+                        <div class="review-item">
+                            <div class="review-item-title">{{ getItemDisplayTitle(reviewData.cards.latestMemory) }}</div>
+                            <div class="review-item-meta">{{ formatDate(reviewData.cards.latestMemory.date) }} · {{ getCategoryLabel(reviewData.cards.latestMemory.category) }} · {{ reviewData.cards.latestMemory.author }}</div>
+                            <div class="review-item-text">{{ getItemExcerpt(reviewData.cards.latestMemory) }}</div>
+                        </div>
+                    </template>
+                    <div v-else class="empty-state">还没有可回顾的内容。</div>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-kicker">FIRST PAGE</div>
+                    <h3>最早的一次记录</h3>
+                    <template v-if="reviewData.cards.earliestMemory">
+                        <div class="review-item">
+                            <div class="review-item-title">{{ getItemDisplayTitle(reviewData.cards.earliestMemory) }}</div>
+                            <div class="review-item-meta">{{ formatDate(reviewData.cards.earliestMemory.date) }} · {{ getCategoryLabel(reviewData.cards.earliestMemory.category) }} · {{ reviewData.cards.earliestMemory.author }}</div>
+                            <div class="review-item-text">{{ getItemExcerpt(reviewData.cards.earliestMemory) }}</div>
+                        </div>
+                    </template>
+                    <div v-else class="empty-state">最初的那页还没写下内容。</div>
+                </div>
+
+                <div class="review-card wide">
+                    <div class="review-kicker">LAST YEAR</div>
+                    <h3>去年今天</h3>
+                    <div v-if="reviewData.cards.lastYearToday.length > 0" class="review-list">
+                        <div v-for="item in reviewData.cards.lastYearToday" :key="item._id" class="review-item">
+                            <div class="review-item-title">{{ getItemDisplayTitle(item) }}</div>
+                            <div class="review-item-meta">{{ formatDate(item.date) }} · {{ getCategoryLabel(item.category) }} · {{ item.author }}</div>
+                            <div class="review-item-text">{{ getItemExcerpt(item) }}</div>
+                        </div>
+                    </div>
+                    <div v-else class="empty-state">去年今天还没有留下记录。</div>
+                </div>
+
+                <div class="review-card wide">
+                    <div class="review-kicker">ON THIS DAY</div>
+                    <h3>历年同日回顾</h3>
+                    <div v-if="reviewData.cards.sameDayHistory.length > 0" class="review-list">
+                        <div v-for="item in reviewData.cards.sameDayHistory" :key="item._id" class="review-item">
+                            <div class="review-item-title">{{ getItemDisplayTitle(item) }}</div>
+                            <div class="review-item-meta">{{ formatDate(item.date) }} · {{ getCategoryLabel(item.category) }} · {{ item.author }}</div>
+                            <div class="review-item-text">{{ getItemExcerpt(item) }}</div>
+                        </div>
+                    </div>
+                    <div v-else class="empty-state">这一天在往年还没有留下故事。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel filter-panel" v-if="showFilters">
+            <div class="filter-label">{{ currentTab === 'recycle' ? '搜索和筛选回收站里的内容' : '搜索当前分类，并按作者或时间范围筛选' }}</div>
+            <div class="input-group">
+                <input type="text" class="note-input" v-model="filterQuery" :placeholder="currentTab === 'recycle' ? '搜索标题、正文或浮梦段落...' : '搜索标题、正文或浮梦段落...'" @keyup.enter="applyFilters">
+                <select class="filter-select" v-model="filterAuthor">
+                    <option value="">全部作者</option>
+                    <option value="小橙">小橙</option>
+                    <option value="小心">小心</option>
+                </select>
+                <input type="date" v-model="filterFrom">
+                <input type="date" v-model="filterTo">
+                <button class="action-submit secondary-btn" @click="clearFilters">清空</button>
+                <button class="action-submit" @click="applyFilters">筛选</button>
+            </div>
+        </div>
+
+        <div class="control-panel" v-if="showComposer">
             <input v-if="currentTab === 'story' || currentTab === 'album'" type="text" v-model="newTitle" class="title-input" :placeholder="currentTab === 'album' ? '《 相册名称 》 (如：2026跨年之旅)' : '《 篇章名 》'">
             <div class="input-group">
                 <div class="file-upload-wrapper" v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story' || currentTab === 'album'">
@@ -377,17 +506,24 @@
             </div>
         </div>
 
-        <div v-if="currentTab !== 'stats' && currentTab !== 'tarot' && currentTab !== 'game'" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
-            <div class="timeline-header">🌸 {{ monthYear }}</div>
-            <div :class="['grid', (currentTab === 'memory' || currentTab === 'album') ? 'grid-memory' : 'grid-list']">
-                <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': currentTab === 'story'}]">
+        <div v-if="showListView" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
+            <div class="timeline-header">{{ monthYear }}</div>
+            <div :class="['grid', getGroupGridClass(itemsInGroup)]">
+                <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': getDisplayCategory(item) === 'story'}]">
                     
                     <div class="actions">
-                        <button v-if="currentTab !== 'album'" class="action-btn" @click="startEdit(item)">✎</button>
-                        <button class="action-btn btn-delete" @click="deleteItem(item._id)">×</button>
+                        <template v-if="currentTab === 'recycle'">
+                            <button class="action-btn" @click="restoreItem(item._id)">↺</button>
+                            <button class="action-btn btn-delete" @click="permanentlyDeleteItem(item._id)">×</button>
+                        </template>
+                        <template v-else>
+                            <button v-if="getDisplayCategory(item) !== 'album'" class="action-btn" @click="startEdit(item)">✎</button>
+                            <button class="action-btn btn-delete" @click="deleteItem(item._id)">×</button>
+                        </template>
                     </div>
+                    <div v-if="item.deletedAt" class="deleted-stamp">已删除 · {{ formatDateTime(item.deletedAt) }}</div>
 
-                    <template v-if="currentTab === 'album'">
+                    <template v-if="getDisplayCategory(item) === 'album'">
                         <div class="album-cover" @click="openAlbum(item)">
                             <img :src="item.images && item.images.length > 0 ? item.images[0].url : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100\' height=\'100\' fill=\'%23F4C2C2\'/></svg>'">
                             <div class="album-badge">共 {{ item.images ? item.images.length : 0 }} 张相片</div>
@@ -401,20 +537,20 @@
                     <div class="card-info">
                         <span class="date">✦ {{ formatDate(item.date) }} ✦</span>
                         <div v-if="editingId !== item._id">
-                            <div v-if="currentTab === 'album'" style="text-align: center; font-family: var(--font-serif); font-size: 20px; font-weight: bold; color: var(--ink-main); cursor:pointer;" @click="openAlbum(item)">《 {{ item.title || '无名相册' }} 》</div>
-                            <div v-else-if="currentTab === 'story'" class="story-title">《 {{ item.title }} 》</div>
+                            <div v-if="getDisplayCategory(item) === 'album'" style="text-align: center; font-family: var(--font-serif); font-size: 20px; font-weight: bold; color: var(--ink-main); cursor:pointer;" @click="openAlbum(item)">《 {{ item.title || '无名相册' }} 》</div>
+                            <div v-else-if="getDisplayCategory(item) === 'story'" class="story-title">《 {{ item.title }} 》</div>
                             
-                            <div v-if="currentTab === 'story'" class="story-content">
+                            <div v-if="getDisplayCategory(item) === 'story'" class="story-content">
                                 <p v-for="seg in item.segments" :key="seg.id" :class="['story-seg', seg.author === '小心' ? 'text-xiaoxin' : 'text-xiaocheng']">{{ seg.text }}</p>
                             </div>
-                            <div v-else-if="currentTab === 'wish'" class="wish-item">
-                                <input type="checkbox" class="wish-checkbox" :checked="item.completed" @change="toggleWish(item, $event)">
+                            <div v-else-if="getDisplayCategory(item) === 'wish'" class="wish-item">
+                                <input type="checkbox" class="wish-checkbox" :checked="item.completed" :disabled="currentTab === 'recycle'" @change="toggleWish(item, $event)">
                                 <span :class="['note', {'wish-completed': item.completed}]">{{ item.note }}</span>
                             </div>
                             <div v-else class="note">{{ item.note }}</div>
                         </div>
                         <div v-else>
-                            <template v-if="currentTab === 'story'">
+                            <template v-if="getDisplayCategory(item) === 'story'">
                                 <input type="text" class="edit-title" v-model="editTitle" placeholder="篇章名">
                                 <div v-for="(seg, index) in editSegments" :key="index" class="edit-seg-row">
                                     <span :class="['seg-author-badge', seg.author === '小心' ? 'bg-xiaoxin' : 'bg-xiaocheng']">{{ seg.author }}</span>
@@ -432,13 +568,18 @@
                             </div>
                         </div>
                         <div class="author-stamp">
-                            <span v-if="currentTab === 'story'">共创梦境</span>
-                            <span v-else-if="currentTab === 'album'">建册：{{ item.author }}</span>
+                            <span v-if="currentTab === 'recycle'">删除人：{{ item.deletedBy || '未知' }}</span>
+                            <span v-else-if="getDisplayCategory(item) === 'story'">共创梦境</span>
+                            <span v-else-if="getDisplayCategory(item) === 'album'">建册：{{ item.author }}</span>
                             <span v-else>落笔：{{ item.author }}</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div v-if="showListView && Object.keys(groupedItems).length === 0" class="empty-state">
+            {{ emptyStateText }}
         </div>
     </template>
 </div>
@@ -452,10 +593,12 @@
                 items: [], allItemsForStats: [],
                 newTitle: '', newNote: '', newDate: '', selectedFiles: [], isUploading: false, 
                 editingId: null, editTitle: '', editNote: '', editSegments: [],
-                isDarkMode: false, currentAlbum: null, appendFiles: [],
+                isDarkMode: false, currentAlbum: null, appendFiles: [], albumReadOnly: false,
                 storyChartObj: null, activityChartObj: null,
                 notice: { type: '', text: '' },
                 noticeTimer: null,
+                filterQuery: '', filterAuthor: '', filterFrom: '', filterTo: '',
+                reviewData: null, reviewDate: '', reviewLoading: false, relationshipBaseDate: '',
                 
                 // 🔮 塔罗牌相关状态
                 isMidnightMode: false, 
@@ -545,13 +688,25 @@
             placeholderText() { return '珍藏那一刻的闪光...'; },
             btnText() { return '入卷'; },
             currentDeck() { return this.isMidnightMode ? this.tarotDeckMidnight : this.tarotDeckRomantic; },
+            showComposer() { return ['memory', 'album', 'diary', 'wish', 'story'].includes(this.currentTab); },
+            showFilters() { return ['memory', 'album', 'diary', 'wish', 'story', 'recycle'].includes(this.currentTab); },
+            showListView() { return ['memory', 'album', 'diary', 'wish', 'story', 'recycle'].includes(this.currentTab); },
+            emptyStateText() {
+                if (this.currentTab === 'recycle') return '回收站里暂时没有内容。';
+                return this.filterQuery || this.filterAuthor || this.filterFrom || this.filterTo
+                    ? '没有找到符合筛选条件的内容。'
+                    : '这里还没有内容，先写下一点新的回忆吧。';
+            },
             groupedItems() {
                 const groups = {};
                 this.items.forEach(item => {
-                    const dateObj = new Date(item.date);
+                    const groupDate = this.currentTab === 'recycle' && item.deletedAt ? item.deletedAt : item.date;
+                    const dateObj = new Date(groupDate);
                     const yearOptions = ['〇','一','二','三','四','五','六','七','八','九'];
                     const yearStr = dateObj.getFullYear().toString().split('').map(n => yearOptions[n]).join('');
-                    const yearMonth = `${yearStr}年 ${dateObj.getMonth() + 1}月`;
+                    const yearMonth = this.currentTab === 'recycle'
+                        ? `🗑️ 回收于 ${yearStr}年 ${dateObj.getMonth() + 1}月`
+                        : `🌸 ${yearStr}年 ${dateObj.getMonth() + 1}月`;
                     if (!groups[yearMonth]) groups[yearMonth] = [];
                     groups[yearMonth].push(item);
                 });
@@ -587,6 +742,38 @@
                 const offset = now.getTimezoneOffset() * 60000;
                 return new Date(now.getTime() - offset).toISOString().split('T')[0];
             },
+            getDisplayCategory(item) {
+                return this.currentTab === 'recycle' ? item.category : this.currentTab;
+            },
+            getGroupGridClass(itemsInGroup) {
+                const hasMediaCard = itemsInGroup.some(item => ['memory', 'album'].includes(this.getDisplayCategory(item)));
+                return hasMediaCard ? 'grid-memory' : 'grid-list';
+            },
+            getCategoryLabel(category) {
+                const labels = { memory: '纪事', album: '相册', diary: '随笔', wish: '心愿', story: '浮梦' };
+                return labels[category] || '内容';
+            },
+            getItemDisplayTitle(item) {
+                if (item.title && item.title.trim()) return item.title.trim();
+                if (item.note && item.note.trim()) return item.note.trim().slice(0, 24);
+                return `${this.getCategoryLabel(item.category)}记录`;
+            },
+            getItemExcerpt(item) {
+                if (item.note && item.note.trim()) return item.note.trim().slice(0, 120);
+                if (item.segments && item.segments.length > 0) {
+                    return item.segments.map(seg => seg.text).join(' ').trim().slice(0, 120);
+                }
+                return '这条记录里没有留下更多文字。';
+            },
+            formatDateTime(dateString) {
+                return new Date(dateString).toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            },
             login() {
                 if (this.loginCode === 'xiaoxin') this.currentUser = '小心';
                 else if (this.loginCode === 'xiaocheng') this.currentUser = '小橙';
@@ -600,6 +787,7 @@
                 this.currentUser = null;
                 this.loginCode = '';
                 this.currentAlbum = null;
+                this.albumReadOnly = false;
                 document.body.style.overflow = 'auto';
                 this.clearNotice();
                 this.vibrate(50);
@@ -616,7 +804,38 @@
                 if (this.currentAlbum) this.closeAlbum(false);
                 this.currentTab = tab; this.selectedFiles = []; this.newNote = ''; this.newTitle = '';
                 if (tab === 'stats') this.fetchAllItemsForStats();
+                else if (tab === 'review') this.loadAnniversaryReview();
                 else if (tab !== 'tarot' && tab !== 'game') this.getItems();
+            },
+            applyFilters() {
+                if (this.currentTab === 'review') this.loadAnniversaryReview();
+                else if (this.showListView) this.getItems();
+            },
+            clearFilters() {
+                this.filterQuery = '';
+                this.filterAuthor = '';
+                this.filterFrom = '';
+                this.filterTo = '';
+                if (this.showListView) this.getItems();
+            },
+            saveRelationshipBaseDate() {
+                if (this.relationshipBaseDate) localStorage.setItem('orange_relationship_base', this.relationshipBaseDate);
+                else localStorage.removeItem('orange_relationship_base');
+                this.loadAnniversaryReview();
+            },
+            async loadAnniversaryReview() {
+                this.reviewLoading = true;
+                try {
+                    const params = { date: this.reviewDate || this.getLocalDateString() };
+                    if (this.relationshipBaseDate) params.baseDate = this.relationshipBaseDate;
+                    const res = await axios.get('/api/review/anniversary', { params });
+                    this.reviewData = res.data;
+                } catch (error) {
+                    this.reviewData = null;
+                    this.showNotice('error', this.getErrorMessage(error, '周年回顾加载失败'));
+                } finally {
+                    this.reviewLoading = false;
+                }
             },
             
             // 🎲 秘戏：真心话大冒险抽卡逻辑
@@ -697,16 +916,23 @@
                 try { return await imageCompression(file, options); } catch (error) { return file; }
             },
             handleFiles(e) { this.selectedFiles = Array.from(e.target.files); this.vibrate(30);},
-            openAlbum(item) { this.vibrate(30); this.currentAlbum = item; document.body.style.overflow = 'hidden'; },
+            openAlbum(item) {
+                this.vibrate(30);
+                this.currentAlbum = item;
+                this.albumReadOnly = Boolean(item.deletedAt);
+                document.body.style.overflow = 'hidden';
+            },
             closeAlbum(refresh = true) {
                 this.vibrate(30);
                 this.currentAlbum = null;
                 this.appendFiles = [];
+                 this.albumReadOnly = false;
                 document.body.style.overflow = 'auto';
                 if (refresh) this.getItems();
             },
             handleAppendFiles(e) { this.appendFiles = Array.from(e.target.files); this.vibrate(30);},
             async submitAppendPhotos() {
+                if (this.albumReadOnly) return;
                 if(this.appendFiles.length === 0) return;
                 this.vibrate(50); this.isUploading = true; const fd = new FormData(); 
                 for (let i = 0; i < this.appendFiles.length; i++) { const compressed = await this.compressImage(this.appendFiles[i]); fd.append('files', compressed, compressed.name); }
@@ -722,6 +948,7 @@
                 } finally { this.isUploading = false; }
             },
             async deleteImageFromAlbum(albumId, imageId) {
+                if (this.albumReadOnly) return;
                 this.vibrate(30);
                 if(confirm("确定要把这张照片移出相册吗？")) {
                     try {
@@ -786,7 +1013,14 @@
             },
             async getItems() {
                 try {
-                    const res = await axios.get(`/api/items?category=${this.currentTab}`);
+                    const params = {};
+                    if (this.currentTab === 'recycle') params.deletedOnly = true;
+                    else params.category = this.currentTab;
+                    if (this.filterQuery.trim()) params.q = this.filterQuery.trim();
+                    if (this.filterAuthor) params.author = this.filterAuthor;
+                    if (this.filterFrom) params.from = this.filterFrom;
+                    if (this.filterTo) params.to = this.filterTo;
+                    const res = await axios.get('/api/items', { params });
                     this.items = res.data;
                 } catch (error) {
                     this.items = [];
@@ -797,12 +1031,33 @@
                 this.vibrate(30);
                 if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) {
                     try {
-                        await axios.delete(`/api/items/${id}`);
-                        this.showNotice('success', '内容已删除');
+                        await axios.delete(`/api/items/${id}`, { params: { author: this.currentUser } });
+                        this.showNotice('success', '内容已移入回收站');
                         this.getItems();
                     } catch (error) {
                         this.showNotice('error', this.getErrorMessage(error, '删除失败'));
                     }
+                }
+            },
+            async restoreItem(id) {
+                this.vibrate(30);
+                try {
+                    await axios.post(`/api/items/${id}/restore`);
+                    this.showNotice('success', '内容已恢复');
+                    this.getItems();
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '恢复失败'));
+                }
+            },
+            async permanentlyDeleteItem(id) {
+                this.vibrate(30);
+                if (!confirm('这会彻底删除内容和图片，无法恢复，确定继续吗？')) return;
+                try {
+                    await axios.delete(`/api/items/${id}/permanent`);
+                    this.showNotice('success', '内容已彻底删除');
+                    this.getItems();
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '彻底删除失败'));
                 }
             },
             startEdit(item) { this.vibrate(30); this.editingId = item._id; this.editTitle = item.title || ''; this.editNote = item.note || ''; if (this.currentTab === 'story') { this.editSegments = item.segments ? JSON.parse(JSON.stringify(item.segments)) : [{ id: Date.now().toString(), author: item.author, text: item.note }]; } },
@@ -837,7 +1092,10 @@
             formatDate(dateString) { return new Date(dateString).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }); },
             initApp() {
                 this.newDate = this.getLocalDateString();
-                this.currentTab === 'stats' ? this.fetchAllItemsForStats() : (this.currentTab !== 'tarot' && this.currentTab !== 'game' && this.getItems());
+                this.reviewDate = this.getLocalDateString();
+                if (this.currentTab === 'stats') this.fetchAllItemsForStats();
+                else if (this.currentTab === 'review') this.loadAnniversaryReview();
+                else if (this.currentTab !== 'tarot' && this.currentTab !== 'game') this.getItems();
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('/sw.js').catch(() => {
                         this.showNotice('error', '离线能力注册失败');
@@ -846,6 +1104,7 @@
             }
         },
         mounted() { 
+            const savedBaseDate = localStorage.getItem('orange_relationship_base'); if (savedBaseDate) this.relationshipBaseDate = savedBaseDate;
             const savedUser = localStorage.getItem('orange_user'); if (savedUser) { this.currentUser = savedUser; this.initApp(); }
             const savedTheme = localStorage.getItem('orange_theme'); if (savedTheme === 'dark') { this.isDarkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
         }

@@ -38,7 +38,9 @@ const itemSchema = new mongoose.Schema({
     segments: { type: Array, default: null },
     date: { type: String, required: true },
     time: { type: Number, required: true },
-    completed: { type: Boolean, default: false }
+    completed: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: String, default: '' }
 });
 const Item = mongoose.model('Item', itemSchema);
 
@@ -93,6 +95,11 @@ function normalizeAuthor(author) {
         throw createHttpError(400, '作者信息无效，请重新登录后再试');
     }
     return author;
+}
+
+function normalizeOptionalAuthor(author) {
+    if (!author) return null;
+    return normalizeAuthor(author);
 }
 
 function normalizeDate(date) {
@@ -150,6 +157,91 @@ function escapeRegExp(value) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function parseBooleanFlag(value) {
+    if (value === undefined) return false;
+    return ['1', 'true', 'yes', 'on'].includes(String(value).toLowerCase());
+}
+
+function parseDateBoundary(value, boundary) {
+    if (!value) return null;
+    const normalized = normalizeDate(value);
+    const date = new Date(normalized);
+    if (boundary === 'end') {
+        date.setUTCHours(23, 59, 59, 999);
+    } else {
+        date.setUTCHours(0, 0, 0, 0);
+    }
+    return date.getTime();
+}
+
+function ensureActiveItem(item, message = '内容已在回收站中，请先恢复') {
+    if (item.deletedAt) {
+        throw createHttpError(410, message);
+    }
+}
+
+function buildItemsQuery(queryParams) {
+    const query = {};
+    const includeDeleted = parseBooleanFlag(queryParams.includeDeleted);
+    const deletedOnly = parseBooleanFlag(queryParams.deletedOnly);
+    const author = normalizeOptionalAuthor(queryParams.author);
+    const from = parseDateBoundary(queryParams.from, 'start');
+    const to = parseDateBoundary(queryParams.to, 'end');
+    const keyword = typeof queryParams.q === 'string' ? queryParams.q.trim() : '';
+
+    if (queryParams.category) {
+        query.category = normalizeCategory(queryParams.category);
+    }
+    if (author) {
+        query.author = author;
+    }
+    if (deletedOnly) {
+        query.deletedAt = { $ne: null };
+    } else if (!includeDeleted) {
+        query.deletedAt = null;
+    }
+    if (from !== null || to !== null) {
+        query.time = {};
+        if (from !== null) query.time.$gte = from;
+        if (to !== null) query.time.$lte = to;
+    }
+    if (keyword) {
+        const safeKeyword = escapeRegExp(keyword);
+        query.$or = [
+            { note: new RegExp(safeKeyword, 'i') },
+            { title: new RegExp(safeKeyword, 'i') },
+            { 'segments.text': new RegExp(safeKeyword, 'i') }
+        ];
+    }
+
+    return query;
+}
+
+function toCardItem(item) {
+    return {
+        _id: item._id,
+        category: item.category,
+        author: item.author,
+        title: item.title,
+        note: item.note,
+        segments: item.segments || [],
+        date: item.date,
+        time: item.time,
+        completed: item.completed,
+        images: item.images || [],
+        url: item.images?.[0]?.url || item.url || '',
+        deletedAt: item.deletedAt || null
+    };
+}
+
+async function destroyItemAssets(item) {
+    if (item.images && item.images.length > 0) {
+        await Promise.all(item.images.map(img => cloudinary.uploader.destroy(img.public_id)));
+    } else if (item.public_id) {
+        await cloudinary.uploader.destroy(item.public_id);
+    }
+}
+
 // ================= 3. API 路由 =================
 
 // API: 新增内容 (创建相册/纪事等)
@@ -197,6 +289,7 @@ app.post('/api/items/:id/images', upload.array('files', 50), async (req, res) =>
         ensureObjectId(req.params.id, '相册 ID 无效');
         const item = await Item.findById(req.params.id);
         if (!item) return res.status(404).json({ error: '相册未找到' });
+        ensureActiveItem(item, '相册已在回收站中，无法继续追加照片');
         if (item.category !== 'album') {
             throw createHttpError(400, '只有相册可以追加照片');
         }
@@ -222,6 +315,7 @@ app.delete('/api/items/:id/images/:imageId', async (req, res) => {
         ensureObjectId(req.params.imageId, '图片 ID 无效');
         const item = await Item.findById(req.params.id);
         if (!item) return res.status(404).json({ error: '相册未找到' });
+        ensureActiveItem(item, '相册已在回收站中，无法删除照片');
         if (item.category !== 'album') {
             throw createHttpError(400, '只有相册可以删除照片');
         }
@@ -245,21 +339,53 @@ app.delete('/api/items/:id/images/:imageId', async (req, res) => {
 // API: 获取内容
 app.get('/api/items', async (req, res) => {
     try {
-        const { q, category } = req.query;
-        let query = {};
-        if (category) {
-            query.category = normalizeCategory(category);
-        }
-        if (q) {
-            const safeKeyword = escapeRegExp(q.trim());
-            query.$or = [
-                { note: new RegExp(safeKeyword, 'i') },
-                { title: new RegExp(safeKeyword, 'i') }
-            ];
+        const query = buildItemsQuery(req.query);
+        const sort = parseBooleanFlag(req.query.deletedOnly) ? { deletedAt: -1 } : { time: -1 };
+        const items = await Item.find(query).sort(sort).lean();
+        res.json(items);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+app.get('/api/review/anniversary', async (req, res) => {
+    try {
+        const today = normalizeDate(req.query.date);
+        const baseDate = req.query.baseDate ? normalizeDate(req.query.baseDate) : null;
+        const md = today.slice(5);
+        const year = Number(today.slice(0, 4));
+        const items = await Item.find({ deletedAt: null }).sort({ time: -1 }).lean();
+        const sameDayHistory = items.filter(item => item.date && item.date.slice(5) === md && item.date < today);
+        const lastYearItems = sameDayHistory.filter(item => item.date.startsWith(`${year - 1}-`));
+        const latestMemory = items[0] || null;
+        const earliestMemory = items[items.length - 1] || null;
+
+        let relationship = null;
+        if (baseDate) {
+            const diff = Math.floor((new Date(today).getTime() - new Date(baseDate).getTime()) / 86400000);
+            if (diff >= 0) {
+                relationship = {
+                    baseDate,
+                    dayCount: diff + 1
+                };
+            }
         }
 
-        const items = await Item.find(query).sort({ time: -1 }).lean();
-        res.json(items);
+        res.json({
+            today,
+            relationship,
+            stats: {
+                totalItems: items.length,
+                sameDayHistoryCount: sameDayHistory.length,
+                lastYearCount: lastYearItems.length
+            },
+            cards: {
+                latestMemory: latestMemory ? toCardItem(latestMemory) : null,
+                earliestMemory: earliestMemory ? toCardItem(earliestMemory) : null,
+                lastYearToday: lastYearItems.slice(0, 6).map(toCardItem),
+                sameDayHistory: sameDayHistory.slice(0, 12).map(toCardItem)
+            }
+        });
     } catch (err) {
         handleError(res, err);
     }
@@ -282,16 +408,18 @@ app.put('/api/items/:id', async (req, res) => {
     try {
         ensureObjectId(req.params.id, '内容 ID 无效');
         const { title, note, completed, segments } = req.body;
+        const existingItem = await Item.findById(req.params.id);
+        if (!existingItem) {
+            throw createHttpError(404, '内容未找到');
+        }
+        ensureActiveItem(existingItem);
         let updateDoc = {};
         if (title !== undefined) updateDoc.title = title;
         if (note !== undefined) updateDoc.note = note;
         if (completed !== undefined) updateDoc.completed = completed;
         if (segments !== undefined) updateDoc.segments = parseSegments(segments);
 
-        const updatedItem = await Item.findByIdAndUpdate(req.params.id, { $set: updateDoc }, { new: true });
-        if (!updatedItem) {
-            throw createHttpError(404, '内容未找到');
-        }
+        await Item.findByIdAndUpdate(req.params.id, { $set: updateDoc }, { new: true });
         res.json({ success: true });
     } catch (err) {
         handleError(res, err);
@@ -302,15 +430,50 @@ app.delete('/api/items/:id', async (req, res) => {
     try {
         ensureObjectId(req.params.id, '内容 ID 无效');
         const item = await Item.findById(req.params.id);
-        if (item) {
-            if (item.images && item.images.length > 0) {
-                await Promise.all(item.images.map(img => cloudinary.uploader.destroy(img.public_id)));
-            } else if (item.public_id) {
-                await cloudinary.uploader.destroy(item.public_id);
-            }
-            await Item.findByIdAndDelete(req.params.id);
+        if (!item) {
+            throw createHttpError(404, '内容未找到');
         }
+        if (item.deletedAt) {
+            throw createHttpError(400, '内容已经在回收站中了');
+        }
+        item.deletedAt = new Date();
+        item.deletedBy = normalizeOptionalAuthor(req.query.author) || '';
+        await item.save();
+        res.json({ success: true, mode: 'soft_deleted' });
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+app.post('/api/items/:id/restore', async (req, res) => {
+    try {
+        ensureObjectId(req.params.id, '内容 ID 无效');
+        const item = await Item.findById(req.params.id);
+        if (!item) {
+            throw createHttpError(404, '内容未找到');
+        }
+        if (!item.deletedAt) {
+            throw createHttpError(400, '内容不在回收站中');
+        }
+        item.deletedAt = null;
+        item.deletedBy = '';
+        await item.save();
         res.json({ success: true });
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+app.delete('/api/items/:id/permanent', async (req, res) => {
+    try {
+        ensureObjectId(req.params.id, '内容 ID 无效');
+        const item = await Item.findById(req.params.id);
+        if (!item) {
+            throw createHttpError(404, '内容未找到');
+        }
+        await destroyItemAssets(item);
+        await Item.findByIdAndDelete(req.params.id);
+        res.json({ success: true, mode: 'permanent_deleted' });
     } catch (err) {
         handleError(res, err);
     }
