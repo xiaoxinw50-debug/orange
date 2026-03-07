@@ -7,42 +7,43 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        /* ================= 昼夜主题 CSS 变量 ================= */
+        /* ================= 昼夜主题 CSS 变量 (全面替换为梦幻蓝色调) ================= */
         :root {
-            /* 白昼模式 (默认) */
-            --paper-bg: #F7F5F0; 
+            /* 白昼模式：海盐雾蓝 */
+            --paper-bg: #F0F4F8; 
             --card-bg: #FFFFFF;
-            --ink-main: #2C2826; 
-            --ink-light: #5C5652;
-            --accent-bronze: #A68A6B; 
-            --accent-red: #8B3A3A; 
-            --accent-indigo: #313A4D;
-            --glass-bg: rgba(247, 245, 240, 0.65); 
-            --border-fine: rgba(44, 40, 38, 0.08);
-            --story-bg: linear-gradient(180deg, #FDFCFB 0%, #F5F3F0 100%);
+            --ink-main: #2C3E50; /* 海军蓝文字 */
+            --ink-light: #7F8C8D;
+            --accent-bronze: #5B8FB9; /* 主题蓝：海盐蓝 */
+            --accent-red: #E69A8D; /* 珊瑚色点缀 (用于印章和警告) */
+            --accent-indigo: #2980B9;
+            --glass-bg: rgba(240, 244, 248, 0.75); 
+            --border-fine: rgba(44, 62, 80, 0.08);
+            --story-bg: linear-gradient(180deg, #FFFFFF 0%, #F0F4F8 100%);
             
-            --color-xiaocheng: #4A708B; /* 景泰蓝 */
-            --color-xiaoxin: #C87A8A;   /* 胭脂粉 */
+            /* 专属情侣双色 */
+            --color-xiaocheng: #3498DB; /* 晴空蓝 */
+            --color-xiaoxin: #F1948A;   /* 珊瑚粉 */
             
             --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
         }
 
-        /* 暗夜模式 (玄黑与月白) */
+        /* 暗夜模式：深海星空 */
         [data-theme="dark"] {
-            --paper-bg: #1A1A1A; 
-            --card-bg: #262626;
-            --ink-main: #E6E1D8; 
-            --ink-light: #9E9689;
-            --accent-bronze: #C4A482; 
-            --accent-red: #B05B5B; 
-            --accent-indigo: #8EA0C2;
-            --glass-bg: rgba(26, 26, 26, 0.75); 
-            --border-fine: rgba(230, 225, 216, 0.12);
-            --story-bg: linear-gradient(180deg, #2A2A2A 0%, #1F1F1F 100%);
+            --paper-bg: #0F172A; /* 深邃藏青 */
+            --card-bg: #1E293B;
+            --ink-main: #F1F5F9; 
+            --ink-light: #94A3B8;
+            --accent-bronze: #38BDF8; /* 荧光海蓝 */
+            --accent-red: #FDA4AF; 
+            --accent-indigo: #7DD3FC;
+            --glass-bg: rgba(15, 23, 42, 0.85); 
+            --border-fine: rgba(241, 245, 249, 0.12);
+            --story-bg: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
             
-            --color-xiaocheng: #7BA8C4; /* 暗夜高亮蓝 */
-            --color-xiaoxin: #D697A6;   /* 暗夜高亮粉 */
+            --color-xiaocheng: #7DD3FC; /* 暗夜高亮蓝 */
+            --color-xiaoxin: #FDA4AF;   /* 暗夜高亮粉 */
         }
 
         /* 全局平滑过渡 */
@@ -57,22 +58,22 @@
         /* 登录屏风 */
         .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--paper-bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { text-align: center; }
-        .login-box h1 { font-family: var(--font-serif); font-size: 32px; letter-spacing: 8px; margin-bottom: 40px; }
-        .login-box input { width: 200px; text-align: center; letter-spacing: 2px; padding: 12px; border-radius: 8px; border: 1px solid var(--border-fine); background: transparent; color: var(--ink-main); outline: none;}
+        .login-box h1 { font-family: var(--font-serif); font-size: 32px; letter-spacing: 8px; margin-bottom: 40px; color: var(--accent-bronze); }
+        .login-box input { width: 200px; text-align: center; letter-spacing: 2px; padding: 12px; border-radius: 8px; border: 1px solid var(--accent-bronze); background: transparent; color: var(--ink-main); outline: none;}
 
         /* 顶部导航与操作区 */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         .nav-tabs { display: flex; gap: 25px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
         .nav-tabs::-webkit-scrollbar { display: none; }
         .tab { font-family: var(--font-serif); font-size: 18px; cursor: pointer; padding-bottom: 5px; color: var(--ink-light); white-space: nowrap; }
-        .tab.active { color: var(--ink-main); border-bottom: 2px solid var(--accent-bronze); font-weight: bold; }
+        .tab.active { color: var(--accent-bronze); border-bottom: 2px solid var(--accent-bronze); font-weight: bold; }
         
         .header-actions { display: flex; gap: 12px; align-items: center; }
         .theme-toggle { font-size: 20px; cursor: pointer; background: transparent; border: none; color: var(--ink-main); padding: 0;}
-        .user-badge { font-family: var(--font-serif); font-size: 14px; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 4px 12px; border-radius: 20px; cursor: pointer; opacity: 0.8; white-space: nowrap;}
+        .user-badge { font-family: var(--font-serif); font-size: 14px; color: var(--accent-bronze); border: 1px solid var(--accent-bronze); padding: 4px 12px; border-radius: 20px; cursor: pointer; opacity: 0.8; white-space: nowrap;}
 
         /* 岁月拾遗 */
-        .memory-flashback { text-align: center; margin-bottom: 40px; padding: 20px; border-top: 1px solid var(--border-fine); border-bottom: 1px solid var(--border-fine); }
+        .memory-flashback { text-align: center; margin-bottom: 40px; padding: 20px; border-top: 1px solid var(--border-fine); border-bottom: 1px solid var(--border-fine); background: linear-gradient(90deg, transparent, rgba(91, 143, 185, 0.05), transparent); }
         .memory-title { font-family: var(--font-serif); font-size: 14px; color: var(--accent-bronze); margin-bottom: 10px; letter-spacing: 2px; }
         .memory-text { font-family: var(--font-serif); font-size: 16px; font-style: italic; cursor: pointer; }
         
@@ -80,37 +81,37 @@
         .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 5px; }
 
         /* 控制台 */
-        .control-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 12px; padding: 25px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; }
+        .control-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 12px; padding: 25px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; box-shadow: 0 8px 32px rgba(44, 62, 80, 0.05); }
         .input-group { display: flex; gap: 15px; align-items: center; }
         .title-input { font-family: var(--font-serif); font-size: 18px; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; width: 100%; box-sizing: border-box; text-align: center; letter-spacing: 2px; color: var(--ink-main);}
         .note-input { font-family: var(--font-ui); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; flex: 1; color: var(--ink-main);}
         input[type="file"], input[type="date"] { color: var(--ink-main); }
-        input:focus, textarea:focus { border-color: var(--accent-bronze); background: var(--card-bg); outline: none;}
-        button { background: var(--ink-main); color: var(--paper-bg); border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; }
+        input:focus, textarea:focus { border-color: var(--accent-bronze); background: var(--card-bg); outline: none; box-shadow: 0 0 0 3px rgba(91, 143, 185, 0.15);}
+        button { background: var(--accent-bronze); color: #FFFFFF; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; }
 
         /* 时间轴与网格 */
         .timeline-group { margin-bottom: 50px; }
-        .timeline-header { font-family: var(--font-serif); font-size: 18px; color: var(--ink-light); margin-bottom: 20px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(10px); padding: 10px 0; border-bottom: 1px solid var(--border-fine); }
+        .timeline-header { font-family: var(--font-serif); font-size: 18px; color: var(--accent-bronze); margin-bottom: 20px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(10px); padding: 10px 0; border-bottom: 1px solid var(--border-fine); }
         .grid { display: grid; gap: 25px; }
         .grid-memory { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
         .grid-list { grid-template-columns: 1fr; }
 
         /* 卡片通用 */
-        .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border-fine); position: relative; overflow: hidden; }
+        .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border-fine); position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(44, 62, 80, 0.03);}
         .card img { width: 100%; height: 260px; object-fit: cover; border-bottom: 1px solid var(--border-fine); display: block;}
         .card-info { padding: 30px 25px; position: relative; }
         
-        .author-stamp { position: absolute; bottom: 15px; right: 20px; font-family: var(--font-serif); font-size: 12px; color: var(--accent-red); opacity: 0.6; }
-        .date { font-size: 12px; color: var(--accent-bronze); margin-bottom: 15px; display: block; text-align: center; }
+        .author-stamp { position: absolute; bottom: 15px; right: 20px; font-family: var(--font-serif); font-size: 12px; color: var(--accent-bronze); opacity: 0.7; }
+        .date { font-size: 12px; color: var(--ink-light); margin-bottom: 15px; display: block; text-align: center; }
         
         /* 浮梦小说 */
-        .story-title { font-family: var(--font-serif); font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 20px; letter-spacing: 2px; color: var(--accent-indigo);}
-        .card-story { background: var(--story-bg); border: 1px solid rgba(130, 140, 160, 0.2); }
+        .story-title { font-family: var(--font-serif); font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 20px; letter-spacing: 2px; color: var(--accent-bronze);}
+        .card-story { background: var(--story-bg); }
         .story-content { font-family: var(--font-serif); font-size: 16px; line-height: 2; text-align: justify; }
         .text-xiaocheng { color: var(--color-xiaocheng); }
         .text-xiaoxin { color: var(--color-xiaoxin); }
         .story-seg { border-radius: 4px; padding: 4px 8px; margin-bottom: 8px; white-space: pre-wrap; word-wrap: break-word; display: block;}
-        .story-seg:hover { background: rgba(128,128,128,0.1); }
+        .story-seg:hover { background: rgba(91, 143, 185, 0.08); }
 
         /* 编辑模式 */
         .edit-title { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 18px; padding: 10px; margin-bottom: 20px; border: 1px solid var(--accent-bronze); background: transparent; color: var(--ink-main); border-radius: 6px; text-align: center;}
@@ -127,9 +128,9 @@
         /* 操作按钮 */
         .actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; opacity: 0; z-index: 20;}
         .card:hover .actions { opacity: 1; }
-        .action-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink-light); }
-        .action-btn:hover { color: var(--ink-main); border-color: var(--accent-bronze); }
-        .btn-delete:hover { color: var(--accent-red); border-color: var(--accent-red); }
+        .action-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--accent-bronze); }
+        .action-btn:hover { color: #FFFFFF; background: var(--accent-bronze); border-color: var(--accent-bronze); }
+        .btn-delete:hover { color: #FFFFFF; background: var(--accent-red); border-color: var(--accent-red); }
 
         /* 心愿与常规文字 */
         .wish-item { display: flex; align-items: center; gap: 15px; }
@@ -139,26 +140,18 @@
         
         .capsule-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 260px; background: var(--glass-bg); backdrop-filter: blur(15px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; border-bottom: 1px solid var(--border-fine); }
 
-        /* ================= 移动端极致适配 (Mobile Optimization) ================= */
+        /* ================= 移动端极致适配 ================= */
         @media (max-width: 600px) {
             #app { padding: 20px 15px; }
-            
-            /* 导航栏挤压处理 */
             .header { margin-bottom: 25px; }
             .nav-tabs { gap: 15px; }
             .tab { font-size: 16px; }
-            
-            /* 输入框垂直排列，方便手指点击 */
             .control-panel { padding: 15px; margin-bottom: 30px;}
             .input-group { flex-direction: column; align-items: stretch; gap: 10px; }
             .input-group input[type="file"] { width: 100% !important; }
             button { width: 100%; padding: 14px; font-size: 16px; }
-
-            /* 移动端强制显示操作按钮 (因为手机没有hover效果) */
             .actions { opacity: 1; background: var(--glass-bg); padding: 5px; border-radius: 20px; border: 1px solid var(--border-fine);}
             .action-btn { width: 28px; height: 28px; font-size: 12px;}
-
-            /* 卡片内边距缩小 */
             .card-info { padding: 20px 15px 35px 15px; }
             .story-content { font-size: 15px; }
             .author-stamp { bottom: 10px; right: 15px; }
@@ -305,7 +298,7 @@
                 newTitle: '', newNote: '', newDate: '', selectedFile: null,
                 randomMemory: null,
                 editingId: null, editTitle: '', editNote: '', editSegments: [],
-                isDarkMode: false // 新增：暗黑模式状态
+                isDarkMode: false
             }
         },
         computed: {
@@ -348,7 +341,6 @@
                 this.currentUser = null;
                 this.loginCode = '';
             },
-            // 新增：昼夜模式切换逻辑
             toggleTheme() {
                 this.isDarkMode = !this.isDarkMode;
                 const theme = this.isDarkMode ? 'dark' : 'light';
@@ -456,14 +448,12 @@
             }
         },
         mounted() { 
-            // 恢复用户登录状态
             const savedUser = localStorage.getItem('orange_user');
             if (savedUser) {
                 this.currentUser = savedUser;
                 this.initApp();
             }
             
-            // 恢复暗黑模式状态
             const savedTheme = localStorage.getItem('orange_theme');
             if (savedTheme === 'dark') {
                 this.isDarkMode = true;
