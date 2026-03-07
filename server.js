@@ -14,25 +14,24 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// ================= 1. 连接 MongoDB 云数据库 =================
+// ================= 1. 连接 MongoDB =================
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log('MongoDB 云数据库连接成功！'))
   .catch(err => console.error('MongoDB 连接失败:', err));
 
-// 定义数据模型 (新增了 images 数组支持图集)
 const itemSchema = new mongoose.Schema({
     category: String,
     author: String,
-    url: String,        // 兼容老版本的单图
-    public_id: String,  // 兼容老版本的单图ID
-    images: [{          // 新版本的图集数组
+    url: String,        
+    public_id: String,  
+    images: [{          // 相册里的所有照片
         url: String,
         public_id: String
     }],
-    title: String,
-    note: String,
+    title: String,      // 相册名称
+    note: String,       // 相册描述
     segments: Array,    
     date: String,
     time: Number,
@@ -40,7 +39,7 @@ const itemSchema = new mongoose.Schema({
 });
 const Item = mongoose.model('Item', itemSchema);
 
-// ================= 2. 配置 Cloudinary 云图床 =================
+// ================= 2. 配置 Cloudinary =================
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -54,20 +53,19 @@ const storage = new CloudinaryStorage({
         allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp']
     }
 });
-// 升级为 array，最多允许一次上传 9 张照片
+// 放宽限制，一次最多传 50 张
 const upload = multer({ storage: storage });
 
 // ================= 3. API 路由 =================
 
-// API: 新增内容 (支持多图图集)
-app.post('/api/items', upload.array('files', 9), async (req, res) => {
+// API: 新增内容 (创建相册/纪事等)
+app.post('/api/items', upload.array('files', 50), async (req, res) => {
     try {
         const { category, title, note, date, author } = req.body;
         const timestamp = date ? new Date(date).getTime() : Date.now();
         const displayDate = date ? date : new Date().toISOString().split('T')[0];
         const segments = req.body.segments ? JSON.parse(req.body.segments) : null;
 
-        // 处理多图上传
         let uploadedImages = [];
         if (req.files && req.files.length > 0) {
             uploadedImages = req.files.map(file => ({
@@ -79,7 +77,7 @@ app.post('/api/items', upload.array('files', 9), async (req, res) => {
         const newItem = new Item({
             category: category || 'memory',
             author: author,
-            images: uploadedImages, // 存入图集
+            images: uploadedImages,
             title: title || '',
             note: note || '',
             segments: segments,
@@ -95,15 +93,54 @@ app.post('/api/items', upload.array('files', 9), async (req, res) => {
     }
 });
 
+// API: 往已有相册中追加照片 (核心新功能)
+app.post('/api/items/:id/images', upload.array('files', 50), async (req, res) => {
+    try {
+        const item = await Item.findById(req.params.id);
+        if (!item) return res.status(404).json({ error: '相册未找到' });
+
+        if (req.files && req.files.length > 0) {
+            const newImages = req.files.map(file => ({
+                url: file.path,
+                public_id: file.filename
+            }));
+            // 将新照片推入相册数组
+            item.images.push(...newImages);
+            await item.save();
+        }
+        res.json(item);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// API: 删除相册中的某一张照片
+app.delete('/api/items/:id/images/:imageId', async (req, res) => {
+    try {
+        const item = await Item.findById(req.params.id);
+        if (!item) return res.status(404).json({ error: '相册未找到' });
+
+        const imageIndex = item.images.findIndex(img => img._id.toString() === req.params.imageId);
+        if (imageIndex > -1) {
+            const img = item.images[imageIndex];
+            await cloudinary.uploader.destroy(img.public_id); // 从云端删除
+            item.images.splice(imageIndex, 1); // 从相册移除
+            await item.save();
+        }
+        res.json(item);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // API: 获取内容
 app.get('/api/items', async (req, res) => {
     try {
         const { q, category } = req.query;
         let query = {};
         if (category) query.category = category;
-        if (q) {
-            query.$or = [{ note: new RegExp(q, 'i') }, { title: new RegExp(q, 'i') }];
-        }
+        if (q) query.$or = [{ note: new RegExp(q, 'i') }, { title: new RegExp(q, 'i') }];
+        
         const items = await Item.find(query).sort({ time: -1 });
         res.json(items);
     } catch (err) {
@@ -111,7 +148,6 @@ app.get('/api/items', async (req, res) => {
     }
 });
 
-// API: 岁月拾遗
 app.get('/api/random', async (req, res) => {
     try {
         const now = Date.now();
@@ -125,7 +161,6 @@ app.get('/api/random', async (req, res) => {
     }
 });
 
-// API: 修改内容
 app.put('/api/items/:id', async (req, res) => {
     try {
         const { title, note, completed, segments } = req.body;
@@ -142,16 +177,11 @@ app.put('/api/items/:id', async (req, res) => {
     }
 });
 
-// API: 抹去内容 (同时删除云端的一张或多张图片)
 app.delete('/api/items/:id', async (req, res) => {
     try {
         const item = await Item.findById(req.params.id);
         if (item) {
-            // 删除老版本的单张图片
-            if (item.public_id) {
-                await cloudinary.uploader.destroy(item.public_id);
-            }
-            // 删除新版本的多图图集
+            if (item.public_id) await cloudinary.uploader.destroy(item.public_id);
             if (item.images && item.images.length > 0) {
                 for (let img of item.images) {
                     await cloudinary.uploader.destroy(img.public_id);
