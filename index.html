@@ -210,16 +210,41 @@
         .fun-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
         .decision-presets { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
         .decision-wheel { display: grid; gap: 12px; margin-top: 14px; }
+        .wheel-stage { position: relative; display: flex; justify-content: center; align-items: center; min-height: 304px; padding-top: 18px; }
+        .wheel-pointer { position: absolute; top: 0; left: 50%; width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 28px solid #ff8fa3; transform: translateX(-50%); z-index: 4; filter: drop-shadow(0 8px 14px rgba(255, 143, 163, 0.28)); }
+        .wheel-pointer.spinning { animation: wheelPointerPulse 0.35s ease-in-out infinite alternate; }
+        .wheel-disc { position: relative; width: min(280px, 72vw); aspect-ratio: 1; border-radius: 50%; border: 10px solid rgba(255,255,255,0.72); box-shadow: 0 20px 42px rgba(255, 182, 193, 0.22), inset 0 0 0 1px rgba(255,255,255,0.45); background: var(--wheel-gradient, conic-gradient(from -90deg, rgba(255,183,178,0.95) 0deg 180deg, rgba(130,202,255,0.85) 180deg 360deg)); transition: transform 3.6s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; }
+        .wheel-disc::after { content: ''; position: absolute; inset: 16px; border-radius: 50%; border: 1px dashed rgba(255,255,255,0.55); }
+        .wheel-disc.spinning { box-shadow: 0 24px 52px rgba(230, 168, 215, 0.34); }
+        .wheel-segment { position: absolute; left: 50%; top: 50%; width: 102px; text-align: center; transform-origin: center center; }
+        .wheel-segment-label { display: inline-block; padding: 6px 8px; border-radius: 12px; background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.96); font-size: 12px; line-height: 1.4; text-shadow: 0 1px 3px rgba(55, 41, 50, 0.28); backdrop-filter: blur(8px); }
+        .wheel-core { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 84px; height: 84px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; text-align: center; color: var(--ink-main); font-family: var(--font-serif); font-size: 18px; line-height: 1.3; box-shadow: 0 8px 18px rgba(0,0,0,0.08); z-index: 2; }
+        @keyframes wheelPointerPulse { from { transform: translateX(-50%) translateY(0); } to { transform: translateX(-50%) translateY(4px); } }
         .decision-wheel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
         .decision-option { border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.36); padding: 14px 16px; color: var(--ink-main); line-height: 1.7; transition: 0.2s; }
         .decision-option.active { transform: translateY(-2px) scale(1.01); background: linear-gradient(135deg, rgba(255,183,178,0.92), rgba(130,202,255,0.8)); color: white; border-color: transparent; box-shadow: 0 10px 22px rgba(230, 168, 215, 0.28); }
         .decision-option.result { border-style: dashed; }
         .scenario-shell { display: grid; gap: 14px; }
+        .scenario-card-wrap { perspective: 1200px; }
+        .scenario-card { position: relative; min-height: 360px; transform-style: preserve-3d; transition: transform 0.9s cubic-bezier(0.2, 0.85, 0.25, 1.12); }
+        .scenario-card.flipped { transform: rotateY(180deg); }
+        .scenario-card.flipping { animation: scenarioHover 0.7s ease-in-out infinite alternate; }
+        .scenario-face { position: absolute; inset: 0; border-radius: 22px; border: 1px solid var(--border-fine); backface-visibility: hidden; overflow: hidden; }
+        .scenario-front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 28px; background:
+            radial-gradient(circle at top, rgba(255,255,255,0.58), transparent 48%),
+            linear-gradient(135deg, rgba(255,183,178,0.34), rgba(130,202,255,0.18)); text-align: center; }
+        .scenario-front::after { content: ''; position: absolute; inset: 18px; border-radius: 18px; border: 1px dashed rgba(255,255,255,0.45); pointer-events: none; }
+        .scenario-front-kicker { font-size: 12px; letter-spacing: 3px; color: var(--ink-light); }
+        .scenario-front-title { font-family: var(--font-serif); font-size: 28px; line-height: 1.4; color: var(--ink-main); }
+        .scenario-front-text { max-width: 280px; font-size: 14px; line-height: 1.8; color: var(--ink-main); }
+        .scenario-roll { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); animation: capsuleBounce 0.85s ease-in-out infinite; }
+        .scenario-back { transform: rotateY(180deg); padding: 18px; background: rgba(255,255,255,0.42); }
         .scenario-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
         .scenario-item { border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.34); padding: 14px 16px; }
         .scenario-item-label { font-size: 12px; color: var(--ink-light); margin-bottom: 6px; letter-spacing: 1px; }
         .scenario-item-value { font-family: var(--font-serif); font-size: 17px; color: var(--ink-main); line-height: 1.6; }
         .scenario-summary { border-radius: 18px; border: 1px dashed var(--border-fine); background: rgba(255,255,255,0.28); padding: 18px; font-size: 14px; line-height: 1.9; color: var(--ink-main); }
+        @keyframes scenarioHover { from { transform: translateY(0) rotateX(0deg); } to { transform: translateY(-4px) rotateX(3deg); } }
         .bingo-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
         .bingo-cell { min-height: 104px; border-radius: 18px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.34); padding: 14px 12px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.7; color: var(--ink-main); cursor: pointer; transition: 0.22s; position: relative; overflow: hidden; white-space: pre-line; }
         .bingo-cell:hover { transform: translateY(-2px); }
@@ -1032,6 +1057,20 @@
                 </div>
                 <input type="text" class="bond-select" v-model="decisionOptionsInput" placeholder="可选：自定义候选项，用逗号分隔，比如火锅,烤肉,寿司">
                 <div class="decision-wheel">
+                    <div class="wheel-stage">
+                        <div :class="['wheel-pointer', { spinning: decisionSpinning }]"></div>
+                        <div :class="['wheel-disc', { spinning: decisionSpinning }]" :style="decisionWheelStyle">
+                            <div
+                                v-for="segment in decisionWheelSegments"
+                                :key="segment.key"
+                                class="wheel-segment"
+                                :style="segment.style"
+                            >
+                                <span class="wheel-segment-label">{{ segment.label }}</span>
+                            </div>
+                            <div class="wheel-core">{{ decisionSpinning ? '转动中' : '今晚' }}</div>
+                        </div>
+                    </div>
                     <div class="decision-wheel-grid">
                         <div
                             v-for="(option, index) in decisionOptionsResolved"
@@ -1053,31 +1092,44 @@
                 <h3 class="fun-title">剧情盲盒</h3>
                 <div class="fun-text">系统随机给你们一段氛围、一个场景、一句开场和一个结尾动作，适合立刻去演。</div>
                 <div class="scenario-shell">
-                    <div v-if="scenarioResult" class="scenario-grid">
-                        <div class="scenario-item">
-                            <div class="scenario-item-label">场景</div>
-                            <div class="scenario-item-value">{{ scenarioResult.place }}</div>
-                        </div>
-                        <div class="scenario-item">
-                            <div class="scenario-item-label">气氛</div>
-                            <div class="scenario-item-value">{{ scenarioResult.vibe }}</div>
-                        </div>
-                        <div class="scenario-item">
-                            <div class="scenario-item-label">开场白</div>
-                            <div class="scenario-item-value">{{ scenarioResult.line }}</div>
-                        </div>
-                        <div class="scenario-item">
-                            <div class="scenario-item-label">动作线</div>
-                            <div class="scenario-item-value">{{ scenarioResult.mission }}</div>
+                    <div class="scenario-card-wrap">
+                        <div :class="['scenario-card', { flipped: scenarioFlipped, flipping: scenarioFlipping }]">
+                            <div class="scenario-face scenario-front">
+                                <div class="scenario-front-kicker">SCENARIO BOX</div>
+                                <div class="scenario-front-title">把今晚翻成一个小片段</div>
+                                <div class="scenario-roll">{{ scenarioFlipping ? scenarioRollingText : '点一下，剧情会自己掉下来' }}</div>
+                                <div class="scenario-front-text">{{ scenarioFlipping ? '桥段卡正在翻面，先别急着往后看。' : '适合没灵感但又想立刻进入氛围的时候。' }}</div>
+                            </div>
+                            <div class="scenario-face scenario-back">
+                                <template v-if="scenarioResult">
+                                    <div class="scenario-grid">
+                                        <div class="scenario-item">
+                                            <div class="scenario-item-label">场景</div>
+                                            <div class="scenario-item-value">{{ scenarioResult.place }}</div>
+                                        </div>
+                                        <div class="scenario-item">
+                                            <div class="scenario-item-label">气氛</div>
+                                            <div class="scenario-item-value">{{ scenarioResult.vibe }}</div>
+                                        </div>
+                                        <div class="scenario-item">
+                                            <div class="scenario-item-label">开场白</div>
+                                            <div class="scenario-item-value">{{ scenarioResult.line }}</div>
+                                        </div>
+                                        <div class="scenario-item">
+                                            <div class="scenario-item-label">动作线</div>
+                                            <div class="scenario-item-value">{{ scenarioResult.mission }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="scenario-summary" style="margin-top: 12px;">
+                                        今晚你们在 {{ scenarioResult.place }}，整体气氛是“{{ scenarioResult.vibe }}”。先用“{{ scenarioResult.line }}”把戏开场，再完成“{{ scenarioResult.mission }}”，最后以“{{ scenarioResult.ending }}”收尾。
+                                    </div>
+                                </template>
+                            </div>
                         </div>
                     </div>
-                    <div v-if="scenarioResult" class="scenario-summary">
-                        今晚你们在 {{ scenarioResult.place }}，整体气氛是“{{ scenarioResult.vibe }}”。先用“{{ scenarioResult.line }}”把戏开场，再完成“{{ scenarioResult.mission }}”，最后以“{{ scenarioResult.ending }}”收尾。
-                    </div>
-                    <div v-else class="empty-state">点一下抽取，让系统给你们一个今天就能演的桥段。</div>
                 </div>
                 <div class="fun-actions">
-                    <button class="action-submit" @click="drawScenarioBox">抽一个桥段</button>
+                    <button class="action-submit" @click="drawScenarioBox" :disabled="scenarioFlipping">{{ scenarioFlipping ? '桥段翻牌中...' : '抽一个桥段' }}</button>
                     <button v-if="scenarioResult" class="action-submit secondary-btn" @click="saveScenarioToDiary">写进随笔草稿</button>
                 </div>
             </div>
@@ -1353,9 +1405,13 @@
                 decisionPreset: 'date',
                 decisionOptionsInput: '',
                 decisionHighlightIndex: -1,
+                decisionRotationDeg: 0,
                 decisionResult: '',
                 decisionSpinning: false,
                 scenarioResult: null,
+                scenarioFlipped: false,
+                scenarioFlipping: false,
+                scenarioRollingText: '场景混合中',
                 bingoBoard: [],
                 syncPhase: 'answering',
                 syncRound: 1,
@@ -1539,6 +1595,37 @@
                 if (custom.length >= 2) return custom.slice(0, 6);
                 const preset = this.decisionPresetDecks.find(item => item.key === this.decisionPreset);
                 return preset ? preset.options : [];
+            },
+            decisionWheelSegments() {
+                const options = this.decisionOptionsResolved;
+                const step = options.length > 0 ? 360 / options.length : 360;
+                return options.map((option, index) => {
+                    const angle = index * step + step / 2 - 90;
+                    return {
+                        key: `${option}-${index}`,
+                        label: option,
+                        style: {
+                            transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-98px) rotate(${-angle}deg)`
+                        }
+                    };
+                });
+            },
+            decisionWheelStyle() {
+                const options = this.decisionOptionsResolved;
+                const palette = ['rgba(255,183,178,0.95)', 'rgba(130,202,255,0.88)', 'rgba(230,168,215,0.88)', 'rgba(255,225,168,0.88)', 'rgba(190,228,197,0.9)', 'rgba(188,183,255,0.85)'];
+                if (options.length === 0) {
+                    return { transform: `rotate(${this.decisionRotationDeg}deg)` };
+                }
+                const step = 360 / options.length;
+                const stops = options.map((_, index) => {
+                    const start = Math.round(index * step);
+                    const end = Math.round((index + 1) * step);
+                    return `${palette[index % palette.length]} ${start}deg ${end}deg`;
+                }).join(', ');
+                return {
+                    '--wheel-gradient': `conic-gradient(from -90deg, ${stops})`,
+                    transform: `rotate(${this.decisionRotationDeg}deg)`
+                };
             },
             currentSyncPlayer() {
                 return this.syncCurrentPlayer;
@@ -2561,22 +2648,24 @@
                 this.decisionSpinning = true;
                 this.decisionResult = '';
                 this.decisionHighlightIndex = -1;
-                let steps = 0;
-                const totalSteps = 16 + Math.floor(Math.random() * 10);
-                window.clearInterval(this.decisionSpinTimer);
+                const selectedIndex = Math.floor(Math.random() * options.length);
+                const slice = 360 / options.length;
+                const normalized = ((this.decisionRotationDeg % 360) + 360) % 360;
+                const targetNormalized = (360 - (selectedIndex * slice + slice / 2)) % 360;
+                let delta = targetNormalized - normalized;
+                if (delta <= 0) delta += 360;
+                const extraSpins = (5 + Math.floor(Math.random() * 2)) * 360;
+                window.clearTimeout(this.decisionSpinTimer);
+                this.decisionRotationDeg += extraSpins + delta;
                 this.vibrate([40, 30, 40, 30, 60]);
-                this.decisionSpinTimer = window.setInterval(() => {
-                    this.decisionHighlightIndex = (this.decisionHighlightIndex + 1) % options.length;
-                    steps += 1;
-                    if (steps >= totalSteps) {
-                        window.clearInterval(this.decisionSpinTimer);
-                        this.decisionResult = options[this.decisionHighlightIndex];
-                        this.decisionSpinning = false;
-                        this.incrementPlayStat('wheelSpins');
-                        this.launchParticles({ x: '74%', y: '55%' }, 16);
-                        this.showNotice('success', `今晚就按「${this.decisionResult}」来`);
-                    }
-                }, 90);
+                this.decisionSpinTimer = window.setTimeout(() => {
+                    this.decisionHighlightIndex = selectedIndex;
+                    this.decisionResult = options[selectedIndex];
+                    this.decisionSpinning = false;
+                    this.incrementPlayStat('wheelSpins');
+                    this.launchParticles({ x: '74%', y: '55%' }, 16);
+                    this.showNotice('success', `今晚就按「${this.decisionResult}」来`);
+                }, 3600);
             },
             saveDecisionToWish() {
                 if (!this.decisionResult) return;
@@ -2588,17 +2677,37 @@
                 });
             },
             drawScenarioBox() {
+                if (this.scenarioFlipping) return;
                 const pick = list => list[Math.floor(Math.random() * list.length)];
-                this.scenarioResult = {
+                const nextScenario = {
                     place: pick(this.scenarioPlaces),
                     vibe: pick(this.scenarioVibes),
                     line: pick(this.scenarioLines),
                     mission: pick(this.scenarioMissions),
                     ending: pick(this.scenarioEndings)
                 };
-                this.incrementPlayStat('scenarioDraws');
-                this.launchParticles({ x: '28%', y: '67%' }, 16);
+                const rollingPool = ['正在抽取场景', '对白正在配对', '镜头正在切换', '情绪光线正在落下'];
+                let rollingIndex = 0;
+                this.scenarioFlipping = true;
+                this.scenarioFlipped = false;
+                this.scenarioResult = null;
+                this.scenarioRollingText = rollingPool[0];
+                window.clearInterval(this.scenarioRollTimer);
+                window.clearTimeout(this.scenarioRevealTimer);
+                this.scenarioRollTimer = window.setInterval(() => {
+                    rollingIndex = (rollingIndex + 1) % rollingPool.length;
+                    this.scenarioRollingText = rollingPool[rollingIndex];
+                }, 180);
                 this.vibrate([35, 35, 55]);
+                this.scenarioRevealTimer = window.setTimeout(() => {
+                    window.clearInterval(this.scenarioRollTimer);
+                    this.scenarioResult = nextScenario;
+                    this.scenarioFlipped = true;
+                    this.scenarioFlipping = false;
+                    this.scenarioRollingText = '桥段已落下';
+                    this.incrementPlayStat('scenarioDraws');
+                    this.launchParticles({ x: '28%', y: '67%' }, 16);
+                }, 980);
             },
             saveScenarioToDiary() {
                 if (!this.scenarioResult) return;
@@ -2973,8 +3082,10 @@
             document.addEventListener('click', this.closeCardMenu);
         },
         beforeUnmount() {
-            window.clearInterval(this.decisionSpinTimer);
+            window.clearTimeout(this.decisionSpinTimer);
             window.clearInterval(this.surpriseRollTimer);
+            window.clearInterval(this.scenarioRollTimer);
+            window.clearTimeout(this.scenarioRevealTimer);
             document.removeEventListener('click', this.closeCardMenu);
         }
     }).mount('#app');
