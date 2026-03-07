@@ -584,14 +584,46 @@
         .note { font-family: var(--font-serif); font-size: 16px; line-height: 2.2; color: var(--ink-main); white-space: pre-wrap; }
         
         @media (max-width: 768px) {
-            #app { padding: 20px 15px; }
-            .header { margin-bottom: 25px; }
-            .nav-tabs { gap: 15px; }
-            .control-panel { padding: 20px; margin-bottom: 30px;}
+            #app { padding: 16px 14px calc(28px + env(safe-area-inset-bottom, 0px)); }
+            .login-box { width: min(100%, 320px); padding: 34px 24px; border-radius: 24px; }
+            .login-box h1 { font-size: 26px; letter-spacing: 2px; }
+            .login-box input { width: 100%; box-sizing: border-box; }
+            .header { position: sticky; top: 0; z-index: 40; margin: 0 -2px 20px; padding: 10px 0 12px; align-items: stretch; flex-direction: column-reverse; gap: 12px; background: linear-gradient(180deg, rgba(255,240,245,0.92), rgba(255,240,245,0.68)); backdrop-filter: blur(16px); }
+            [data-theme="dark"] .header { background: linear-gradient(180deg, rgba(44,26,61,0.94), rgba(44,26,61,0.72)); }
+            .nav-tabs { gap: 10px; padding: 0 2px 6px; scroll-snap-type: x proximity; }
+            .tab { font-size: 15px; padding: 10px 2px 8px; scroll-snap-align: start; }
+            .header-actions { justify-content: space-between; }
+            .theme-toggle { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.32); }
+            .user-badge { padding: 8px 14px; min-height: 42px; box-sizing: border-box; }
+            .notice, .undo-bar { margin-left: 0; margin-right: 0; }
+            .undo-bar { align-items: stretch; flex-direction: column; }
+            .undo-bar .action-submit { width: 100%; }
+            .control-panel { padding: 18px; margin-bottom: 24px; border-radius: 20px; }
             .input-group { flex-direction: column; align-items: stretch; gap: 12px; }
-            .file-upload-wrapper { width: 100%; box-sizing: border-box; }
+            .file-upload-wrapper { width: 100%; box-sizing: border-box; min-height: 52px; }
+            .title-input, .note-input, .filter-select, input[type="date"], .bond-select, .private-input { min-height: 50px; box-sizing: border-box; font-size: 16px; }
+            textarea.edit-area, textarea.seg-textarea, .bond-textarea, textarea.private-input { min-height: 112px; }
+            button.action-submit, .secondary-btn, .danger-btn, .bond-chip, .private-chip, .night-subtab, .density-chip, .mood-chip, .mode-switch { min-height: 46px; }
+            .fun-actions, .bond-actions, .home-actions { display: grid; grid-template-columns: 1fr; }
+            .fun-actions .action-submit, .bond-actions .action-submit, .home-actions .action-submit { width: 100%; }
+            .compact-toggle-row { align-items: stretch; }
+            .density-switch { width: 100%; }
+            .density-chip { flex: 1 1 0; text-align: center; }
             .actions { opacity: 1; }
+            .card { border-radius: 20px; }
+            .card img { height: 220px; }
+            .card-info { padding: 18px 18px 52px; }
+            .card-topline { align-items: flex-start; }
+            .card-title-inline { font-size: 18px; }
+            .card-menu-btn { width: 42px; height: 42px; }
+            .card-menu-panel { top: 48px; min-width: 148px; }
+            .timeline-header { width: calc(100% - 2px); box-sizing: border-box; position: sticky; top: 68px; display: block; padding: 12px 16px; font-size: 17px; border-radius: 16px; }
             .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+            .album-modal-header { padding: 14px 16px; }
+            .album-modal-header h2 { font-size: 20px; max-width: calc(100% - 56px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .album-modal-body { padding: 18px 16px 26px; }
+            .gallery-item:hover img { transform: none; }
+            .delete-img-btn { opacity: 1; width: 32px; height: 32px; }
             .stats-dashboard { grid-template-columns: 1fr; }
             .review-grid { grid-template-columns: 1fr; }
             .review-card.wide { grid-column: auto; }
@@ -600,6 +632,10 @@
             .arcade-stats { grid-template-columns: 1fr 1fr; }
             .home-metrics { grid-template-columns: 1fr 1fr; }
             .home-grid { grid-template-columns: 1fr; }
+            .home-title { font-size: 28px; }
+            .home-card, .fun-card { padding: 20px; border-radius: 20px; }
+            .home-card-title, .fun-title { font-size: 22px; }
+            .home-recent-item { padding: 12px 14px; }
             .private-grid { grid-template-columns: 1fr; }
             .night-play-grid { grid-template-columns: 1fr; }
             .utility-grid { grid-template-columns: 1fr; }
@@ -610,11 +646,38 @@
             .bond-metrics { grid-template-columns: 1fr 1fr; }
             .bond-weekly-grid { grid-template-columns: 1fr; }
             .bond-split { grid-template-columns: 1fr; }
+            .bond-card, .bond-highlight, .private-panel, .night-panel { border-radius: 18px; }
+            .bond-section-head { align-items: flex-start; }
+            .bond-section-toggle { width: 40px; height: 40px; flex: none; }
             .night-dice { width: 100%; min-height: 116px; }
             .night-play-stat { min-width: auto; flex: 1 1 120px; }
-            .lightbox-stage { padding: 0 12px 18px; }
+            .lightbox-stage { padding: 0 12px 18px; gap: 8px; }
             .lightbox-header { padding: 16px; }
+            .lightbox-title { font-size: 18px; }
+            .lightbox-nav { width: 42px; height: 42px; }
+            .lightbox-figure img { max-height: calc(100vh - 190px); border-radius: 18px; }
             .lightbox-thumbs { padding: 0 16px 16px; }
+            .lightbox-thumb { width: 64px; height: 64px; }
+        }
+
+        @media (max-width: 520px) {
+            #app { padding: 14px 12px calc(24px + env(safe-area-inset-bottom, 0px)); }
+            .tab { font-size: 14px; }
+            .nav-tabs { gap: 8px; }
+            .home-metrics, .arcade-stats, .bond-metrics { grid-template-columns: 1fr; }
+            .grid-memory { grid-template-columns: 1fr; }
+            .gallery-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .card img { height: 190px; }
+            .card-info { padding: 16px 16px 48px; }
+            .story-title { font-size: 20px; margin-bottom: 18px; }
+            .note, .story-content { font-size: 15px; line-height: 1.9; }
+            .timeline-header { top: 64px; font-size: 16px; }
+            .home-title { font-size: 24px; }
+            .home-card-title, .fun-title, .night-play-title { font-size: 20px; }
+            .album-modal-body { padding: 16px 12px 24px; }
+            .lightbox-header { padding: 12px; }
+            .lightbox-stage { padding: 0 8px 14px; }
+            .lightbox-figure img { max-height: calc(100vh - 170px); }
         }
     </style>
 </head>
