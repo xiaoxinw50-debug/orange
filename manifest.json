@@ -1,0 +1,17 @@
+{
+  "name": "橙心回忆 - 琉璃城堡",
+  "short_name": "橙心回忆",
+  "description": "属于小橙和小心的平行宇宙",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF0F5",
+  "theme_color": "#FFB7B2",
+  "icons": [
+    {
+      "src": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/512x512/1f3f0.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
