@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ALLOWED_CATEGORIES = new Set(['memory', 'album', 'diary', 'wish', 'story']);
 const ALLOWED_AUTHORS = new Set(['小心', '小橙']);
+const ALLOWED_MOODS = new Set(['', 'spark', 'hug', 'sweet', 'chaos', 'dream', 'brave', 'calm']);
 
 app.use(cors());
 app.use(express.json());
@@ -36,6 +37,7 @@ const itemSchema = new mongoose.Schema({
     title: { type: String, default: '' },
     note: { type: String, default: '' },
     segments: { type: Array, default: null },
+    mood: { type: String, default: '' },
     date: { type: String, required: true },
     time: { type: Number, required: true },
     completed: { type: Boolean, default: false },
@@ -115,6 +117,14 @@ function normalizeDate(date) {
     return date;
 }
 
+function normalizeMood(mood) {
+    const normalized = typeof mood === 'string' ? mood.trim() : '';
+    if (!ALLOWED_MOODS.has(normalized)) {
+        throw createHttpError(400, '心情贴纸无效');
+    }
+    return normalized;
+}
+
 function parseSegments(rawSegments) {
     if (!rawSegments) return null;
 
@@ -185,6 +195,7 @@ function buildItemsQuery(queryParams) {
     const includeDeleted = parseBooleanFlag(queryParams.includeDeleted);
     const deletedOnly = parseBooleanFlag(queryParams.deletedOnly);
     const author = normalizeOptionalAuthor(queryParams.author);
+    const mood = queryParams.mood !== undefined ? normalizeMood(queryParams.mood) : null;
     const from = parseDateBoundary(queryParams.from, 'start');
     const to = parseDateBoundary(queryParams.to, 'end');
     const keyword = typeof queryParams.q === 'string' ? queryParams.q.trim() : '';
@@ -194,6 +205,9 @@ function buildItemsQuery(queryParams) {
     }
     if (author) {
         query.author = author;
+    }
+    if (mood) {
+        query.mood = mood;
     }
     if (deletedOnly) {
         query.deletedAt = { $ne: null };
@@ -225,6 +239,7 @@ function toCardItem(item) {
         title: item.title,
         note: item.note,
         segments: item.segments || [],
+        mood: item.mood || '',
         date: item.date,
         time: item.time,
         completed: item.completed,
@@ -249,6 +264,7 @@ app.post('/api/items', upload.array('files', 50), async (req, res) => {
     try {
         const category = normalizeCategory(req.body.category);
         const author = normalizeAuthor(req.body.author);
+        const mood = normalizeMood(req.body.mood);
         const displayDate = normalizeDate(req.body.date);
         const timestamp = new Date(displayDate).getTime();
         const segments = category === 'story' ? parseSegments(req.body.segments) : null;
@@ -269,6 +285,7 @@ app.post('/api/items', upload.array('files', 50), async (req, res) => {
             title: typeof req.body.title === 'string' ? req.body.title.trim() : '',
             note: typeof req.body.note === 'string' ? req.body.note.trim() : '',
             segments,
+            mood,
             date: displayDate,
             time: timestamp,
             completed: false,
@@ -391,6 +408,26 @@ app.get('/api/review/anniversary', async (req, res) => {
     }
 });
 
+app.get('/api/fun/surprise', async (req, res) => {
+    try {
+        const pipeline = [
+            { $match: { deletedAt: null } }
+        ];
+        if (req.query.category) {
+            pipeline.push({ $match: { category: normalizeCategory(req.query.category) } });
+        }
+        if (req.query.author) {
+            pipeline.push({ $match: { author: normalizeAuthor(req.query.author) } });
+        }
+        pipeline.push({ $sample: { size: 1 } });
+
+        const items = await Item.aggregate(pipeline);
+        res.json(items[0] || null);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
 app.get('/api/random', async (req, res) => {
     try {
         const now = Date.now();
@@ -407,7 +444,7 @@ app.get('/api/random', async (req, res) => {
 app.put('/api/items/:id', async (req, res) => {
     try {
         ensureObjectId(req.params.id, '内容 ID 无效');
-        const { title, note, completed, segments } = req.body;
+        const { title, note, completed, segments, mood } = req.body;
         const existingItem = await Item.findById(req.params.id);
         if (!existingItem) {
             throw createHttpError(404, '内容未找到');
@@ -418,6 +455,7 @@ app.put('/api/items/:id', async (req, res) => {
         if (note !== undefined) updateDoc.note = note;
         if (completed !== undefined) updateDoc.completed = completed;
         if (segments !== undefined) updateDoc.segments = parseSegments(segments);
+        if (mood !== undefined) updateDoc.mood = normalizeMood(mood);
 
         await Item.findByIdAndUpdate(req.params.id, { $set: updateDoc }, { new: true });
         res.json({ success: true });

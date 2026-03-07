@@ -81,6 +81,11 @@
         .secondary-btn:hover { background: rgba(255,255,255,0.35); }
         .danger-btn { background: linear-gradient(135deg, #ff9aa2, #ff6b81); }
         .danger-btn:hover { box-shadow: 0 10px 25px rgba(255, 107, 129, 0.45); }
+        .mood-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .mood-chip { border: 1px solid var(--border-fine); background: rgba(255,255,255,0.45); color: var(--ink-main); border-radius: 999px; padding: 8px 12px; cursor: pointer; font-family: var(--font-ui); font-size: 14px; transition: 0.25s; }
+        .mood-chip.active { background: linear-gradient(135deg, rgba(255,183,178,0.95), rgba(130,202,255,0.95)); color: white; border-color: transparent; transform: translateY(-2px); }
+        .mood-chip:hover { transform: translateY(-2px); }
+        .mood-badge { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.55); color: var(--ink-main); font-size: 13px; }
         
         .file-upload-wrapper { position: relative; flex: none; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.5); border: 1px dashed var(--accent-bronze); border-radius: 12px; padding: 0 15px; height: 50px; cursor: pointer; transition: 0.3s;}
         [data-theme="dark"] .file-upload-wrapper { background: rgba(0,0,0,0.2); }
@@ -173,6 +178,23 @@
         .review-item-meta { font-size: 12px; color: var(--ink-light); margin-bottom: 8px; }
         .review-item-text { font-size: 14px; line-height: 1.7; color: var(--ink-main); white-space: pre-wrap; }
         .empty-state { text-align: center; padding: 28px; border-radius: 20px; border: 1px dashed var(--border-fine); color: var(--ink-light); background: rgba(255,255,255,0.22); }
+        .fun-dashboard { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 8px; }
+        .fun-card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); padding: 28px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.14); backdrop-filter: blur(12px); }
+        .fun-card.wide { grid-column: span 2; }
+        .fun-title { font-family: var(--font-serif); font-size: 24px; margin: 0 0 12px; color: var(--ink-main); }
+        .fun-text { font-size: 14px; color: var(--ink-light); line-height: 1.8; margin-bottom: 16px; }
+        .surprise-display { min-height: 220px; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-radius: 20px; border: 1px dashed var(--border-fine); padding: 22px; background: rgba(255,255,255,0.24); }
+        .surprise-kicker { font-size: 13px; letter-spacing: 1px; color: var(--ink-light); }
+        .surprise-title { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
+        .surprise-meta { font-size: 13px; color: var(--ink-light); }
+        .surprise-task { font-family: var(--font-serif); font-size: 18px; line-height: 1.9; color: var(--ink-main); }
+        .badge-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; margin-top: 18px; }
+        .badge-card { border-radius: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.45); padding: 18px; text-align: center; transition: 0.25s; }
+        .badge-card.unlocked { box-shadow: 0 10px 24px rgba(255, 182, 193, 0.18); transform: translateY(-2px); }
+        .badge-card.locked { opacity: 0.58; filter: grayscale(0.2); }
+        .badge-icon { font-size: 34px; margin-bottom: 10px; }
+        .badge-name { font-family: var(--font-serif); font-size: 17px; color: var(--ink-main); margin-bottom: 8px; }
+        .badge-desc { font-size: 13px; color: var(--ink-light); line-height: 1.6; }
 
         .timeline-group { margin-bottom: 60px; }
         .timeline-header { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin-bottom: 25px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(15px); padding: 15px 20px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
@@ -246,6 +268,8 @@
             .stats-dashboard { grid-template-columns: 1fr; }
             .review-grid { grid-template-columns: 1fr; }
             .review-card.wide { grid-column: auto; }
+            .fun-dashboard { grid-template-columns: 1fr; }
+            .fun-card.wide { grid-column: auto; }
         }
     </style>
 </head>
@@ -299,6 +323,7 @@
                 <div :class="['tab', {active: currentTab === 'game'}]" @click="switchTab('game')">秘戏 🎲</div>
                 <div :class="['tab', {active: currentTab === 'review'}]" @click="switchTab('review')">回顾 💌</div>
                 <div :class="['tab', {active: currentTab === 'recycle'}]" @click="switchTab('recycle')">回收站 🗑️</div>
+                <div :class="['tab', {active: currentTab === 'surprise'}]" @click="switchTab('surprise')">盲盒 🎁</div>
                 <div :class="['tab', {active: currentTab === 'stats'}]" @click="switchTab('stats')">星图 🌟</div>
             </div>
             <div class="header-actions">
@@ -477,6 +502,55 @@
             </div>
         </div>
 
+        <div v-if="currentTab === 'surprise'" class="fun-dashboard">
+            <div class="fun-card">
+                <h3 class="fun-title">时光扭蛋</h3>
+                <div class="fun-text">从你们已经写下的内容里随机抽一张，适合深夜重温，也适合没灵感的时候重新打开故事。</div>
+                <div class="surprise-display">
+                    <template v-if="surpriseItem">
+                        <div class="surprise-kicker">{{ getCategoryLabel(surpriseItem.category) }} · {{ surpriseItem.author }}</div>
+                        <div class="surprise-title">{{ getItemDisplayTitle(surpriseItem) }}</div>
+                        <div v-if="surpriseItem.mood" class="mood-badge">{{ getMoodLabel(surpriseItem.mood) }}</div>
+                        <div class="surprise-meta">{{ formatDate(surpriseItem.date) }}</div>
+                        <div class="review-item-text">{{ getItemExcerpt(surpriseItem) }}</div>
+                    </template>
+                    <div v-else class="empty-state">还没抽到扭蛋，点下面的按钮试试。</div>
+                </div>
+                <div class="input-group" style="margin-top: 16px;">
+                    <button class="action-submit" @click="drawSurpriseItem" :disabled="surpriseLoading">{{ surpriseLoading ? '扭蛋滚动中...' : '抽一张回忆扭蛋' }}</button>
+                </div>
+            </div>
+
+            <div class="fun-card">
+                <h3 class="fun-title">任务盲盒</h3>
+                <div class="fun-text">适合你们今天没有明确安排的时候，随机给出一个轻任务、一个暧昧互动或者一个生活小游戏。</div>
+                <div class="surprise-display">
+                    <template v-if="surpriseTask">
+                        <div class="surprise-kicker">{{ surpriseTask.tag }}</div>
+                        <div class="surprise-title">{{ surpriseTask.title }}</div>
+                        <div class="surprise-task">{{ surpriseTask.text }}</div>
+                    </template>
+                    <div v-else class="empty-state">盲盒还没开启，抽一张看看今天适合做什么。</div>
+                </div>
+                <div class="input-group" style="margin-top: 16px;">
+                    <button class="action-submit" @click="drawSurpriseTask">抽一个今日任务</button>
+                    <button v-if="surpriseTask" class="action-submit secondary-btn" @click="saveSurpriseTaskToWish">存进心愿</button>
+                </div>
+            </div>
+
+            <div class="fun-card wide">
+                <h3 class="fun-title">成就墙</h3>
+                <div class="fun-text">随着你们写下更多故事、照片和心愿，这里会自动解锁新的双人成就。</div>
+                <div class="badge-wall">
+                    <div v-for="badge in achievementCards" :key="badge.key" :class="['badge-card', badge.unlocked ? 'unlocked' : 'locked']">
+                        <div class="badge-icon">{{ badge.icon }}</div>
+                        <div class="badge-name">{{ badge.name }}</div>
+                        <div class="badge-desc">{{ badge.unlocked ? badge.description : `未解锁：${badge.condition}` }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="control-panel filter-panel" v-if="showFilters">
             <div class="filter-label">{{ currentTab === 'recycle' ? '搜索和筛选回收站里的内容' : '搜索当前分类，并按作者或时间范围筛选' }}</div>
             <div class="input-group">
@@ -485,6 +559,10 @@
                     <option value="">全部作者</option>
                     <option value="小橙">小橙</option>
                     <option value="小心">小心</option>
+                </select>
+                <select class="filter-select" v-model="filterMood">
+                    <option value="">全部心情</option>
+                    <option v-for="mood in moodOptions" :key="mood.key" :value="mood.key">{{ mood.label }}</option>
                 </select>
                 <input type="date" v-model="filterFrom">
                 <input type="date" v-model="filterTo">
@@ -495,6 +573,17 @@
 
         <div class="control-panel" v-if="showComposer">
             <input v-if="currentTab === 'story' || currentTab === 'album'" type="text" v-model="newTitle" class="title-input" :placeholder="currentTab === 'album' ? '《 相册名称 》 (如：2026跨年之旅)' : '《 篇章名 》'">
+            <div class="mood-row">
+                <button
+                    v-for="mood in moodOptions"
+                    :key="mood.key"
+                    type="button"
+                    :class="['mood-chip', { active: selectedMood === mood.key }]"
+                    @click="selectedMood = mood.key"
+                >
+                    {{ mood.label }}
+                </button>
+            </div>
             <div class="input-group">
                 <div class="file-upload-wrapper" v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story' || currentTab === 'album'">
                     <input type="file" @change="handleFiles" accept="image/*" :multiple="currentTab === 'album'">
@@ -537,6 +626,7 @@
                     <div class="card-info">
                         <span class="date">✦ {{ formatDate(item.date) }} ✦</span>
                         <div v-if="editingId !== item._id">
+                            <div v-if="item.mood" class="mood-badge">{{ getMoodLabel(item.mood) }}</div>
                             <div v-if="getDisplayCategory(item) === 'album'" style="text-align: center; font-family: var(--font-serif); font-size: 20px; font-weight: bold; color: var(--ink-main); cursor:pointer;" @click="openAlbum(item)">《 {{ item.title || '无名相册' }} 》</div>
                             <div v-else-if="getDisplayCategory(item) === 'story'" class="story-title">《 {{ item.title }} 》</div>
                             
@@ -550,6 +640,17 @@
                             <div v-else class="note">{{ item.note }}</div>
                         </div>
                         <div v-else>
+                            <div class="mood-row" style="margin-bottom: 16px;">
+                                <button
+                                    v-for="mood in moodOptions"
+                                    :key="mood.key"
+                                    type="button"
+                                    :class="['mood-chip', { active: editMood === mood.key }]"
+                                    @click="editMood = mood.key"
+                                >
+                                    {{ mood.label }}
+                                </button>
+                            </div>
                             <template v-if="getDisplayCategory(item) === 'story'">
                                 <input type="text" class="edit-title" v-model="editTitle" placeholder="篇章名">
                                 <div v-for="(seg, index) in editSegments" :key="index" class="edit-seg-row">
@@ -592,13 +693,32 @@
                 currentUser: null, loginCode: '', currentTab: 'game', 
                 items: [], allItemsForStats: [],
                 newTitle: '', newNote: '', newDate: '', selectedFiles: [], isUploading: false, 
-                editingId: null, editTitle: '', editNote: '', editSegments: [],
+                editingId: null, editTitle: '', editNote: '', editSegments: [], editMood: '',
                 isDarkMode: false, currentAlbum: null, appendFiles: [], albumReadOnly: false,
                 storyChartObj: null, activityChartObj: null,
                 notice: { type: '', text: '' },
                 noticeTimer: null,
-                filterQuery: '', filterAuthor: '', filterFrom: '', filterTo: '',
+                filterQuery: '', filterAuthor: '', filterMood: '', filterFrom: '', filterTo: '',
                 reviewData: null, reviewDate: '', reviewLoading: false, relationshipBaseDate: '',
+                selectedMood: '',
+                surpriseItem: null, surpriseTask: null, surpriseLoading: false,
+                moodOptions: [
+                    { key: 'spark', label: '✨ 怦然' },
+                    { key: 'hug', label: '🤍 依偎' },
+                    { key: 'sweet', label: '🍯 甜蜜' },
+                    { key: 'chaos', label: '🎢 闹腾' },
+                    { key: 'dream', label: '🌙 梦游' },
+                    { key: 'brave', label: '🦁 勇敢' },
+                    { key: 'calm', label: '🍵 平静' }
+                ],
+                surpriseTaskDeck: [
+                    { tag: '轻互动', title: '三分钟夸夸挑战', text: '轮流用 90 秒时间，认真夸对方三个平时不常说出口的优点。' },
+                    { tag: '生活游戏', title: '盲选晚餐', text: '各自写下一个想吃的东西，闭眼抽签，今晚完全服从结果。' },
+                    { tag: '回忆任务', title: '翻旧照片', text: '一起找出一张最久之前的合照，重讲那天发生的细节。' },
+                    { tag: '小冒险', title: '交换歌单', text: '互相给对方发一首“最像你”的歌，并解释为什么。' },
+                    { tag: '亲密互动', title: '安静抱抱', text: '放下手机，认真抱 60 秒，不说话，只感受呼吸和心跳。' },
+                    { tag: '记录灵感', title: '双人一句话小说', text: '你一句我一句，现场续写一个只属于你们的 10 句短故事。' }
+                ],
                 
                 // 🔮 塔罗牌相关状态
                 isMidnightMode: false, 
@@ -691,9 +811,27 @@
             showComposer() { return ['memory', 'album', 'diary', 'wish', 'story'].includes(this.currentTab); },
             showFilters() { return ['memory', 'album', 'diary', 'wish', 'story', 'recycle'].includes(this.currentTab); },
             showListView() { return ['memory', 'album', 'diary', 'wish', 'story', 'recycle'].includes(this.currentTab); },
+            achievementCards() {
+                const items = this.allItemsForStats || [];
+                const total = items.length;
+                const albums = items.filter(item => item.category === 'album').length;
+                const stories = items.filter(item => item.category === 'story').length;
+                const wishesDone = items.filter(item => item.category === 'wish' && item.completed).length;
+                const moodsUsed = new Set(items.map(item => item.mood).filter(Boolean)).size;
+                const authors = new Set(items.map(item => item.author).filter(Boolean)).size;
+
+                return [
+                    { key: 'first', icon: '🌱', name: '初次落笔', condition: '留下任意 1 条内容', unlocked: total >= 1, description: '你们已经把这个小宇宙真正启动了。' },
+                    { key: 'album', icon: '📸', name: '相册收藏家', condition: '创建 3 本相册', unlocked: albums >= 3, description: '照片开始堆成一座能回放时光的小仓库。' },
+                    { key: 'story', icon: '📖', name: '连载作者', condition: '写下 3 篇浮梦', unlocked: stories >= 3, description: '你们已经不只是记录，而是在共同连载故事。' },
+                    { key: 'wish', icon: '🎯', name: '愿望兑现师', condition: '完成 5 个心愿', unlocked: wishesDone >= 5, description: '想法不再只是想法，已经开始变成现实。' },
+                    { key: 'mood', icon: '🎨', name: '情绪采样员', condition: '使用 4 种不同心情贴纸', unlocked: moodsUsed >= 4, description: '你们的记录开始有了更丰富的颜色和温度。' },
+                    { key: 'duo', icon: '🤝', name: '双人共振', condition: '两个人都留下过内容', unlocked: authors >= 2, description: '这不再是一人的独白，而是真正的双人宇宙。' }
+                ];
+            },
             emptyStateText() {
                 if (this.currentTab === 'recycle') return '回收站里暂时没有内容。';
-                return this.filterQuery || this.filterAuthor || this.filterFrom || this.filterTo
+                return this.filterQuery || this.filterAuthor || this.filterMood || this.filterFrom || this.filterTo
                     ? '没有找到符合筛选条件的内容。'
                     : '这里还没有内容，先写下一点新的回忆吧。';
             },
@@ -744,6 +882,10 @@
             },
             getDisplayCategory(item) {
                 return this.currentTab === 'recycle' ? item.category : this.currentTab;
+            },
+            getMoodLabel(moodKey) {
+                const mood = this.moodOptions.find(item => item.key === moodKey);
+                return mood ? mood.label : '';
             },
             getGroupGridClass(itemsInGroup) {
                 const hasMediaCard = itemsInGroup.some(item => ['memory', 'album'].includes(this.getDisplayCategory(item)));
@@ -802,8 +944,8 @@
             switchTab(tab) {
                 this.vibrate(30);
                 if (this.currentAlbum) this.closeAlbum(false);
-                this.currentTab = tab; this.selectedFiles = []; this.newNote = ''; this.newTitle = '';
-                if (tab === 'stats') this.fetchAllItemsForStats();
+                this.currentTab = tab; this.selectedFiles = []; this.newNote = ''; this.newTitle = ''; this.selectedMood = '';
+                if (tab === 'stats' || tab === 'surprise') this.fetchAllItemsForStats();
                 else if (tab === 'review') this.loadAnniversaryReview();
                 else if (tab !== 'tarot' && tab !== 'game') this.getItems();
             },
@@ -814,6 +956,7 @@
             clearFilters() {
                 this.filterQuery = '';
                 this.filterAuthor = '';
+                this.filterMood = '';
                 this.filterFrom = '';
                 this.filterTo = '';
                 if (this.showListView) this.getItems();
@@ -836,6 +979,32 @@
                 } finally {
                     this.reviewLoading = false;
                 }
+            },
+            async drawSurpriseItem() {
+                this.surpriseLoading = true;
+                try {
+                    const res = await axios.get('/api/fun/surprise');
+                    this.surpriseItem = res.data;
+                    if (!res.data) this.showNotice('info', '还没有可抽取的内容，先记录一点新回忆吧');
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '回忆扭蛋抽取失败'));
+                } finally {
+                    this.surpriseLoading = false;
+                }
+            },
+            drawSurpriseTask() {
+                const randomIndex = Math.floor(Math.random() * this.surpriseTaskDeck.length);
+                this.surpriseTask = this.surpriseTaskDeck[randomIndex];
+                this.vibrate([40, 40, 40]);
+            },
+            saveSurpriseTaskToWish() {
+                if (!this.surpriseTask) return;
+                this.switchTab('wish');
+                this.$nextTick(() => {
+                    this.newNote = `${this.surpriseTask.title}：${this.surpriseTask.text}`;
+                    this.selectedMood = 'spark';
+                    this.showNotice('success', '任务已经写进心愿输入框了');
+                });
             },
             
             // 🎲 秘戏：真心话大冒险抽卡逻辑
@@ -966,14 +1135,16 @@
                 this.vibrate(50); this.isUploading = true; const fd = new FormData();
                 for (let i = 0; i < this.selectedFiles.length; i++) { const compressed = await this.compressImage(this.selectedFiles[i]); fd.append('files', compressed, compressed.name); }
                 fd.append('category', this.currentTab); fd.append('title', this.newTitle); fd.append('author', this.currentUser); 
+                fd.append('mood', this.selectedMood);
                 if (this.newDate) fd.append('date', this.newDate);
                 if (this.currentTab === 'story') fd.append('segments', JSON.stringify([{ id: Date.now().toString(), author: this.currentUser, text: this.newNote }]));
                 else fd.append('note', this.newNote);
                 try {
                     await axios.post('/api/items', fd);
-                    this.newNote = ''; this.newTitle = ''; this.newDate = this.getLocalDateString(); this.selectedFiles = [];
+                    this.newNote = ''; this.newTitle = ''; this.newDate = this.getLocalDateString(); this.selectedFiles = []; this.selectedMood = '';
                     const fileInput = document.querySelector('.control-panel input[type="file"]'); if(fileInput) fileInput.value = '';
                     this.getItems();
+                    if (this.currentTab === 'surprise' || this.currentTab === 'stats') this.fetchAllItemsForStats();
                     if (options.resetTarot) this.resetTarot();
                     this.showNotice('success', options.successMessage || '内容已保存');
                     this.vibrate([50,50,50]); 
@@ -1018,6 +1189,7 @@
                     else params.category = this.currentTab;
                     if (this.filterQuery.trim()) params.q = this.filterQuery.trim();
                     if (this.filterAuthor) params.author = this.filterAuthor;
+                    if (this.filterMood) params.mood = this.filterMood;
                     if (this.filterFrom) params.from = this.filterFrom;
                     if (this.filterTo) params.to = this.filterTo;
                     const res = await axios.get('/api/items', { params });
@@ -1034,6 +1206,7 @@
                         await axios.delete(`/api/items/${id}`, { params: { author: this.currentUser } });
                         this.showNotice('success', '内容已移入回收站');
                         this.getItems();
+                        this.fetchAllItemsForStats();
                     } catch (error) {
                         this.showNotice('error', this.getErrorMessage(error, '删除失败'));
                     }
@@ -1045,6 +1218,7 @@
                     await axios.post(`/api/items/${id}/restore`);
                     this.showNotice('success', '内容已恢复');
                     this.getItems();
+                    this.fetchAllItemsForStats();
                 } catch (error) {
                     this.showNotice('error', this.getErrorMessage(error, '恢复失败'));
                 }
@@ -1056,22 +1230,25 @@
                     await axios.delete(`/api/items/${id}/permanent`);
                     this.showNotice('success', '内容已彻底删除');
                     this.getItems();
+                    this.fetchAllItemsForStats();
                 } catch (error) {
                     this.showNotice('error', this.getErrorMessage(error, '彻底删除失败'));
                 }
             },
-            startEdit(item) { this.vibrate(30); this.editingId = item._id; this.editTitle = item.title || ''; this.editNote = item.note || ''; if (this.currentTab === 'story') { this.editSegments = item.segments ? JSON.parse(JSON.stringify(item.segments)) : [{ id: Date.now().toString(), author: item.author, text: item.note }]; } },
+            startEdit(item) { this.vibrate(30); this.editingId = item._id; this.editTitle = item.title || ''; this.editNote = item.note || ''; this.editMood = item.mood || ''; if (this.currentTab === 'story') { this.editSegments = item.segments ? JSON.parse(JSON.stringify(item.segments)) : [{ id: Date.now().toString(), author: item.author, text: item.note }]; } },
             addNewSegment() { this.vibrate(30); this.editSegments.push({ id: Date.now().toString(), author: this.currentUser, text: '' }); },
-            cancelEdit() { this.vibrate(30); this.editingId = null; },
+            cancelEdit() { this.vibrate(30); this.editingId = null; this.editMood = ''; },
             async saveEdit(id) {
                 this.vibrate(50);
-                let payload = { title: this.editTitle };
+                let payload = { title: this.editTitle, mood: this.editMood };
                 if (this.currentTab === 'story') payload.segments = this.editSegments.filter(seg => seg.text.trim() !== '');
                 else payload.note = this.editNote;
                 try {
                     await axios.put(`/api/items/${id}`, payload);
                     this.editingId = null;
+                    this.editMood = '';
                     this.getItems();
+                    this.fetchAllItemsForStats();
                     this.showNotice('success', '修改已保存');
                 } catch (error) {
                     this.showNotice('error', this.getErrorMessage(error, '保存修改失败'));
@@ -1093,7 +1270,7 @@
             initApp() {
                 this.newDate = this.getLocalDateString();
                 this.reviewDate = this.getLocalDateString();
-                if (this.currentTab === 'stats') this.fetchAllItemsForStats();
+                if (this.currentTab === 'stats' || this.currentTab === 'surprise') this.fetchAllItemsForStats();
                 else if (this.currentTab === 'review') this.loadAnniversaryReview();
                 else if (this.currentTab !== 'tarot' && this.currentTab !== 'game') this.getItems();
                 if ('serviceWorker' in navigator) {
