@@ -85,21 +85,20 @@
         button.action-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255, 182, 193, 0.6); }
         button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
         
-        /* 午夜模式专属按钮 */
         button.action-midnight { background: linear-gradient(135deg, #1A0505, #8B0000); box-shadow: 0 6px 20px rgba(139, 0, 0, 0.4); color: white;}
         button.action-midnight:hover { box-shadow: 0 10px 25px rgba(139, 0, 0, 0.6); }
 
-        /* ====== 星月塔罗 & 午夜秘境 ====== */
+        /* ====== 星月塔罗 & 秘戏大冒险 ====== */
         .tarot-board { display: flex; flex-direction: column; align-items: center; padding: 20px 0 50px 0; transition: 0.5s;}
         .tarot-title { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); margin-bottom: 10px; letter-spacing: 3px; font-weight: bold; transition: 0.5s;}
         .tarot-subtitle { font-family: var(--font-ui); font-size: 14px; color: var(--ink-light); margin-bottom: 30px; transition: 0.5s;}
         
-        /* 模式切换开关 */
         .mode-switch-wrap { margin-bottom: 30px; }
         .mode-switch { font-family: var(--font-serif); font-size: 13px; font-weight: bold; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s; border: 1px solid var(--border-fine); background: var(--glass-bg); color: var(--ink-main);}
         .mode-switch.is-midnight { background: #2A0808; color: #FFD700; border-color: #8B0000; box-shadow: 0 0 15px rgba(139,0,0,0.5);}
         
         .tarot-card-container { width: 280px; height: 420px; perspective: 1000px; cursor: pointer; margin-bottom: 30px;}
+        .game-decks-wrap { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; width: 100%;}
         .tarot-inner { width: 100%; height: 100%; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; position: relative;}
         .tarot-card-container.flipped .tarot-inner { transform: rotateY(180deg); }
         .tarot-card-container.shaking { animation: shake 0.5s infinite; }
@@ -111,9 +110,15 @@
         .tarot-back { background: linear-gradient(135deg, #2C1A3D, #3B1C32); background-size: 200% 200%; animation: silkGradient 5s ease infinite; display: flex; align-items: center; justify-content: center;}
         .tarot-back::after { content: '✨ 命运之轮 ✨'; color: rgba(255,255,255,0.7); font-family: var(--font-serif); font-size: 20px; letter-spacing: 3px; writing-mode: vertical-rl; transition: 0.5s;}
         
-        /* 午夜牌背 */
+        /* 午夜塔罗牌背 */
         .midnight-mode .tarot-back { background: linear-gradient(135deg, #1A0505, #4A0E17); border-color: #8B0000; box-shadow: 0 0 20px rgba(139,0,0,0.4);}
         .midnight-mode .tarot-back::after { content: '⛓️ 午夜秘境 ⛓️'; color: rgba(255, 69, 0, 0.7); }
+
+        /* 真心话大冒险 专属牌背 */
+        .game-deck-truth .tarot-back { background: linear-gradient(135deg, #3B1C32, #8B0045); border-color: #FF1493;}
+        .game-deck-truth .tarot-back::after { content: '👄 抽一张真心话'; color: #FFB6C1; }
+        .game-deck-dare .tarot-back { background: linear-gradient(135deg, #1A0505, #4A0E17); border-color: #8B0000;}
+        .game-deck-dare .tarot-back::after { content: '⛓️ 抽一张大冒险'; color: #FF4500; }
         
         .tarot-front { background: var(--card-bg); transform: rotateY(180deg); padding: 30px 20px; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; overflow-y: auto;}
         .midnight-mode .tarot-front { background: #1A1A1A; border-color: #8B0000;}
@@ -129,14 +134,13 @@
         
         .tarot-text-box { text-align: left; width: 100%; font-family: var(--font-ui); font-size: 15px; color: var(--ink-main); line-height: 1.7; transition: 0.5s;}
         .midnight-mode .tarot-text-box { color: #E0E0E0; }
-        
         .tarot-keyword { color: var(--accent-bronze); font-weight: bold; font-family: var(--font-serif); transition: 0.5s;}
         .midnight-mode .tarot-keyword { color: #FF4500; }
-        
         .tarot-action { background: rgba(230, 168, 215, 0.15); padding: 12px 15px; border-radius: 12px; margin-top: 20px; font-weight: bold; color: var(--ink-main); border: 1px dashed var(--accent-bronze); transition: 0.5s;}
         .midnight-mode .tarot-action { background: rgba(139, 0, 0, 0.2); border-color: #8B0000; color: #FFB6C1; }
+        .game-content { font-size: 18px; line-height: 2; text-align: center; margin-top: 20px; font-family: var(--font-serif);}
 
-        /* 画廊与星图等原有样式 */
+        /* 列表与其他样式 */
         .stats-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;}
         .stats-card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); padding: 30px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.15); backdrop-filter: blur(10px); text-align: center;}
         [data-theme="dark"] .stats-card { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
@@ -259,6 +263,7 @@
                 <div :class="['tab', {active: currentTab === 'wish'}]" @click="switchTab('wish')">心愿</div>
                 <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')">浮梦</div>
                 <div :class="['tab', {active: currentTab === 'tarot'}]" @click="switchTab('tarot')">星占 🔮</div>
+                <div :class="['tab', {active: currentTab === 'game'}]" @click="switchTab('game')">秘戏 🎲</div>
                 <div :class="['tab', {active: currentTab === 'stats'}]" @click="switchTab('stats')">星图 🌟</div>
             </div>
             <div class="header-actions">
@@ -267,21 +272,58 @@
             </div>
         </div>
 
-        <div v-if="currentTab === 'tarot'" :class="['tarot-board', {'midnight-mode': isMidnightMode}]">
+        <div v-if="currentTab === 'game'" class="tarot-board midnight-mode">
             
+            <div class="tarot-title" style="color: #FF4500;">午夜秘戏 (18+)</div>
+            <div class="tarot-subtitle" style="color: #E0E0E0;">剥下伪装，直面最深处的渴望与疯狂。你要选哪一个？</div>
+            
+            <div v-if="!drawnGameCard" class="game-decks-wrap">
+                <div :class="['tarot-card-container game-deck-truth', { 'shaking': isDrawingGame === 'truth' }]" @click="drawGameCard('truth')">
+                    <div class="tarot-inner">
+                        <div class="tarot-back"></div>
+                    </div>
+                </div>
+                <div :class="['tarot-card-container game-deck-dare', { 'shaking': isDrawingGame === 'dare' }]" @click="drawGameCard('dare')">
+                    <div class="tarot-inner">
+                        <div class="tarot-back"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="tarot-card-container flipped">
+                <div class="tarot-inner">
+                    <div class="tarot-front" :style="{ borderColor: drawnGameCard.type === 'truth' ? '#FF1493' : '#8B0000' }">
+                        <div class="tarot-emoji">{{ drawnGameCard.type === 'truth' ? '👄' : '⛓️' }}</div>
+                        <div class="tarot-name" :style="{ color: drawnGameCard.type === 'truth' ? '#FFB6C1' : '#FF4500', borderBottomColor: drawnGameCard.type === 'truth' ? '#FF1493' : '#8B0000' }">
+                            {{ drawnGameCard.type === 'truth' ? '真心话' : '大冒险' }}
+                        </div>
+                        <div class="game-content" :style="{ color: drawnGameCard.type === 'truth' ? '#FFC0CB' : '#E0E0E0' }">
+                            {{ drawnGameCard.text }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button v-if="drawnGameCard" class="action-submit action-midnight" style="margin-top: 20px;" @click="saveGameReading">
+                💌 记录这次刺激的挑战
+            </button>
+            <button v-if="drawnGameCard" class="action-submit" style="margin-top: 15px; background: transparent; color: #FF4500; border: 1px solid #FF4500; box-shadow: none;" @click="resetGameCard">
+                退缩了？换一张
+            </button>
+        </div>
+
+        <div v-if="currentTab === 'tarot'" :class="['tarot-board', {'midnight-mode': isMidnightMode}]">
             <div class="tarot-title" :style="{ color: isMidnightMode ? '#FF4500' : 'var(--ink-main)' }">
                 {{ isMidnightMode ? '午夜秘境 (18+)' : '命运的指引' }}
             </div>
             <div class="tarot-subtitle" :style="{ color: isMidnightMode ? '#E0E0E0' : 'var(--ink-light)' }">
                 {{ isMidnightMode ? '嘘，闭上眼睛，翻开这充满张力的规则卡牌...' : '在心里默念你们的名字，然后翻开魔法牌。' }}
             </div>
-            
             <div class="mode-switch-wrap">
                 <button :class="['mode-switch', {'is-midnight': isMidnightMode}]" @click="toggleMidnightMode">
                     {{ isMidnightMode ? '🌸 切换回白昼模式' : '💋 开启午夜秘境 (18+)' }}
                 </button>
             </div>
-            
             <div :class="['tarot-card-container', { 'flipped': drawnCard !== null, 'shaking': isDrawing }]" @click="drawTarotCard">
                 <div class="tarot-inner">
                     <div class="tarot-back"></div>
@@ -298,16 +340,9 @@
                     </div>
                 </div>
             </div>
-
-            <button v-if="drawnCard" :class="['action-submit', {'action-midnight': isMidnightMode}]" style="margin-top: 20px;" @click="saveTarotReading">
-                💌 将指引刻入随笔
-            </button>
-            <button v-if="drawnCard" class="action-submit" :style="{ marginTop: '15px', background: 'transparent', color: isMidnightMode ? '#FF4500' : 'var(--accent-bronze)', border: isMidnightMode ? '1px solid #FF4500' : '1px solid var(--accent-bronze)', boxShadow: 'none' }" @click="resetTarot">
-                再次转动命运之轮
-            </button>
-            <button v-if="!drawnCard" :class="['action-submit', {'action-midnight': isMidnightMode}]" @click="drawTarotCard" :disabled="isDrawing">
-                {{ isDrawing ? '命运之轮转动中...' : '揭开命运的卡牌' }}
-            </button>
+            <button v-if="drawnCard" :class="['action-submit', {'action-midnight': isMidnightMode}]" style="margin-top: 20px;" @click="saveTarotReading">💌 将指引刻入随笔</button>
+            <button v-if="drawnCard" class="action-submit" :style="{ marginTop: '15px', background: 'transparent', color: isMidnightMode ? '#FF4500' : 'var(--accent-bronze)', border: isMidnightMode ? '1px solid #FF4500' : '1px solid var(--accent-bronze)', boxShadow: 'none' }" @click="resetTarot">再次转动命运之轮</button>
+            <button v-if="!drawnCard" :class="['action-submit', {'action-midnight': isMidnightMode}]" @click="drawTarotCard" :disabled="isDrawing">{{ isDrawing ? '命运之轮转动中...' : '揭开命运的卡牌' }}</button>
         </div>
 
         <div v-if="currentTab === 'stats'" class="stats-dashboard">
@@ -321,7 +356,7 @@
             </div>
         </div>
 
-        <div class="control-panel" v-if="currentTab !== 'stats' && currentTab !== 'tarot'">
+        <div class="control-panel" v-if="currentTab !== 'stats' && currentTab !== 'tarot' && currentTab !== 'game'">
             <input v-if="currentTab === 'story' || currentTab === 'album'" type="text" v-model="newTitle" class="title-input" :placeholder="currentTab === 'album' ? '《 相册名称 》 (如：2026跨年之旅)' : '《 篇章名 》'">
             <div class="input-group">
                 <div class="file-upload-wrapper" v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story' || currentTab === 'album'">
@@ -334,7 +369,7 @@
             </div>
         </div>
 
-        <div v-if="currentTab !== 'stats' && currentTab !== 'tarot'" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
+        <div v-if="currentTab !== 'stats' && currentTab !== 'tarot' && currentTab !== 'game'" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
             <div class="timeline-header">🌸 {{ monthYear }}</div>
             <div :class="['grid', (currentTab === 'memory' || currentTab === 'album') ? 'grid-memory' : 'grid-list']">
                 <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': currentTab === 'story'}]">
@@ -405,17 +440,45 @@
     createApp({
         data() {
             return {
-                currentUser: null, loginCode: '', currentTab: 'tarot', 
+                currentUser: null, loginCode: '', currentTab: 'game', 
                 items: [], allItemsForStats: [],
                 newTitle: '', newNote: '', newDate: '', selectedFiles: [], isUploading: false, 
                 editingId: null, editTitle: '', editNote: '', editSegments: [],
                 isDarkMode: false, currentAlbum: null, appendFiles: [],
                 storyChartObj: null, activityChartObj: null,
                 
+                // 🔮 塔罗牌相关状态
                 isMidnightMode: false, 
-                drawnCard: null,
-                isDrawing: false,
+                drawnCard: null, isDrawing: false,
 
+                // 🎲 真心话大冒险相关状态
+                drawnGameCard: null, isDrawingGame: null, // 'truth', 'dare', or null
+                gameTruths: [
+                    "坦白说，你脑海中最常浮现的、关于我的下流幻想是什么？",
+                    "在我们所有的亲密接触中，哪一次让你觉得最刺激、最难以忘怀？",
+                    "如果必须在我身上留下一个永久的印记，你想留在哪，用什么方式？",
+                    "诚实回答：你有没有在不适合的场合（比如上课/工作）偷偷想过怎么“欺负”我？",
+                    "说出一个你一直想尝试，但不好意思开口的边缘/BDSM玩法。",
+                    "你最喜欢我身体的哪一个部位被你留下痕迹？",
+                    "坦白一件你在我身上做过，但觉得有点“变态”的小事。",
+                    "如果今晚你可以绝对支配我，你做的第一件事是什么？",
+                    "当我用什么样的眼神看你或叫你什么称呼时，你会立刻产生冲动？",
+                    "诚实说，你有没有翻看过一些大尺度的图文/影片，并把主角代入成我们俩？"
+                ],
+                gameDares: [
+                    "蒙上我的眼睛，用你觉得最敏感的东西（冰块/羽毛/嘴唇）在我的大腿内侧游走一分钟，不许我发出声音。",
+                    "接下来的 10 分钟里，无论我问什么，你只能用“是，主人”或“不是，主人”来回答。",
+                    "当着我的面，缓慢且极具挑逗性地解除你身上的一件贴身衣物。",
+                    "靠近我的耳边，用最色气的气声，详细描述你今晚打算怎么“弄哭”我。",
+                    "解除我身上的一件衣物，但不许用手，只能用牙齿。",
+                    "在接下来的三轮游戏里，你必须全程跪在我脚边，无论抽到什么。",
+                    "用温热的指尖，在我最敏感但平时不会去触碰的地方，写下你的名字。",
+                    "强制边缘：用手或口让我接近顶点，然后在最后一刻生生停下，看着我求你。",
+                    "找一根领带或软绳，把我的双手反绑在背后，然后深吻我三分钟，不许我反抗。",
+                    "坐在我的腿上（或让我坐你腿上），隔着衣物用力摩擦，直到其中一方忍不住发出声音。"
+                ],
+
+                // 🌸 塔罗牌库数据 (完整 22 张 白昼浪漫版)
                 tarotDeckRomantic: [
                     { name: '0. 愚者 (The Fool)', emoji: '🎒', keywords: '天马行空、说走就走', meaning: '今天是个充满奇思妙想的日子！别管什么严谨的计划表了，顺从内心的直觉，勇敢地踏出舒适圈吧。在感情里，这张牌意味着像孩子般纯粹的快乐。', action: '拉着对方的手去探索一个没去过的角落，或者尝试一家新奇的餐厅。' },
                     { name: '1. 魔术师 (The Magician)', emoji: '🪄', keywords: '默契满分、创造惊喜', meaning: '奇迹就在你们手中。你们之间的心灵感应正在发挥奇效，只要敢想，今天就能把平淡的日子变成魔法。想要实现的小心愿，不妨大声对彼此说出来！', action: '主动给对方制造一个小惊喜，哪怕是一杯突然出现的奶茶。' },
@@ -441,6 +504,7 @@
                     { name: '21. 世界 (The World)', emoji: '🌍', keywords: '完美拼图、你即世界', meaning: '极致的圆满！“你在我身边，就是全世界。” 这张牌是对你们感情最高的赞美与祝福。一切都恰到好处，请好好享受这份确定的、完美的幸福吧。', action: '给对方一个最深、最紧的拥抱，用心庆祝在茫茫人海中遇到彼此。' }
                 ],
                 
+                // 💋 塔罗牌库数据 (完整 22 张 午夜 18+ BDSM版)
                 tarotDeckMidnight: [
                     { name: '0. 愚者 (The Fool)', emoji: '🙈', keywords: '盲眼探索、未知刺激', meaning: '剥夺视觉会让人对其他感官更加敏感。这是对信任的绝对考验，也是将自己完全交付的开始。', action: '使用眼罩（或领带/丝巾）蒙住抽牌者的眼睛，由另一方主导接下来的 15 分钟探索。' },
                     { name: '1. 魔术师 (The Magician)', emoji: '🧊', keywords: '感官魔法、道具掌控', meaning: '手指能做到的终究有限，今天是引入“魔法道具”的时刻。温度、材质的差异会让神经末梢战栗。', action: '准备冰块和羽毛（或类似软物），在对方敏感地带交替使用，体验冰火两重天的刺激。' },
@@ -468,23 +532,9 @@
             }
         },
         computed: {
-            placeholderText() {
-                if (this.currentTab === 'album') return '写一段相册简介...';
-                if (this.currentTab === 'diary') return '写下今天的碎碎念...';
-                if (this.currentTab === 'story') return '在这个世界里，你写下了第一句魔法...';
-                if (this.currentTab === 'wish') return '许下属于我们的星愿...';
-                return '珍藏那一刻的闪光...';
-            },
-            btnText() {
-                if (this.currentTab === 'album') return '创建相册';
-                if (this.currentTab === 'diary') return '落笔';
-                if (this.currentTab === 'story') return '筑梦';
-                if (this.currentTab === 'wish') return '许愿';
-                return '入卷';
-            },
-            currentDeck() {
-                return this.isMidnightMode ? this.tarotDeckMidnight : this.tarotDeckRomantic;
-            },
+            placeholderText() { return '珍藏那一刻的闪光...'; },
+            btnText() { return '入卷'; },
+            currentDeck() { return this.isMidnightMode ? this.tarotDeckMidnight : this.tarotDeckRomantic; },
             groupedItems() {
                 const groups = {};
                 this.items.forEach(item => {
@@ -501,9 +551,7 @@
         methods: {
             // ✨ 震动触觉核心魔法
             vibrate(pattern = 50) {
-                if ('vibrate' in navigator) {
-                    try { navigator.vibrate(pattern); } catch (e) {} // 忽略权限阻挡
-                }
+                if ('vibrate' in navigator) { try { navigator.vibrate(pattern); } catch (e) {} }
             },
             login() {
                 if (this.loginCode === 'xiaoxin') this.currentUser = '小心';
@@ -525,76 +573,95 @@
                 this.vibrate(30);
                 this.currentTab = tab; this.selectedFiles = []; this.newNote = ''; this.newTitle = '';
                 if (tab === 'stats') this.fetchAllItemsForStats();
-                else if (tab !== 'tarot') this.getItems();
+                else if (tab !== 'tarot' && tab !== 'game') this.getItems();
             },
             
-            // 🔮 塔罗牌双模式方法 (带震动)
+            // 🎲 秘戏：真心话大冒险抽卡逻辑
+            drawGameCard(type) {
+                if (this.isDrawingGame || this.drawnGameCard) return;
+                this.isDrawingGame = type;
+                
+                // 不同的震动反馈：真心话是快速心跳，大冒险是沉重锁链
+                if (type === 'truth') {
+                    this.vibrate([30, 50, 30, 50, 30]); 
+                } else {
+                    this.vibrate([80, 100, 80, 100]); 
+                }
+
+                setTimeout(() => {
+                    const deck = type === 'truth' ? this.gameTruths : this.gameDares;
+                    const randomIndex = Math.floor(Math.random() * deck.length);
+                    this.drawnGameCard = {
+                        type: type,
+                        text: deck[randomIndex]
+                    };
+                    this.isDrawingGame = null;
+                    this.vibrate(type === 'truth' ? 100 : 200); // 翻开时的重击
+                }, 1000);
+            },
+            resetGameCard() {
+                this.drawnGameCard = null;
+                this.vibrate(40);
+            },
+            saveGameReading() {
+                this.vibrate(50);
+                const isTruth = this.drawnGameCard.type === 'truth';
+                this.newTitle = isTruth ? '👄 秘戏：真心话' : '⛓️ 秘戏：大冒险';
+                this.newNote = `【抽取挑战】\n${this.drawnGameCard.text}\n\n【执行结果】\n（在这里写下你们做了什么，或者对方的反应吧...）`;
+                this.switchTab('diary'); 
+            },
+
+            // 🔮 塔罗牌相关逻辑
             toggleMidnightMode() {
                 this.isMidnightMode = !this.isMidnightMode;
                 this.resetTarot(); 
-                // 开启午夜时，模拟心跳震动
                 this.vibrate(this.isMidnightMode ? [150, 50, 200] : [50, 50, 50]); 
             },
             drawTarotCard() {
                 if (this.isDrawing || this.drawnCard) return; 
                 this.isDrawing = true;
-                this.vibrate([30, 50, 30, 50, 30]); // 洗牌时手机微微颤抖
-                
+                this.vibrate([30, 50, 30, 50, 30]);
                 setTimeout(() => {
                     const randomIndex = Math.floor(Math.random() * this.currentDeck.length);
                     this.drawnCard = this.currentDeck[randomIndex];
                     this.isDrawing = false;
-                    this.vibrate([100, 50, 100]); // 翻开时的重击
+                    this.vibrate([100, 50, 100]); 
                 }, 1200);
             },
-            resetTarot() { 
-                this.drawnCard = null; 
-                this.vibrate(40);
-            },
+            resetTarot() { this.drawnCard = null; this.vibrate(40); },
             saveTarotReading() {
                 this.vibrate(50);
                 const prefix = this.isMidnightMode ? '⛓️ 午夜指令' : '🔮 星月指引';
                 const actionTitle = this.isMidnightMode ? '【⛓️ 午夜执行】' : '【💡 今日互动】';
-                
                 this.newTitle = `${prefix}：${this.drawnCard.name}`;
                 this.newNote = `【✦ 牌意解读】\n${this.drawnCard.meaning}\n\n${actionTitle}\n${this.drawnCard.action}`;
                 this.switchTab('diary'); 
                 setTimeout(() => { this.uploadItem(); }, 200);
             },
 
+            // 通用功能
             async compressImage(file) {
                 const options = { maxSizeMB: 0.8, maxWidthOrHeight: 1920, useWebWorker: true, fileType: 'image/jpeg' };
-                try { return await imageCompression(file, options); } 
-                catch (error) { console.error("图片压缩失败", error); return file; }
+                try { return await imageCompression(file, options); } catch (error) { return file; }
             },
-
             handleFiles(e) { this.selectedFiles = Array.from(e.target.files); this.vibrate(30);},
             openAlbum(item) { this.vibrate(30); this.currentAlbum = item; document.body.style.overflow = 'hidden'; },
             closeAlbum() { this.vibrate(30); this.currentAlbum = null; this.appendFiles = []; document.body.style.overflow = 'auto'; this.getItems(); },
             handleAppendFiles(e) { this.appendFiles = Array.from(e.target.files); this.vibrate(30);},
             async submitAppendPhotos() {
                 if(this.appendFiles.length === 0) return;
-                this.vibrate(50);
-                this.isUploading = true; const fd = new FormData(); 
-                for (let i = 0; i < this.appendFiles.length; i++) {
-                    const compressed = await this.compressImage(this.appendFiles[i]);
-                    fd.append('files', compressed, compressed.name);
-                }
-                try { const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd); this.currentAlbum = res.data; this.appendFiles = []; document.querySelector('.append-area input[type="file"]').value = ''; this.vibrate([50,50,50]); } 
-                catch (e) {} finally { this.isUploading = false; }
+                this.vibrate(50); this.isUploading = true; const fd = new FormData(); 
+                for (let i = 0; i < this.appendFiles.length; i++) { const compressed = await this.compressImage(this.appendFiles[i]); fd.append('files', compressed, compressed.name); }
+                try { const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd); this.currentAlbum = res.data; this.appendFiles = []; document.querySelector('.append-area input[type="file"]').value = ''; this.vibrate([50,50,50]); } catch (e) {} finally { this.isUploading = false; }
             },
             async deleteImageFromAlbum(albumId, imageId) {
                 this.vibrate(30);
-                if(confirm("确定要把这张照片从相册移出吗？")) { const res = await axios.delete(`/api/items/${albumId}/images/${imageId}`); this.currentAlbum = res.data; }
+                if(confirm("确定要把这张照片移出相册吗？")) { const res = await axios.delete(`/api/items/${albumId}/images/${imageId}`); this.currentAlbum = res.data; }
             },
             async uploadItem() {
                 if (!this.newNote && this.selectedFiles.length === 0 && this.newTitle === '') return alert("总得留下点魔法痕迹吧？");
-                this.vibrate(50);
-                this.isUploading = true; const fd = new FormData();
-                for (let i = 0; i < this.selectedFiles.length; i++) {
-                    const compressed = await this.compressImage(this.selectedFiles[i]);
-                    fd.append('files', compressed, compressed.name);
-                }
+                this.vibrate(50); this.isUploading = true; const fd = new FormData();
+                for (let i = 0; i < this.selectedFiles.length; i++) { const compressed = await this.compressImage(this.selectedFiles[i]); fd.append('files', compressed, compressed.name); }
                 fd.append('category', this.currentTab); fd.append('title', this.newTitle); fd.append('author', this.currentUser); 
                 if (this.newDate) fd.append('date', this.newDate);
                 if (this.currentTab === 'story') fd.append('segments', JSON.stringify([{ id: Date.now().toString(), author: this.currentUser, text: this.newNote }]));
@@ -603,11 +670,9 @@
                     await axios.post('/api/items', fd);
                     this.newNote = ''; this.newTitle = ''; this.newDate = new Date().toISOString().split('T')[0]; this.selectedFiles = [];
                     const fileInput = document.querySelector('.control-panel input[type="file"]'); if(fileInput) fileInput.value = '';
-                    this.getItems();
-                    this.vibrate([50,50,50]); // 成功发布时的欢快震动
+                    this.getItems(); this.vibrate([50,50,50]); 
                 } catch (error) {} finally { this.isUploading = false; }
             },
-
             async fetchAllItemsForStats() { const res = await axios.get('/api/items'); this.allItemsForStats = res.data; this.renderCharts(); },
             renderCharts() {
                 this.$nextTick(() => {
@@ -618,7 +683,6 @@
                     });
                     if (this.storyChartObj) this.storyChartObj.destroy(); if (this.activityChartObj) this.activityChartObj.destroy();
                     const fontColor = this.isDarkMode ? '#F5E6E8' : '#7B5C6A';
-                    
                     const ctx1 = document.getElementById('storyChart');
                     if (ctx1 && (textCount['小橙'] > 0 || textCount['小心'] > 0)) {
                         this.storyChartObj = new Chart(ctx1, { type: 'doughnut', data: { labels: ['小橙执笔 (字)', '小心执笔 (字)'], datasets: [{ data: [textCount['小橙'], textCount['小心']], backgroundColor: ['#82CAFF', '#FFB7B2'], borderColor: this.isDarkMode ? '#1E293B' : '#FFFFFF', borderWidth: 3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: fontColor, font: { family: 'Noto Serif SC'} } } } } });
@@ -642,7 +706,7 @@
             formatDate(dateString) { return new Date(dateString).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }); },
             initApp() {
                 this.newDate = new Date().toISOString().split('T')[0];
-                this.currentTab === 'stats' ? this.fetchAllItemsForStats() : (this.currentTab !== 'tarot' && this.getItems());
+                this.currentTab === 'stats' ? this.fetchAllItemsForStats() : (this.currentTab !== 'tarot' && this.currentTab !== 'game' && this.getItems());
                 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
             }
         },
