@@ -196,6 +196,28 @@
         .arcade-stat-label { font-size: 12px; color: var(--ink-light); margin-bottom: 8px; letter-spacing: 1px; }
         .arcade-stat-value { font-family: var(--font-serif); font-size: 26px; color: var(--ink-main); }
         .arcade-stat-note { font-size: 12px; line-height: 1.6; color: var(--ink-light); margin-top: 6px; }
+        .private-card { position: relative; overflow: hidden; background:
+            radial-gradient(circle at top left, rgba(255, 216, 192, 0.18), transparent 34%),
+            radial-gradient(circle at top right, rgba(184, 165, 230, 0.16), transparent 30%),
+            linear-gradient(135deg, rgba(27, 19, 43, 0.88), rgba(63, 36, 74, 0.9)); border-color: rgba(255, 228, 232, 0.14); }
+        .private-card::after { content: ''; position: absolute; inset: auto -8% -48% auto; width: 240px; height: 240px; background: radial-gradient(circle, rgba(255,255,255,0.08), transparent 65%); pointer-events: none; }
+        .private-card .fun-title, .private-card .fun-text { color: #f6edf4; }
+        .private-card .fun-text { color: rgba(246, 237, 244, 0.74); }
+        .private-kicker { font-size: 12px; letter-spacing: 3px; color: rgba(246, 237, 244, 0.56); margin-bottom: 10px; }
+        .private-gate { display: grid; gap: 14px; }
+        .private-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; }
+        .private-panel { border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.06); padding: 18px; backdrop-filter: blur(10px); }
+        .private-panel-title { font-family: var(--font-serif); font-size: 18px; color: #fff6fb; margin-bottom: 8px; }
+        .private-panel-text { font-size: 14px; line-height: 1.8; color: rgba(246, 237, 244, 0.76); }
+        .private-input { width: 100%; box-sizing: border-box; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.08); color: #fff8fc; padding: 13px 14px; font-family: var(--font-ui); }
+        .private-input::placeholder { color: rgba(255,255,255,0.34); }
+        .private-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .private-chip { border-radius: 999px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: #fff6fb; padding: 9px 14px; cursor: pointer; transition: 0.2s; }
+        .private-chip.active { background: linear-gradient(135deg, rgba(255,183,178,0.88), rgba(184,165,230,0.82)); border-color: transparent; transform: translateY(-2px); }
+        .private-highlight { border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.08); padding: 18px; }
+        .private-highlight-label { font-size: 12px; letter-spacing: 2px; color: rgba(246, 237, 244, 0.56); margin-bottom: 8px; }
+        .private-highlight-text { font-family: var(--font-serif); font-size: 22px; line-height: 1.7; color: #fff8fc; }
+        .private-note { font-size: 13px; line-height: 1.7; color: rgba(246, 237, 244, 0.66); margin-top: 10px; }
         .surprise-display { min-height: 220px; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-radius: 20px; border: 1px dashed var(--border-fine); padding: 22px; background: rgba(255,255,255,0.24); }
         .surprise-display.rolling { position: relative; overflow: hidden; }
         .surprise-display.rolling::after { content: ''; position: absolute; inset: -40%; background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%); animation: capsuleSweep 1.2s linear infinite; }
@@ -444,6 +466,7 @@
             .fun-dashboard { grid-template-columns: 1fr; }
             .fun-card.wide { grid-column: auto; }
             .arcade-stats { grid-template-columns: 1fr 1fr; }
+            .private-grid { grid-template-columns: 1fr; }
             .decision-wheel-grid { grid-template-columns: 1fr; }
             .scenario-grid { grid-template-columns: 1fr; }
             .bond-grid { grid-template-columns: 1fr; }
@@ -1001,6 +1024,85 @@
                 </div>
             </div>
 
+            <div class="fun-card wide private-card">
+                <div class="private-kicker">PRIVATE AFTER HOURS</div>
+                <h3 class="fun-title">私密模式</h3>
+                <div class="fun-text">这是偏成熟、偏暧昧的夜间玩法区，但不会出现露骨内容。内容只保存在当前设备，本地密码解锁。</div>
+
+                <div v-if="!privateHasPasscode" class="private-gate">
+                    <input type="password" class="private-input" v-model="privatePasscodeDraft" placeholder="先设置一个本地密码">
+                    <input type="password" class="private-input" v-model="privatePasscodeConfirm" placeholder="再次输入确认">
+                    <div class="fun-actions">
+                        <button class="action-submit" @click="savePrivatePasscode">开启私密模式</button>
+                    </div>
+                </div>
+
+                <div v-else-if="!privateUnlocked" class="private-gate">
+                    <input type="password" class="private-input" v-model="privatePasscodeInput" placeholder="输入密码解锁今晚的私密玩法">
+                    <div class="fun-actions">
+                        <button class="action-submit" @click="unlockPrivateMode">解锁</button>
+                    </div>
+                </div>
+
+                <div v-else class="private-grid">
+                    <div class="private-panel">
+                        <div class="private-panel-title">今晚边界</div>
+                        <div class="private-panel-text">先把想要的节奏讲清楚。越成熟的亲密，越需要在开始前说清“今天可以到哪里”。</div>
+                        <div class="private-row" style="margin-top: 14px;">
+                            <button
+                                v-for="option in privateBoundaryOptions"
+                                :key="option.key"
+                                type="button"
+                                :class="['private-chip', { active: privateBoundary === option.key }]"
+                                @click="setPrivateBoundary(option.key)"
+                            >
+                                {{ option.label }}
+                            </button>
+                        </div>
+
+                        <div class="private-panel-title" style="margin-top: 18px;">今晚气氛</div>
+                        <div class="private-row" style="margin-top: 14px;">
+                            <button
+                                v-for="option in privateAtmosphereOptions"
+                                :key="option.key"
+                                type="button"
+                                :class="['private-chip', { active: privateAtmosphere === option.key }]"
+                                @click="setPrivateAtmosphere(option.key)"
+                            >
+                                {{ option.label }}
+                            </button>
+                        </div>
+
+                        <textarea class="private-input" style="margin-top: 16px; min-height: 90px; resize: vertical;" v-model="privateAftercareNote" @change="persistPrivatePlayState" placeholder="可选：补一句今晚最希望被怎样照顾，比如“慢一点”“多抱一会儿”“先聊天再靠近”。"></textarea>
+
+                        <div class="fun-actions">
+                            <button class="action-submit secondary-btn" @click="savePrivatePromptToDiary">写成私密随笔草稿</button>
+                            <button class="action-submit secondary-btn" @click="lockPrivateMode">重新上锁</button>
+                        </div>
+                    </div>
+
+                    <div class="private-panel">
+                        <div class="private-highlight">
+                            <div class="private-highlight-label">DEEP TALK</div>
+                            <div class="private-highlight-text">{{ currentPrivateQuestion }}</div>
+                            <div class="private-note">适合压低声音聊，不赶着要答案，先把真实感受说出来。</div>
+                        </div>
+                        <div class="fun-actions">
+                            <button class="action-submit" @click="nextPrivateQuestion">换一个夜话问题</button>
+                        </div>
+
+                        <div class="private-highlight" style="margin-top: 14px;">
+                            <div class="private-highlight-label">SOFT TASK</div>
+                            <div class="private-highlight-text">{{ privateTask }}</div>
+                            <div class="private-note">不是挑战底线，而是帮你们把靠近这件事做得更自然。</div>
+                        </div>
+                        <div class="fun-actions">
+                            <button class="action-submit" @click="drawPrivateTask">换一个今晚任务</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="fun-card">
                 <h3 class="fun-title">时光扭蛋</h3>
                 <div class="fun-text">从你们已经写下的内容里随机抽一张，适合深夜重温，也适合没灵感的时候重新打开故事。</div>
@@ -1402,6 +1504,16 @@
                 achievementQueue: [],
                 playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0, wheelSpins: 0, scenarioDraws: 0, bingoWins: 0 },
                 playMode: 'tarot',
+                privatePasscodeDraft: '',
+                privatePasscodeConfirm: '',
+                privatePasscodeInput: '',
+                privateHasPasscode: false,
+                privateUnlocked: false,
+                privateBoundary: 'soft',
+                privateAtmosphere: 'lamp',
+                privateAftercareNote: '',
+                privateQuestionIndex: 0,
+                privateTask: '关掉大灯，只留一盏小灯，认真看对方半分钟。',
                 decisionPreset: 'date',
                 decisionOptionsInput: '',
                 decisionHighlightIndex: -1,
@@ -1439,6 +1551,32 @@
                     { key: 'quick', label: '5 分钟可做' },
                     { key: 'weekly', label: '本周可做' },
                     { key: 'someday', label: '以后一定做' }
+                ],
+                privateBoundaryOptions: [
+                    { key: 'soft', label: '只想慢慢靠近' },
+                    { key: 'warm', label: '可以更暧昧一点' },
+                    { key: 'talk', label: '今晚更适合深聊' }
+                ],
+                privateAtmosphereOptions: [
+                    { key: 'lamp', label: '小灯和低声说话' },
+                    { key: 'music', label: '歌单和身体靠近' },
+                    { key: 'window', label: '窗边和夜风' }
+                ],
+                privateQuestions: [
+                    '如果今晚只能用一句话告诉我你最想被怎样靠近，你会怎么说？',
+                    '什么样的语气或小动作，会让你一下子从紧绷变得放松？',
+                    '你希望今晚的节奏更像安静陪伴，还是一点点升温的电影镜头？',
+                    '如果我想更懂你，今晚最值得问你的那个问题是什么？',
+                    '在成熟的亲密里，你最在意被尊重的是哪一部分？',
+                    '你现在最想听我认真说出口的一句是什么？'
+                ],
+                privateTaskDeck: [
+                    '关掉顶灯，只留一盏小灯，面对面坐着，慢慢说出今晚的边界和期待。',
+                    '手心贴手心 30 秒，不抢着说话，先感受节奏是不是合拍。',
+                    '轮流用低一点的声音，说一句平时不会在白天讲的话。',
+                    '给对方一个比平时更慢的拥抱，抱到其中一个人先放松下来。',
+                    '一起挑一首适合今晚的歌，听完整首，再决定接下来做什么。',
+                    '坐近一点，认真看着对方，说出“你这样会让我很安心”的一个细节。'
                 ],
                 repairPrompts: [
                     { title: '真正想被理解', prompt: '这件事里，我最想让你理解的不是表面行为，而是我心里真正卡住的那一层。' },
@@ -1643,6 +1781,9 @@
                     return '现在这页已经不只是抽卡了。它能帮你们随机、决策、起剧情，再把真正做过的小事一格格点亮。';
                 }
                 return '游乐区改成了更集中的面板：回忆扭蛋负责回看，任务和剧情负责起头，转盘负责做决定，Bingo 负责把小互动落到手上。';
+            },
+            currentPrivateQuestion() {
+                return this.privateQuestions[this.privateQuestionIndex] || this.privateQuestions[0] || '';
             },
             relationshipItems() {
                 return (this.allItemsForStats || []).filter(item => !item.deletedAt).slice().sort((a, b) => b.time - a.time).slice(0, 24);
@@ -2372,6 +2513,98 @@
                 this.persistPlayStats();
                 this.checkAchievementUnlocks();
             },
+            loadPrivatePlayState() {
+                try {
+                    this.privateHasPasscode = Boolean(localStorage.getItem('orange_private_passcode'));
+                    const raw = localStorage.getItem('orange_private_state');
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    this.privateBoundary = parsed.privateBoundary || this.privateBoundary;
+                    this.privateAtmosphere = parsed.privateAtmosphere || this.privateAtmosphere;
+                    this.privateAftercareNote = parsed.privateAftercareNote || '';
+                    this.privateQuestionIndex = Number.isInteger(parsed.privateQuestionIndex) ? parsed.privateQuestionIndex : 0;
+                    this.privateTask = parsed.privateTask || this.privateTask;
+                } catch (error) {}
+            },
+            persistPrivatePlayState() {
+                localStorage.setItem('orange_private_state', JSON.stringify({
+                    privateBoundary: this.privateBoundary,
+                    privateAtmosphere: this.privateAtmosphere,
+                    privateAftercareNote: this.privateAftercareNote,
+                    privateQuestionIndex: this.privateQuestionIndex,
+                    privateTask: this.privateTask
+                }));
+            },
+            savePrivatePasscode() {
+                const passcode = this.privatePasscodeDraft.trim();
+                if (passcode.length < 4) {
+                    this.showNotice('info', '密码至少 4 位');
+                    return;
+                }
+                if (passcode !== this.privatePasscodeConfirm.trim()) {
+                    this.showNotice('error', '两次输入的密码不一致');
+                    return;
+                }
+                localStorage.setItem('orange_private_passcode', passcode);
+                this.privateHasPasscode = true;
+                this.privateUnlocked = true;
+                this.privatePasscodeDraft = '';
+                this.privatePasscodeConfirm = '';
+                this.persistPrivatePlayState();
+                this.drawPrivateTask(false);
+                this.showNotice('success', '私密模式已开启');
+            },
+            unlockPrivateMode() {
+                const saved = localStorage.getItem('orange_private_passcode') || '';
+                if (!saved) {
+                    this.privateHasPasscode = false;
+                    return;
+                }
+                if (this.privatePasscodeInput !== saved) {
+                    this.showNotice('error', '密码不对');
+                    return;
+                }
+                this.privateUnlocked = true;
+                this.privatePasscodeInput = '';
+                this.showNotice('success', '私密模式已解锁');
+            },
+            lockPrivateMode() {
+                this.privateUnlocked = false;
+                this.privatePasscodeInput = '';
+                this.showNotice('info', '私密模式已重新上锁');
+            },
+            setPrivateBoundary(key) {
+                this.privateBoundary = key;
+                this.persistPrivatePlayState();
+            },
+            setPrivateAtmosphere(key) {
+                this.privateAtmosphere = key;
+                this.persistPrivatePlayState();
+            },
+            nextPrivateQuestion() {
+                if (this.privateQuestions.length > 1) {
+                    this.privateQuestionIndex = (this.privateQuestionIndex + 1) % this.privateQuestions.length;
+                }
+                this.persistPrivatePlayState();
+            },
+            drawPrivateTask(showNotice = true) {
+                const randomIndex = Math.floor(Math.random() * this.privateTaskDeck.length);
+                this.privateTask = this.privateTaskDeck[randomIndex];
+                this.persistPrivatePlayState();
+                if (showNotice) this.showNotice('success', '今晚任务已换新');
+            },
+            savePrivatePromptToDiary() {
+                this.persistPrivatePlayState();
+                this.switchTab('diary');
+                this.$nextTick(() => {
+                    const boundary = this.privateBoundaryOptions.find(item => item.key === this.privateBoundary)?.label || this.privateBoundary;
+                    const atmosphere = this.privateAtmosphereOptions.find(item => item.key === this.privateAtmosphere)?.label || this.privateAtmosphere;
+                    this.newTitle = '🌙 私密模式随笔';
+                    this.newNote = `【今晚边界】${boundary}\n【今晚气氛】${atmosphere}\n【深夜问题】${this.currentPrivateQuestion}\n【今晚任务】${this.privateTask}\n【希望被如何照顾】${this.privateAftercareNote || '先靠近，再慢慢说。'}\n\n【后来发生了什么】\n`;
+                    this.selectedMood = 'sweet';
+                    this.showNotice('success', '私密提示已写进随笔草稿');
+                });
+            },
             loadBingoBoard() {
                 try {
                     const raw = localStorage.getItem('orange_play_bingo');
@@ -2548,6 +2781,8 @@
                 this.loginCode = '';
                 this.currentAlbum = null;
                 this.albumReadOnly = false;
+                this.privateUnlocked = false;
+                this.privatePasscodeInput = '';
                 document.body.style.overflow = 'auto';
                 this.clearNotice();
                 this.vibrate(50);
@@ -3075,6 +3310,7 @@
         },
         mounted() { 
             this.loadPlayStats();
+            this.loadPrivatePlayState();
             this.loadBingoBoard();
             const savedBaseDate = localStorage.getItem('orange_relationship_base'); if (savedBaseDate) this.relationshipBaseDate = savedBaseDate;
             const savedUser = localStorage.getItem('orange_user'); if (savedUser) { this.currentUser = savedUser; this.initApp(); }
