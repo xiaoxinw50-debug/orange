@@ -629,7 +629,7 @@
             <div class="control-panel play-hero">
                 <div class="play-kicker">PLAYGROUND</div>
                 <h2 class="play-title">把星占、秘戏和盲盒收进一个游乐场</h2>
-                <p class="play-text">这里保留原来的玩法，但不再把导航切得很碎。你们可以在同一个入口里切换命运卡牌、午夜秘戏和盲盒乐园。</p>
+                <p class="play-text">这里保留原来的玩法，但不再把导航切得很碎。现在除了命运卡牌、午夜秘戏和盲盒乐园，还多了一个更成熟但不过线的深夜玩法分组。</p>
                 <div class="play-switchers">
                     <button type="button" :class="['play-chip', { active: playMode === 'tarot' }]" @click="playMode = 'tarot'">星占 🔮</button>
                     <button type="button" :class="['play-chip', { active: playMode === 'game' }]" @click="playMode = 'game'">秘戏 🎲</button>
@@ -1878,7 +1878,7 @@
                 particles: [],
                 activeAchievement: null,
                 achievementQueue: [],
-                playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0, wheelSpins: 0, scenarioDraws: 0, bingoWins: 0 },
+                playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0, wheelSpins: 0, scenarioDraws: 0, bingoWins: 0, nightPlays: 0 },
                 playMode: 'tarot',
                 privatePasscodeDraft: '',
                 privatePasscodeConfirm: '',
@@ -1918,6 +1918,15 @@
                 scenarioFlipped: false,
                 scenarioFlipping: false,
                 scenarioRollingText: '场景混合中',
+                nightPlayTab: 'dice',
+                isRollingNightDice: false,
+                nightDiceAction: '靠近动作',
+                nightDiceMood: '夜色气氛',
+                nightDiceRolled: false,
+                isDrawingNightGacha: false,
+                currentNightGacha: null,
+                isDrawingNightTask: false,
+                currentNightTask: null,
                 bingoBoard: [],
                 syncPhase: 'answering',
                 syncRound: 1,
@@ -2041,6 +2050,22 @@
                     { tag: '小冒险', title: '交换歌单', text: '互相给对方发一首“最像你”的歌，并解释为什么。' },
                     { tag: '亲密互动', title: '安静抱抱', text: '放下手机，认真抱 60 秒，不说话，只感受呼吸和心跳。' },
                     { tag: '记录灵感', title: '双人一句话小说', text: '你一句我一句，现场续写一个只属于你们的 10 句短故事。' }
+                ],
+                nightDiceActions: ['低声告白', '认真对视', '把手牵紧一点', '慢慢靠近坐', '先抱一会儿', '交换一个秘密', '放轻声音说一句真话', '替对方做一件小事'],
+                nightDiceMoods: ['窗边夜风', '只开一盏小灯', '一首歌的时间', '沙发角落', '洗完澡以后', '准备睡前', '出门散步前', '关掉手机十分钟'],
+                nightGachaDeck: [
+                    { name: '窗边慢镜头', mood: '电影感', fit: '刚刚想升温的时候', desc: '今晚适合把节奏放慢一点。靠在窗边或床头，先不急着说太多话，只让彼此留在同一个安静空间里，等到呼吸和目光先同步。', prompt: '先问一句：“你想让我先靠近，还是先听你说？”' },
+                    { name: '小灯夜航', mood: '柔软', fit: '累了一天以后', desc: '把大灯关掉，只留一盏小灯，给今晚降噪。先选一个不会让人紧绷的小动作，像抱住、捏手、或者把头靠过去，让身体先替话语开场。', prompt: '先做一个慢动作，再补一句“这样会不会更舒服一点？”' },
+                    { name: '深夜回声', mood: '暧昧', fit: '想要一点张力的时候', desc: '今晚更适合把距离拉近一点，但不用直接跳很快。选一句平时白天不会说的话，用更低的声音讲出来，让气氛先落地，再决定要不要继续升温。', prompt: '轮流说一句“你这样会让我有点心动”的细节。' },
+                    { name: '安静和好', mood: '修复', fit: '有一点别扭的时候', desc: '如果今天有小摩擦，不一定要立刻把问题彻底讲完。先让语气变软、身体变近，把对立感收下来，再回到彼此身边。', prompt: '先说一句“我不是来跟你对着的，我是想重新靠近你。”' },
+                    { name: '靠岸仪式', mood: '仪式感', fit: '想留下记忆的时候', desc: '今晚适合做一件可重复的小仪式，比如一起选歌、一起喝水、一起看同一个东西，然后在那个固定动作里慢慢进入你们自己的夜晚。', prompt: '先确定一个固定动作，让它以后变成“今晚开始了”的信号。' }
+                ],
+                nightTaskDeck: [
+                    { title: '把语速一起放慢', tag: '轻指令', mood: '安静贴近', text: '接下来的五分钟，把讲话速度和动作都放慢一格。不要抢着填满沉默，让今晚先安静下来。', aftercare: '结束后互相确认一下：刚刚那种慢下来，对你来说是放松还是会别扭。' },
+                    { title: '说一句白天不会说的话', tag: '轻指令', mood: '暧昧升温', text: '轮流说一句在白天大概不会直接讲出口的话。可以是夸奖、心动、委屈，或者“其实我想你这样做”。', aftercare: '听完不要立刻评价，先重复一遍对方刚刚最重要的那句。' },
+                    { title: '先做一件照顾对方的小事', tag: '轻指令', mood: '被照顾感', text: '今晚先不要急着进入下一步，先替对方做一件能明显让人松下来的小事，比如倒水、理头发、盖毯子、揉肩。', aftercare: '做完以后问一句：“你现在更想聊天、抱抱，还是安静待着？”' },
+                    { title: '一起把边界说清楚', tag: '轻指令', mood: '成熟感', text: '如果今晚想更靠近一点，就先花两分钟说明白：什么是可以的，什么要慢一点，什么今天不适合。', aftercare: '说完边界后，不要马上推进，先确认彼此有没有更安心。' },
+                    { title: '留一个今晚的固定记号', tag: '轻指令', mood: '仪式感', text: '选一个今晚只属于你们的小记号，比如一句开场词、一个碰手的动作、一首歌的第一句。以后再做同样动作，就知道彼此准备好了。', aftercare: '把这个记号写进随笔或心愿，之后更容易复用。' }
                 ],
                 syncQuestions: [
                     { prompt: '如果你们今晚突然能瞬移，最想一起出现在哪里？', options: [{ key: 'sea', text: '海边散步' }, { key: 'hotel', text: '陌生城市小酒店' }, { key: 'home', text: '家里窝着不出门' }] },
@@ -2226,6 +2251,7 @@
             },
             arcadeStats() {
                 return [
+                    { label: '夜色玩法', value: `${this.playStats.nightPlays || 0} 次`, note: '夜里没灵感时，先用一条轻玩法把气氛点亮。' },
                     { label: '回忆扭蛋', value: `${this.playStats.surpriseDraws} 次`, note: '随机抽旧故事最容易把人拉回当时。' },
                     { label: '转盘决定', value: `${this.playStats.wheelSpins} 次`, note: '让“今晚干嘛”少一点犹豫，多一点直接。' },
                     { label: '剧情盲盒', value: `${this.playStats.scenarioDraws} 次`, note: '没灵感时直接给你们一个能演的桥段。' },
@@ -2233,10 +2259,19 @@
                 ];
             },
             arcadeSummary() {
-                if (this.playStats.bingoWins >= 2) {
-                    return '现在这页已经不只是抽卡了。它能帮你们随机、决策、起剧情，再把真正做过的小事一格格点亮。';
+                if ((this.playStats.nightPlays || 0) >= 3 && this.playStats.bingoWins >= 2) {
+                    return '现在这页已经不只是抽卡了。它能帮你们在夜里起氛围、在犹豫时做决定、在没灵感时起剧情，再把真正做过的小事一格格点亮。';
+                }
+                if ((this.playStats.nightPlays || 0) >= 1) {
+                    return '游乐区已经扩成一个更完整的夜间面板：夜色玩法负责起头，回忆和剧情负责拉气氛，转盘和 Bingo 负责把互动真的落下来。';
                 }
                 return '游乐区改成了更集中的面板：回忆扭蛋负责回看，任务和剧情负责起头，转盘负责做决定，Bingo 负责把小互动落到手上。';
+            },
+            nightDiceSummary() {
+                if (!this.nightDiceRolled) {
+                    return '先掷一次，让“动作”和“气氛”自己配对。';
+                }
+                return `今晚先从「${this.nightDiceAction} × ${this.nightDiceMood}」开始。你们不需要完整执行，只要拿它做一个开场就够了。`;
             },
             currentPrivateThemeMeta() {
                 return this.privateThemeOptions.find(item => item.key === this.privateTheme) || this.privateThemeOptions[0] || { desc: '' };
@@ -2495,6 +2530,7 @@
                 const wheelSpins = this.playStats.wheelSpins || 0;
                 const scenarioDraws = this.playStats.scenarioDraws || 0;
                 const bingoWins = this.playStats.bingoWins || 0;
+                const nightPlays = this.playStats.nightPlays || 0;
 
                 return [
                     { key: 'first', icon: '🌱', name: '初次落笔', condition: '留下任意 1 条内容', unlocked: total >= 1, description: '你们已经把这个小宇宙真正启动了。' },
@@ -2508,7 +2544,8 @@
                     { key: 'planner', icon: '📝', name: '任务派发员', condition: '把 3 个任务盲盒存进心愿', unlocked: taskSaves >= 3, description: '随机小游戏已经开始接管你们的日程。' },
                     { key: 'spinner', icon: '🎡', name: '今晚你来选', condition: '转盘决定 3 次', unlocked: wheelSpins >= 3, description: '犹豫的时刻被你们做成了更轻松的小游戏。' },
                     { key: 'director', icon: '🎬', name: '氛围导演', condition: '抽取 3 次剧情盲盒', unlocked: scenarioDraws >= 3, description: '你们已经开始把普通夜晚演成只属于彼此的小片段。' },
-                    { key: 'bingo', icon: '🧩', name: '陪伴通关者', condition: '完成 2 次 Bingo 连线', unlocked: bingoWins >= 2, description: '一起做的小事已经从随机灵感变成了可重复的陪伴节奏。' }
+                    { key: 'bingo', icon: '🧩', name: '陪伴通关者', condition: '完成 2 次 Bingo 连线', unlocked: bingoWins >= 2, description: '一起做的小事已经从随机灵感变成了可重复的陪伴节奏。' },
+                    { key: 'afterhours', icon: '🌙', name: '夜色策展人', condition: '完成 4 次夜色玩法', unlocked: nightPlays >= 4, description: '你们已经把“今晚做什么”慢慢玩成了一套自己的夜间语言。' }
                 ];
             },
             emptyStateText() {
@@ -3069,7 +3106,8 @@
                         taskSaves: Number(parsed.taskSaves || 0),
                         wheelSpins: Number(parsed.wheelSpins || 0),
                         scenarioDraws: Number(parsed.scenarioDraws || 0),
-                        bingoWins: Number(parsed.bingoWins || 0)
+                        bingoWins: Number(parsed.bingoWins || 0),
+                        nightPlays: Number(parsed.nightPlays || 0)
                     };
                 } catch (error) {}
             },
@@ -3850,6 +3888,80 @@
                     this.showNotice('success', '任务已经写进心愿输入框了');
                 });
             },
+            getNightPlayTabLabel(tab) {
+                if (tab === 'dice') return '靠近骰子';
+                if (tab === 'gacha') return '氛围盲盒';
+                if (tab === 'task') return '今晚指令';
+                return '深夜玩法';
+            },
+            rollNightDice() {
+                if (this.isRollingNightDice) return;
+                this.isRollingNightDice = true;
+                this.nightDiceRolled = false;
+                this.vibrate([30, 40, 30, 40, 70]);
+                window.clearTimeout(this.nightDiceTimer);
+                this.nightDiceTimer = window.setTimeout(() => {
+                    this.nightDiceAction = this.nightDiceActions[Math.floor(Math.random() * this.nightDiceActions.length)];
+                    this.nightDiceMood = this.nightDiceMoods[Math.floor(Math.random() * this.nightDiceMoods.length)];
+                    this.isRollingNightDice = false;
+                    this.nightDiceRolled = true;
+                    this.incrementPlayStat('nightPlays');
+                    this.launchParticles({ x: '36%', y: '49%' }, 16);
+                    this.showNotice('success', '今晚的靠近方式已经落下');
+                }, 920);
+            },
+            drawNightGacha() {
+                if (this.isDrawingNightGacha) return;
+                this.isDrawingNightGacha = true;
+                this.vibrate([40, 40, 60]);
+                window.clearTimeout(this.nightGachaTimer);
+                this.nightGachaTimer = window.setTimeout(() => {
+                    this.currentNightGacha = this.nightGachaDeck[Math.floor(Math.random() * this.nightGachaDeck.length)];
+                    this.isDrawingNightGacha = false;
+                    this.incrementPlayStat('nightPlays');
+                    this.launchParticles({ x: '35%', y: '50%' }, 18);
+                    this.showNotice('success', '一张新的氛围卡已经打开');
+                }, 980);
+            },
+            drawNightTask() {
+                if (this.isDrawingNightTask) return;
+                this.isDrawingNightTask = true;
+                this.vibrate([55, 45, 55]);
+                window.clearTimeout(this.nightTaskTimer);
+                this.nightTaskTimer = window.setTimeout(() => {
+                    this.currentNightTask = this.nightTaskDeck[Math.floor(Math.random() * this.nightTaskDeck.length)];
+                    this.isDrawingNightTask = false;
+                    this.incrementPlayStat('nightPlays');
+                    this.launchParticles({ x: '35%', y: '50%' }, 18);
+                    this.showNotice('success', '今晚方向已经抽出来了');
+                }, 980);
+            },
+            saveNightPlayToDiary(type) {
+                let title = '';
+                let note = '';
+                if (type === 'dice') {
+                    if (!this.nightDiceRolled) return;
+                    title = '🌙 夜色骰子';
+                    note = `【靠近动作】${this.nightDiceAction}\n【夜色气氛】${this.nightDiceMood}\n【今晚怎么开始】\n先把这个组合降到你们都舒服的程度，再从最轻的一步开始。\n\n【后来发生了什么】\n`;
+                } else if (type === 'gacha') {
+                    if (!this.currentNightGacha) return;
+                    title = `🌌 氛围盲盒：${this.currentNightGacha.name}`;
+                    note = `【氛围】${this.currentNightGacha.mood}\n【适合】${this.currentNightGacha.fit}\n【卡片描述】\n${this.currentNightGacha.desc}\n\n【起手提示】\n${this.currentNightGacha.prompt}\n\n【后来发生了什么】\n`;
+                } else if (type === 'task') {
+                    if (!this.currentNightTask) return;
+                    title = `🫶 今晚指令：${this.currentNightTask.title}`;
+                    note = `【类型】${this.currentNightTask.tag} · ${this.currentNightTask.mood}\n【今晚方向】\n${this.currentNightTask.text}\n\n【结束后记得】\n${this.currentNightTask.aftercare}\n\n【后来发生了什么】\n`;
+                } else {
+                    return;
+                }
+                this.switchTab('diary');
+                this.$nextTick(() => {
+                    this.newTitle = title;
+                    this.newNote = note;
+                    this.selectedMood = 'spark';
+                    this.showNotice('success', '夜色玩法已经写进随笔草稿');
+                });
+            },
             getSyncOptionText(optionKey) {
                 const option = this.currentSyncQuestion.options.find(item => item.key === optionKey);
                 return option ? option.text : '未作答';
@@ -4218,6 +4330,9 @@
         beforeUnmount() {
             window.clearTimeout(this.draftSaveTimer);
             window.clearTimeout(this.decisionSpinTimer);
+            window.clearTimeout(this.nightDiceTimer);
+            window.clearTimeout(this.nightGachaTimer);
+            window.clearTimeout(this.nightTaskTimer);
             window.clearInterval(this.surpriseRollTimer);
             window.clearInterval(this.scenarioRollTimer);
             window.clearTimeout(this.scenarioRevealTimer);
