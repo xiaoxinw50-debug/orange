@@ -256,6 +256,9 @@
         .delete-img-btn { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; background: rgba(255,255,255,0.9); border-radius: 50%; border: none; color: #FF9AA2; cursor: pointer; opacity: 0; transition: 0.3s; font-size: 16px;}
         .gallery-item:hover .delete-img-btn { opacity: 1; }
         .append-area { margin-top: 40px; padding: 30px; text-align: center; border: 2px dashed var(--accent-bronze); border-radius: 20px; background: rgba(255,255,255,0.3); }
+        .upload-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px; margin-top: 16px; }
+        .upload-preview-card { border-radius: 14px; overflow: hidden; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.45); aspect-ratio: 1; }
+        .upload-preview-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         .author-stamp { position: absolute; bottom: 15px; right: 25px; font-family: var(--font-serif); font-size: 12px; color: var(--ink-light); }
         .deleted-stamp { position: absolute; top: 18px; left: 18px; font-size: 12px; color: #b25463; background: rgba(255,255,255,0.92); padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 154, 162, 0.35); z-index: 5; }
@@ -321,16 +324,22 @@
             </div>
             <div class="album-modal-body">
                 <div v-if="currentAlbum.note" class="album-desc" style="text-align: center; margin-bottom:30px;">{{ currentAlbum.note }}</div>
-                <div class="gallery-grid">
-                    <div v-for="img in currentAlbum.images" :key="img.public_id" class="gallery-item">
-                        <img :src="img.url" @click="viewFull(img.url)">
-                        <button v-if="!albumReadOnly" class="delete-img-btn" @click="deleteImageFromAlbum(currentAlbum._id, img._id)">×</button>
+                <div v-if="getItemImages(currentAlbum).length > 0" class="gallery-grid">
+                    <div v-for="img in getItemImages(currentAlbum)" :key="img._id || img.public_id || img.url" class="gallery-item">
+                        <img :src="img.url" @error="handleImageError($event)" @click="viewFull(img.url)">
+                        <button v-if="!albumReadOnly && img._id" class="delete-img-btn" @click="deleteImageFromAlbum(currentAlbum._id, img._id)">×</button>
                     </div>
                 </div>
+                <div v-else class="empty-state">这本相册里暂时没有可显示的照片。</div>
                 <div v-if="!albumReadOnly" class="append-area">
                     <div class="file-upload-wrapper" style="max-width: 300px; margin: 0 auto; margin-bottom: 15px;">
                         <input type="file" @change="handleAppendFiles" accept="image/*" multiple>
                         <span class="file-upload-text">{{ appendFiles.length > 0 ? `已选 ${appendFiles.length} 张图片 🌸` : '+ 挑选新照片入册' }}</span>
+                    </div>
+                    <div v-if="appendFilePreviews.length > 0" class="upload-preview-grid">
+                        <div v-for="preview in appendFilePreviews" :key="preview.id" class="upload-preview-card">
+                            <img :src="preview.url" :alt="preview.name" @error="handleImageError($event)">
+                        </div>
                     </div>
                     <button class="action-submit" @click="submitAppendPhotos" v-if="appendFiles.length > 0" :disabled="isUploading">
                         {{ isUploading ? '✨ 传送中...' : '确认追加照片' }}
@@ -683,6 +692,11 @@
                 <input type="text" class="note-input" v-model="newNote" :placeholder="placeholderText" @keyup.enter="uploadItem">
                 <button class="action-submit" @click="uploadItem" :disabled="isUploading">{{ isUploading ? '✨ 施展魔法中...' : btnText }}</button>
             </div>
+            <div v-if="currentTab === 'album' && selectedFilePreviews.length > 0" class="upload-preview-grid">
+                <div v-for="preview in selectedFilePreviews" :key="preview.id" class="upload-preview-card">
+                    <img :src="preview.url" :alt="preview.name" @error="handleImageError($event)">
+                </div>
+            </div>
         </div>
 
         <div v-if="showListView" v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
@@ -704,13 +718,13 @@
 
                     <template v-if="getDisplayCategory(item) === 'album'">
                         <div class="album-cover" @click="openAlbum(item)">
-                            <img :src="item.images && item.images.length > 0 ? item.images[0].url : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'><rect width=\'100\' height=\'100\' fill=\'%23F4C2C2\'/></svg>'">
-                            <div class="album-badge">共 {{ item.images ? item.images.length : 0 }} 张相片</div>
+                            <img :src="getPrimaryImage(item)" @error="handleImageError($event)">
+                            <div class="album-badge">共 {{ getItemImages(item).length }} 张相片</div>
                         </div>
                     </template>
                     <template v-else-if="item.url || (item.images && item.images.length > 0)">
-                        <img v-if="item.images && item.images.length > 0" :src="item.images[0].url" @click="viewFull(item.images[0].url)">
-                        <img v-else :src="item.url" @click="viewFull(item.url)">
+                        <img v-if="getItemImages(item).length > 0" :src="getPrimaryImage(item)" @error="handleImageError($event)" @click="viewFull(getPrimaryImage(item))">
+                        <img v-else :src="fallbackImage" @error="handleImageError($event)">
                     </template>
 
                     <div class="card-info">
@@ -785,9 +799,11 @@
                 newTitle: '', newNote: '', newDate: '', selectedFiles: [], isUploading: false, 
                 editingId: null, editTitle: '', editNote: '', editSegments: [], editMood: '',
                 isDarkMode: false, currentAlbum: null, appendFiles: [], albumReadOnly: false,
+                selectedFilePreviews: [], appendFilePreviews: [],
                 storyChartObj: null, activityChartObj: null,
                 notice: { type: '', text: '' },
                 noticeTimer: null,
+                fallbackImage: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='640' viewBox='0 0 640 640'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23ffe4ec'/><stop offset='100%' stop-color='%23f6d4ff'/></linearGradient></defs><rect width='640' height='640' rx='48' fill='url(%23g)'/><text x='50%' y='46%' dominant-baseline='middle' text-anchor='middle' font-size='120'>📸</text><text x='50%' y='60%' dominant-baseline='middle' text-anchor='middle' font-size='34' fill='%237b5c6a'>照片暂时没加载出来</text></svg>",
                 filterQuery: '', filterAuthor: '', filterMood: '', filterFrom: '', filterTo: '',
                 reviewData: null, reviewDate: '', reviewLoading: false, relationshipBaseDate: '',
                 selectedMood: '',
@@ -1009,6 +1025,58 @@
                 const mood = this.moodOptions.find(item => item.key === moodKey);
                 return mood ? mood.label : '';
             },
+            normalizeClientImageUrl(url) {
+                const normalized = typeof url === 'string' ? url.trim() : '';
+                if (!normalized) return '';
+                return normalized.replace(/^http:\/\//i, 'https://');
+            },
+            getItemImages(item) {
+                if (!item) return [];
+                const images = Array.isArray(item.images) ? item.images : [];
+                const normalizedImages = images
+                    .map((image, index) => {
+                        const url = this.normalizeClientImageUrl(image?.url);
+                        if (!url) return null;
+                        return {
+                            ...image,
+                            _id: image?._id || '',
+                            public_id: image?.public_id || `${item._id || 'image'}-${index}`,
+                            url
+                        };
+                    })
+                    .filter(Boolean);
+                if (normalizedImages.length > 0) return normalizedImages;
+                const fallbackUrl = this.normalizeClientImageUrl(item.url);
+                return fallbackUrl
+                    ? [{
+                        _id: '',
+                        public_id: item.public_id || `${item._id || 'cover'}-legacy`,
+                        url: fallbackUrl
+                    }]
+                    : [];
+            },
+            getPrimaryImage(item) {
+                return this.getItemImages(item)[0]?.url || this.fallbackImage;
+            },
+            handleImageError(event) {
+                if (event?.target && event.target.src !== this.fallbackImage) {
+                    event.target.src = this.fallbackImage;
+                }
+            },
+            revokePreviewUrls(previews = []) {
+                previews.forEach(preview => {
+                    if (preview?.url && preview.url.startsWith('blob:')) {
+                        URL.revokeObjectURL(preview.url);
+                    }
+                });
+            },
+            createFilePreviews(files = []) {
+                return files.map((file, index) => ({
+                    id: `${file.name || 'image'}-${file.lastModified || Date.now()}-${index}`,
+                    name: file.name || `照片 ${index + 1}`,
+                    url: URL.createObjectURL(file)
+                }));
+            },
             getGroupGridClass(itemsInGroup) {
                 const hasMediaCard = itemsInGroup.some(item => ['memory', 'album'].includes(this.getDisplayCategory(item)));
                 return hasMediaCard ? 'grid-memory' : 'grid-list';
@@ -1172,7 +1240,8 @@
             switchTab(tab) {
                 this.vibrate(30);
                 if (this.currentAlbum) this.closeAlbum(false);
-                this.currentTab = tab; this.selectedFiles = []; this.newNote = ''; this.newTitle = ''; this.selectedMood = '';
+                this.revokePreviewUrls(this.selectedFilePreviews);
+                this.currentTab = tab; this.selectedFiles = []; this.selectedFilePreviews = []; this.newNote = ''; this.newTitle = ''; this.selectedMood = '';
                 if (tab === 'stats' || tab === 'surprise') this.fetchAllItemsForStats();
                 else if (tab === 'review') this.loadAnniversaryReview();
                 else if (tab !== 'tarot' && tab !== 'game') this.getItems();
@@ -1376,7 +1445,13 @@
                 const options = { maxSizeMB: 0.8, maxWidthOrHeight: 1920, useWebWorker: true, fileType: 'image/jpeg' };
                 try { return await imageCompression(file, options); } catch (error) { return file; }
             },
-            handleFiles(e) { this.selectedFiles = Array.from(e.target.files); this.vibrate(30);},
+            handleFiles(e) {
+                const files = Array.from(e.target.files);
+                this.revokePreviewUrls(this.selectedFilePreviews);
+                this.selectedFiles = files;
+                this.selectedFilePreviews = this.createFilePreviews(files);
+                this.vibrate(30);
+            },
             openAlbum(item) {
                 this.vibrate(30);
                 this.currentAlbum = item;
@@ -1386,12 +1461,20 @@
             closeAlbum(refresh = true) {
                 this.vibrate(30);
                 this.currentAlbum = null;
+                this.revokePreviewUrls(this.appendFilePreviews);
                 this.appendFiles = [];
-                 this.albumReadOnly = false;
+                this.appendFilePreviews = [];
+                this.albumReadOnly = false;
                 document.body.style.overflow = 'auto';
                 if (refresh) this.getItems();
             },
-            handleAppendFiles(e) { this.appendFiles = Array.from(e.target.files); this.vibrate(30);},
+            handleAppendFiles(e) {
+                const files = Array.from(e.target.files);
+                this.revokePreviewUrls(this.appendFilePreviews);
+                this.appendFiles = files;
+                this.appendFilePreviews = this.createFilePreviews(files);
+                this.vibrate(30);
+            },
             async submitAppendPhotos() {
                 if (this.albumReadOnly) return;
                 if(this.appendFiles.length === 0) return;
@@ -1400,7 +1483,9 @@
                 try {
                     const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd);
                     this.currentAlbum = res.data;
+                    this.revokePreviewUrls(this.appendFilePreviews);
                     this.appendFiles = [];
+                    this.appendFilePreviews = [];
                     document.querySelector('.append-area input[type="file"]').value = '';
                     this.showNotice('success', '照片已追加到相册');
                     this.vibrate([50,50,50]);
@@ -1410,6 +1495,10 @@
             },
             async deleteImageFromAlbum(albumId, imageId) {
                 if (this.albumReadOnly) return;
+                if (!imageId) {
+                    this.showNotice('info', '这张是旧相册封面，暂时不支持单独删除');
+                    return;
+                }
                 this.vibrate(30);
                 if(confirm("确定要把这张照片移出相册吗？")) {
                     try {
@@ -1433,7 +1522,9 @@
                 else fd.append('note', this.newNote);
                 try {
                     await axios.post('/api/items', fd);
+                    this.revokePreviewUrls(this.selectedFilePreviews);
                     this.newNote = ''; this.newTitle = ''; this.newDate = this.getLocalDateString(); this.selectedFiles = []; this.selectedMood = '';
+                    this.selectedFilePreviews = [];
                     const fileInput = document.querySelector('.control-panel input[type="file"]'); if(fileInput) fileInput.value = '';
                     this.getItems();
                     if (this.currentTab === 'surprise' || this.currentTab === 'stats') this.fetchAllItemsForStats();

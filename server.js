@@ -151,10 +151,61 @@ function parseSegments(rawSegments) {
 }
 
 function extractImages(files = []) {
-    return files.map(file => ({
-        url: file.path,
-        public_id: file.filename
-    }));
+    return files
+        .map(file => {
+            const url = normalizeImageUrl(file.path || file.secure_url || file.url || '');
+            if (!url) return null;
+            return {
+                url,
+                public_id: file.filename || file.public_id || ''
+            };
+        })
+        .filter(Boolean);
+}
+
+function normalizeImageUrl(rawUrl) {
+    const url = typeof rawUrl === 'string' ? rawUrl.trim() : '';
+    if (!url) return '';
+    return url.replace(/^http:\/\//i, 'https://');
+}
+
+function normalizeImageEntry(image = {}, fallbackPublicId = '') {
+    const url = normalizeImageUrl(image.url || image.path || image.secure_url || '');
+    if (!url) return null;
+    return {
+        ...image,
+        url,
+        public_id: image.public_id || image.filename || fallbackPublicId || ''
+    };
+}
+
+function normalizeItemMedia(item) {
+    const rawImages = Array.isArray(item.images) ? item.images : [];
+    const normalizedImages = rawImages
+        .map((image, index) => normalizeImageEntry(image, `${item.public_id || item._id || 'image'}-${index}`))
+        .filter(Boolean);
+
+    if (normalizedImages.length === 0 && item.url) {
+        const legacyCover = normalizeImageEntry(
+            { url: item.url, public_id: item.public_id || `${item._id || 'legacy'}-cover` },
+            item.public_id || `${item._id || 'legacy'}-cover`
+        );
+        if (legacyCover) {
+            normalizedImages.push(legacyCover);
+        }
+    }
+
+    return {
+        ...item,
+        images: normalizedImages,
+        url: normalizedImages[0]?.url || normalizeImageUrl(item.url) || '',
+        public_id: normalizedImages[0]?.public_id || item.public_id || ''
+    };
+}
+
+function toClientItem(item) {
+    const plainItem = typeof item?.toObject === 'function' ? item.toObject() : item;
+    return normalizeItemMedia(plainItem);
 }
 
 function ensureObjectId(id, message) {
@@ -232,20 +283,21 @@ function buildItemsQuery(queryParams) {
 }
 
 function toCardItem(item) {
+    const normalizedItem = normalizeItemMedia(item);
     return {
-        _id: item._id,
-        category: item.category,
-        author: item.author,
-        title: item.title,
-        note: item.note,
-        segments: item.segments || [],
-        mood: item.mood || '',
-        date: item.date,
-        time: item.time,
-        completed: item.completed,
-        images: item.images || [],
-        url: item.images?.[0]?.url || item.url || '',
-        deletedAt: item.deletedAt || null
+        _id: normalizedItem._id,
+        category: normalizedItem.category,
+        author: normalizedItem.author,
+        title: normalizedItem.title,
+        note: normalizedItem.note,
+        segments: normalizedItem.segments || [],
+        mood: normalizedItem.mood || '',
+        date: normalizedItem.date,
+        time: normalizedItem.time,
+        completed: normalizedItem.completed,
+        images: normalizedItem.images || [],
+        url: normalizedItem.url || '',
+        deletedAt: normalizedItem.deletedAt || null
     };
 }
 
@@ -294,7 +346,7 @@ app.post('/api/items', upload.array('files', 50), async (req, res) => {
         });
 
         const savedItem = await newItem.save();
-        res.json(savedItem);
+        res.json(toClientItem(savedItem));
     } catch (err) {
         handleError(res, err);
     }
@@ -319,7 +371,7 @@ app.post('/api/items/:id/images', upload.array('files', 50), async (req, res) =>
         item.url = item.images[0]?.url;
         item.public_id = item.images[0]?.public_id;
         await item.save();
-        res.json(item);
+        res.json(toClientItem(item));
     } catch (err) {
         handleError(res, err);
     }
@@ -347,7 +399,7 @@ app.delete('/api/items/:id/images/:imageId', async (req, res) => {
         item.url = item.images[0]?.url || '';
         item.public_id = item.images[0]?.public_id || '';
         await item.save();
-        res.json(item);
+        res.json(toClientItem(item));
     } catch (err) {
         handleError(res, err);
     }
@@ -359,7 +411,7 @@ app.get('/api/items', async (req, res) => {
         const query = buildItemsQuery(req.query);
         const sort = parseBooleanFlag(req.query.deletedOnly) ? { deletedAt: -1 } : { time: -1 };
         const items = await Item.find(query).sort(sort).lean();
-        res.json(items);
+        res.json(items.map(toClientItem));
     } catch (err) {
         handleError(res, err);
     }
@@ -422,7 +474,7 @@ app.get('/api/fun/surprise', async (req, res) => {
         pipeline.push({ $sample: { size: 1 } });
 
         const items = await Item.aggregate(pipeline);
-        res.json(items[0] || null);
+        res.json(items[0] ? toClientItem(items[0]) : null);
     } catch (err) {
         handleError(res, err);
     }
@@ -435,7 +487,7 @@ app.get('/api/random', async (req, res) => {
             { $match: { category: 'memory', time: { $lte: now } } },
             { $sample: { size: 1 } }
         ]);
-        res.json(randomItems.length > 0 ? randomItems[0] : null);
+        res.json(randomItems.length > 0 ? toClientItem(randomItems[0]) : null);
     } catch (err) {
         handleError(res, err);
     }
