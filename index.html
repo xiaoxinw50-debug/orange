@@ -3,158 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>橙心回忆 - 专属家园</title>
+    <title>橙心回忆 - 我们的琉璃城堡</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        /* ================= 昼夜主题 CSS 变量 (全面替换为梦幻蓝色调) ================= */
+        /* ================= 昼夜主题 CSS 变量 (公主琉璃风) ================= */
         :root {
-            /* 白昼模式：海盐雾蓝 */
-            --paper-bg: #F0F4F8; 
-            --card-bg: #FFFFFF;
-            --ink-main: #2C3E50; /* 海军蓝文字 */
-            --ink-light: #7F8C8D;
-            --accent-bronze: #5B8FB9; /* 主题蓝：海盐蓝 */
-            --accent-red: #E69A8D; /* 珊瑚色点缀 (用于印章和警告) */
-            --accent-indigo: #2980B9;
-            --glass-bg: rgba(240, 244, 248, 0.75); 
-            --border-fine: rgba(44, 62, 80, 0.08);
-            --story-bg: linear-gradient(180deg, #FFFFFF 0%, #F0F4F8 100%);
+            /* 白昼模式：珍珠与晨曦 */
+            --paper-bg: #FFF0F5; /* 极浅的薰衣草绯红 */
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --ink-main: #7B5C6A; /* 柔和的玫瑰褐，拒绝死黑 */
+            --ink-light: #A8959F;
+            --accent-main: #F4C2C2; /* 婴儿粉 (主强调色) */
+            --accent-bronze: #E6A8D7; /* 梦幻紫粉 (高亮/边框) */
+            --accent-red: #FFB6C1; 
+            --accent-indigo: #B3CEE5;
+            --glass-bg: rgba(255, 255, 255, 0.6); 
+            --border-fine: rgba(255, 182, 193, 0.4);
+            --story-bg: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,240,245,0.6) 100%);
             
-            /* 专属情侣双色 */
-            --color-xiaocheng: #3498DB; /* 晴空蓝 */
-            --color-xiaoxin: #F1948A;   /* 珊瑚粉 */
+            /* 专属双色：仙女的裙摆 */
+            --color-xiaocheng: #82CAFF; /* 小橙：辛德瑞拉蓝 */
+            --color-xiaoxin: #FFB7B2;   /* 小心：水蜜桃玫瑰粉 */
             
             --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
         }
 
-        /* 暗夜模式：深海星空 */
+        /* 暗夜模式：星月神话 (午夜城堡) */
         [data-theme="dark"] {
-            --paper-bg: #0F172A; /* 深邃藏青 */
-            --card-bg: #1E293B;
-            --ink-main: #F1F5F9; 
-            --ink-light: #94A3B8;
-            --accent-bronze: #38BDF8; /* 荧光海蓝 */
-            --accent-red: #FDA4AF; 
-            --accent-indigo: #7DD3FC;
-            --glass-bg: rgba(15, 23, 42, 0.85); 
-            --border-fine: rgba(241, 245, 249, 0.12);
-            --story-bg: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+            --paper-bg: #2C1A3D; /* 极深的紫罗兰星空 */
+            --card-bg: rgba(60, 35, 80, 0.7);
+            --ink-main: #F5E6E8; 
+            --ink-light: #B8A5B6;
+            --accent-main: #DDA0DD; /* 梅子色 */
+            --accent-bronze: #B3CEE5; /* 星光蓝 */
+            --accent-red: #FFB7B2; 
+            --accent-indigo: #E6A8D7;
+            --glass-bg: rgba(44, 26, 61, 0.7); 
+            --border-fine: rgba(221, 160, 221, 0.2);
+            --story-bg: linear-gradient(180deg, rgba(60,35,80,0.8) 0%, rgba(44,26,61,0.8) 100%);
             
-            --color-xiaocheng: #7DD3FC; /* 暗夜高亮蓝 */
-            --color-xiaoxin: #FDA4AF;   /* 暗夜高亮粉 */
+            --color-xiaocheng: #AEC6CF; /* 午夜星光蓝 */
+            --color-xiaoxin: #F8C8DC;   /* 午夜柔雾粉 */
+        }
+
+        /* 丝滑的动态绸缎背景 */
+        body { 
+            font-family: var(--font-ui); 
+            background: linear-gradient(-45deg, #FFE4E1, #FFF0F5, #E6E6FA, #F0F8FF);
+            background-size: 400% 400%;
+            animation: silkGradient 15s ease infinite;
+            margin: 0; padding: 0; color: var(--ink-main); 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(-45deg, #2C1A3D, #1A1A2E, #3B1C32, #16213E);
+            background-size: 400% 400%;
+        }
+
+        @keyframes silkGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* 全局平滑过渡 */
         body, .card, .control-panel, input, textarea, button, .story-seg {
-            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
         }
 
-        /* ================= 基础排版 ================= */
-        body { font-family: var(--font-ui); background-color: var(--paper-bg); background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.03"/%3E%3C/svg%3E'); margin: 0; padding: 0; color: var(--ink-main); -webkit-font-smoothing: antialiased; }
         #app { max-width: 900px; margin: 0 auto; padding: 40px 20px; position: relative; box-sizing: border-box;}
         
-        /* 登录屏风 */
-        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--paper-bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-box { text-align: center; }
-        .login-box h1 { font-family: var(--font-serif); font-size: 32px; letter-spacing: 8px; margin-bottom: 40px; color: var(--accent-bronze); }
-        .login-box input { width: 200px; text-align: center; letter-spacing: 2px; padding: 12px; border-radius: 8px; border: 1px solid var(--accent-bronze); background: transparent; color: var(--ink-main); outline: none;}
+        /* 梦幻登录屏风 */
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--paper-bg); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .login-box { text-align: center; background: var(--glass-bg); padding: 50px; border-radius: 30px; box-shadow: 0 15px 35px rgba(255, 182, 193, 0.2); border: 1px solid var(--border-fine); backdrop-filter: blur(20px);}
+        [data-theme="dark"] .login-box { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); }
+        .login-box h1 { font-family: var(--font-serif); font-size: 32px; letter-spacing: 4px; margin-bottom: 30px; color: var(--ink-main); }
+        .login-box input { width: 220px; text-align: center; letter-spacing: 2px; padding: 15px; border-radius: 20px; border: 2px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); outline: none; font-size: 16px; transition: 0.3s;}
+        .login-box input:focus { border-color: var(--accent-bronze); background: var(--card-bg); box-shadow: 0 0 15px rgba(255, 182, 193, 0.4);}
 
-        /* 顶部导航与操作区 */
+        /* 导航与皇冠印章 */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         .nav-tabs { display: flex; gap: 25px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
         .nav-tabs::-webkit-scrollbar { display: none; }
-        .tab { font-family: var(--font-serif); font-size: 18px; cursor: pointer; padding-bottom: 5px; color: var(--ink-light); white-space: nowrap; }
-        .tab.active { color: var(--accent-bronze); border-bottom: 2px solid var(--accent-bronze); font-weight: bold; }
+        .tab { font-family: var(--font-serif); font-size: 18px; cursor: pointer; padding-bottom: 5px; color: var(--ink-light); white-space: nowrap; position: relative;}
+        .tab::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 3px; background: linear-gradient(90deg, var(--color-xiaoxin), var(--color-xiaocheng)); transition: 0.3s; border-radius: 3px;}
+        .tab.active { color: var(--ink-main); font-weight: bold; }
+        .tab.active::after { width: 100%; }
         
-        .header-actions { display: flex; gap: 12px; align-items: center; }
-        .theme-toggle { font-size: 20px; cursor: pointer; background: transparent; border: none; color: var(--ink-main); padding: 0;}
-        .user-badge { font-family: var(--font-serif); font-size: 14px; color: var(--accent-bronze); border: 1px solid var(--accent-bronze); padding: 4px 12px; border-radius: 20px; cursor: pointer; opacity: 0.8; white-space: nowrap;}
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        .theme-toggle { font-size: 22px; cursor: pointer; background: transparent; border: none; color: var(--ink-main); padding: 0; transition: transform 0.4s;}
+        .theme-toggle:hover { transform: rotate(20deg); }
+        
+        .user-badge { font-family: var(--font-serif); font-size: 14px; color: var(--ink-main); background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4)); border: 1px solid var(--border-fine); padding: 6px 16px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); backdrop-filter: blur(10px);}
+        [data-theme="dark"] .user-badge { background: rgba(0,0,0,0.2); }
 
         /* 岁月拾遗 */
-        .memory-flashback { text-align: center; margin-bottom: 40px; padding: 20px; border-top: 1px solid var(--border-fine); border-bottom: 1px solid var(--border-fine); background: linear-gradient(90deg, transparent, rgba(91, 143, 185, 0.05), transparent); }
-        .memory-title { font-family: var(--font-serif); font-size: 14px; color: var(--accent-bronze); margin-bottom: 10px; letter-spacing: 2px; }
-        .memory-text { font-family: var(--font-serif); font-size: 16px; font-style: italic; cursor: pointer; }
+        .memory-flashback { text-align: center; margin-bottom: 40px; padding: 25px; border-radius: 20px; background: linear-gradient(90deg, transparent, var(--glass-bg), transparent); border: 1px solid var(--border-fine); }
+        .memory-title { font-family: var(--font-serif); font-size: 14px; color: var(--accent-bronze); margin-bottom: 12px; letter-spacing: 2px; }
+        .memory-text { font-family: var(--font-serif); font-size: 16px; font-style: italic; cursor: pointer; line-height: 1.6;}
+
+        /* 水晶控制台 */
+        .control-panel { background: var(--glass-bg); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15); position: relative; overflow: hidden;}
+        [data-theme="dark"] .control-panel { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); }
+        .control-panel::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%); pointer-events: none; }
         
-        .story-legend { text-align: center; font-family: var(--font-serif); font-size: 13px; margin-bottom: 20px; }
-        .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 5px; }
+        .input-group { display: flex; gap: 15px; align-items: center; position: relative; z-index: 1;}
+        .title-input { font-family: var(--font-serif); font-size: 18px; padding: 14px; border-radius: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); width: 100%; box-sizing: border-box; text-align: center; letter-spacing: 2px; color: var(--ink-main); transition: 0.3s;}
+        .note-input { font-family: var(--font-ui); padding: 14px; border-radius: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); flex: 1; color: var(--ink-main); transition: 0.3s;}
+        [data-theme="dark"] .title-input, [data-theme="dark"] .note-input { background: rgba(0,0,0,0.2); }
+        
+        input[type="file"], input[type="date"] { color: var(--ink-main); font-family: var(--font-ui); }
+        input:focus, textarea:focus { border-color: var(--accent-bronze); background: var(--card-bg); outline: none; box-shadow: 0 0 0 4px rgba(230, 168, 215, 0.2);}
+        
+        /* 渐变流光按钮 */
+        button.action-submit { background: linear-gradient(135deg, var(--color-xiaoxin), var(--color-xiaocheng)); color: #FFFFFF; border: none; padding: 14px 28px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(255, 182, 193, 0.4); transition: transform 0.3s, box-shadow 0.3s; }
+        button.action-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255, 182, 193, 0.6); }
 
-        /* 控制台 */
-        .control-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 12px; padding: 25px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; box-shadow: 0 8px 32px rgba(44, 62, 80, 0.05); }
-        .input-group { display: flex; gap: 15px; align-items: center; }
-        .title-input { font-family: var(--font-serif); font-size: 18px; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; width: 100%; box-sizing: border-box; text-align: center; letter-spacing: 2px; color: var(--ink-main);}
-        .note-input { font-family: var(--font-ui); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-fine); background: transparent; flex: 1; color: var(--ink-main);}
-        input[type="file"], input[type="date"] { color: var(--ink-main); }
-        input:focus, textarea:focus { border-color: var(--accent-bronze); background: var(--card-bg); outline: none; box-shadow: 0 0 0 3px rgba(91, 143, 185, 0.15);}
-        button { background: var(--accent-bronze); color: #FFFFFF; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; }
-
-        /* 时间轴与网格 */
-        .timeline-group { margin-bottom: 50px; }
-        .timeline-header { font-family: var(--font-serif); font-size: 18px; color: var(--accent-bronze); margin-bottom: 20px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(10px); padding: 10px 0; border-bottom: 1px solid var(--border-fine); }
-        .grid { display: grid; gap: 25px; }
+        /* 卡片与网格 */
+        .timeline-group { margin-bottom: 60px; }
+        .timeline-header { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin-bottom: 25px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(15px); padding: 15px 20px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .grid { display: grid; gap: 30px; }
         .grid-memory { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
         .grid-list { grid-template-columns: 1fr; }
 
-        /* 卡片通用 */
-        .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border-fine); position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(44, 62, 80, 0.03);}
-        .card img { width: 100%; height: 260px; object-fit: cover; border-bottom: 1px solid var(--border-fine); display: block;}
-        .card-info { padding: 30px 25px; position: relative; }
+        /* 琉璃画框 */
+        .card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.15); backdrop-filter: blur(10px); }
+        [data-theme="dark"] .card { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 15px 40px rgba(255, 182, 193, 0.3); }
+        .card img { width: 100%; height: 280px; object-fit: cover; border-bottom: 1px solid var(--border-fine); display: block;}
+        .card-info { padding: 30px; position: relative; }
         
-        .author-stamp { position: absolute; bottom: 15px; right: 20px; font-family: var(--font-serif); font-size: 12px; color: var(--accent-bronze); opacity: 0.7; }
-        .date { font-size: 12px; color: var(--ink-light); margin-bottom: 15px; display: block; text-align: center; }
+        .author-stamp { position: absolute; bottom: 15px; right: 25px; font-family: var(--font-serif); font-size: 12px; color: var(--ink-light); display: flex; align-items: center; gap: 4px;}
+        .date { font-size: 13px; color: var(--ink-light); margin-bottom: 15px; display: block; text-align: center; letter-spacing: 1px;}
         
-        /* 浮梦小说 */
-        .story-title { font-family: var(--font-serif); font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 20px; letter-spacing: 2px; color: var(--accent-bronze);}
-        .card-story { background: var(--story-bg); }
-        .story-content { font-family: var(--font-serif); font-size: 16px; line-height: 2; text-align: justify; }
+        /* 浮梦小说：精致排版 */
+        .story-title { font-family: var(--font-serif); font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 25px; letter-spacing: 2px; color: var(--ink-main);}
+        .card-story { background: var(--story-bg); border: 1px solid var(--border-fine); }
+        .story-content { font-family: var(--font-serif); font-size: 16px; line-height: 2.2; text-align: justify; }
         .text-xiaocheng { color: var(--color-xiaocheng); }
         .text-xiaoxin { color: var(--color-xiaoxin); }
-        .story-seg { border-radius: 4px; padding: 4px 8px; margin-bottom: 8px; white-space: pre-wrap; word-wrap: break-word; display: block;}
-        .story-seg:hover { background: rgba(91, 143, 185, 0.08); }
+        .story-seg { border-radius: 8px; padding: 4px 10px; margin-bottom: 10px; white-space: pre-wrap; word-wrap: break-word; display: block; transition: 0.3s;}
+        .story-seg:hover { background: rgba(255, 182, 193, 0.1); }
+
+        /* 图例 */
+        .story-legend { text-align: center; font-family: var(--font-serif); font-size: 13px; margin-bottom: 25px; background: var(--glass-bg); padding: 10px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; position: relative; left: 50%; transform: translateX(-50%);}
+        .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 6px; box-shadow: 0 0 8px currentColor;}
 
         /* 编辑模式 */
-        .edit-title { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 18px; padding: 10px; margin-bottom: 20px; border: 1px solid var(--accent-bronze); background: transparent; color: var(--ink-main); border-radius: 6px; text-align: center;}
-        .edit-seg-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
-        .seg-author-badge { font-family: var(--font-serif); font-size: 12px; padding: 4px 8px; border-radius: 4px; color: white; white-space: nowrap; margin-top: 5px;}
+        .edit-title { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 18px; padding: 12px; margin-bottom: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); border-radius: 12px; text-align: center;}
+        .edit-seg-row { display: flex; gap: 12px; margin-bottom: 15px; align-items: flex-start; }
+        .seg-author-badge { font-family: var(--font-serif); font-size: 12px; padding: 6px 10px; border-radius: 8px; color: white; white-space: nowrap; margin-top: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
         .bg-xiaocheng { background: var(--color-xiaocheng); }
         .bg-xiaoxin { background: var(--color-xiaoxin); }
-        .seg-textarea { flex: 1; font-family: var(--font-serif); font-size: 16px; line-height: 1.8; padding: 10px; border: 1px solid var(--border-fine); background: transparent; color: var(--ink-main); border-radius: 6px; outline: none; resize: vertical; min-height: 80px; }
-        .add-seg-btn { width: 100%; background: transparent; border: 1px dashed var(--accent-bronze); color: var(--accent-bronze); padding: 10px; margin-top: 10px; }
-        
-        .edit-area { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 16px; line-height: 1.8; padding: 10px; border: 1px solid var(--accent-bronze); background: transparent; color: var(--ink-main); border-radius: 6px; outline: none; resize: vertical; min-height: 120px; }
-        .edit-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: center;}
+        .seg-textarea { flex: 1; font-family: var(--font-serif); font-size: 16px; line-height: 2; padding: 12px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); border-radius: 12px; outline: none; resize: vertical; min-height: 80px; }
+        .add-seg-btn { width: 100%; background: rgba(255, 255, 255, 0.3); border: 2px dashed var(--accent-bronze); color: var(--ink-main); padding: 12px; margin-top: 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; font-family: var(--font-serif);}
+        .add-seg-btn:hover { background: var(--accent-bronze); color: white; }
+        [data-theme="dark"] .edit-title, [data-theme="dark"] .seg-textarea, [data-theme="dark"] .edit-area { background: rgba(0,0,0,0.3); }
 
-        /* 操作按钮 */
-        .actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; opacity: 0; z-index: 20;}
+        .edit-area { width: 100%; box-sizing: border-box; font-family: var(--font-serif); font-size: 16px; line-height: 2; padding: 15px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.5); color: var(--ink-main); border-radius: 12px; outline: none; resize: vertical; min-height: 120px; }
+        .edit-actions { display: flex; gap: 15px; margin-top: 25px; justify-content: center;}
+        .btn-cancel { background: transparent !important; border: 1px solid var(--border-fine) !important; color: var(--ink-main) !important; box-shadow: none !important; }
+
+        /* 悬浮操作按钮 */
+        .actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; opacity: 0; z-index: 20;}
         .card:hover .actions { opacity: 1; }
-        .action-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--accent-bronze); }
-        .action-btn:hover { color: #FFFFFF; background: var(--accent-bronze); border-color: var(--accent-bronze); }
-        .btn-delete:hover { color: #FFFFFF; background: var(--accent-red); border-color: var(--accent-red); }
+        .action-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--border-fine); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink-light); backdrop-filter: blur(10px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s;}
+        .action-btn:hover { color: white; background: var(--accent-bronze); border-color: var(--accent-bronze); transform: scale(1.1);}
+        .btn-delete:hover { background: #FF9AA2; border-color: #FF9AA2; }
 
-        /* 心愿与常规文字 */
-        .wish-item { display: flex; align-items: center; gap: 15px; }
-        .wish-checkbox { width: 20px; height: 20px; accent-color: var(--accent-bronze); }
-        .wish-completed { text-decoration: line-through; color: var(--ink-light); }
-        .note { font-family: var(--font-serif); font-size: 16px; line-height: 2; color: var(--ink-main); white-space: pre-wrap; }
+        /* 心愿与文字 */
+        .wish-item { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.4); padding: 10px 15px; border-radius: 12px; border: 1px solid var(--border-fine);}
+        [data-theme="dark"] .wish-item { background: rgba(0,0,0,0.2); }
+        .wish-checkbox { width: 22px; height: 22px; accent-color: var(--accent-bronze); cursor: pointer;}
+        .wish-completed { text-decoration: line-through; color: var(--ink-light); opacity: 0.7;}
+        .note { font-family: var(--font-serif); font-size: 16px; line-height: 2.2; color: var(--ink-main); white-space: pre-wrap; }
         
-        .capsule-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 260px; background: var(--glass-bg); backdrop-filter: blur(15px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; border-bottom: 1px solid var(--border-fine); }
+        /* 时光胶囊 */
+        .capsule-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 280px; background: var(--glass-bg); backdrop-filter: blur(20px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; border-bottom: 1px solid var(--border-fine); }
+        .capsule-overlay div:first-child { font-size: 32px; filter: drop-shadow(0 4px 10px rgba(255,182,193,0.5)); }
 
         /* ================= 移动端极致适配 ================= */
         @media (max-width: 600px) {
             #app { padding: 20px 15px; }
             .header { margin-bottom: 25px; }
-            .nav-tabs { gap: 15px; }
+            .nav-tabs { gap: 20px; }
             .tab { font-size: 16px; }
-            .control-panel { padding: 15px; margin-bottom: 30px;}
-            .input-group { flex-direction: column; align-items: stretch; gap: 10px; }
+            .control-panel { padding: 20px; margin-bottom: 30px;}
+            .input-group { flex-direction: column; align-items: stretch; gap: 12px; }
             .input-group input[type="file"] { width: 100% !important; }
-            button { width: 100%; padding: 14px; font-size: 16px; }
-            .actions { opacity: 1; background: var(--glass-bg); padding: 5px; border-radius: 20px; border: 1px solid var(--border-fine);}
-            .action-btn { width: 28px; height: 28px; font-size: 12px;}
-            .card-info { padding: 20px 15px 35px 15px; }
+            button.action-submit { width: 100%; padding: 15px; font-size: 16px; }
+            .actions { opacity: 1; background: var(--glass-bg); padding: 6px; border-radius: 25px; border: 1px solid var(--border-fine); backdrop-filter: blur(10px);}
+            .action-btn { width: 30px; height: 30px; font-size: 12px;}
+            .card-info { padding: 25px 20px 40px 20px; }
             .story-content { font-size: 15px; }
-            .author-stamp { bottom: 10px; right: 15px; }
+            .author-stamp { bottom: 15px; right: 20px; }
+            .login-box { padding: 35px 20px; width: 85%; }
         }
     </style>
 </head>
@@ -163,10 +209,10 @@
 <div id="app">
     <div v-if="!currentUser" class="login-overlay">
         <div class="login-box">
-            <h1>叩门</h1>
-            <input type="password" v-model="loginCode" @keyup.enter="login" placeholder="输入暗号...">
+            <h1>开启梦境 🎀</h1>
+            <input type="password" v-model="loginCode" @keyup.enter="login" placeholder="输入魔法暗号...">
             <div style="margin-top:20px; font-size:12px; color:var(--ink-light);">
-                (暗号：xiaoxin 或 xiaocheng)
+                (悄悄话：xiaoxin 或 xiaocheng)
             </div>
         </div>
     </div>
@@ -181,52 +227,52 @@
             </div>
             
             <div class="header-actions">
-                <button class="theme-toggle" @click="toggleTheme" :title="isDarkMode ? '切换至白昼' : '切换至暗夜'">
-                    {{ isDarkMode ? '🌙' : '☀️' }}
+                <button class="theme-toggle" @click="toggleTheme" :title="isDarkMode ? '切换至晨曦' : '切换至星空'">
+                    {{ isDarkMode ? '🌙' : '✨' }}
                 </button>
                 <div class="user-badge" @click="logout" title="点击可退出">
-                    {{ currentUser }} 印
+                    👑 {{ currentUser }}
                 </div>
             </div>
         </div>
 
         <div v-if="currentTab === 'story'" class="story-legend">
-            <span class="legend-dot bg-xiaocheng"></span> 小橙字迹 &nbsp;&nbsp;
+            <span class="legend-dot bg-xiaocheng"></span> 小橙字迹 &nbsp;&nbsp;&nbsp;
             <span class="legend-dot bg-xiaoxin"></span> 小心字迹
         </div>
 
         <div class="control-panel">
-            <input v-if="currentTab === 'story'" type="text" v-model="newTitle" class="title-input" placeholder="《 篇章名 》 (如：末日废土篇)...">
+            <input v-if="currentTab === 'story'" type="text" v-model="newTitle" class="title-input" placeholder="《 篇章名 》 (如：仲夏夜之梦)...">
             <div class="input-group">
                 <input v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story'" type="file" @change="handleFile" accept="image/*" style="width:200px;">
                 <input type="date" v-model="newDate">
                 <input type="text" class="note-input" v-model="newNote" :placeholder="placeholderText" @keyup.enter="uploadItem">
-                <button @click="uploadItem">{{ btnText }}</button>
+                <button class="action-submit" @click="uploadItem">{{ btnText }}</button>
             </div>
         </div>
 
         <div v-for="(itemsInGroup, monthYear) in groupedItems" :key="monthYear" class="timeline-group">
-            <div class="timeline-header">{{ monthYear }}</div>
+            <div class="timeline-header">🌸 {{ monthYear }}</div>
             
             <div :class="['grid', currentTab === 'memory' ? 'grid-memory' : 'grid-list']">
                 <div v-for="item in itemsInGroup" :key="item._id" :class="['card', {'card-story': currentTab === 'story'}]">
                     
                     <div class="actions">
-                        <button class="action-btn" @click="startEdit(item)" title="修编/续写">✎</button>
-                        <button class="action-btn btn-delete" @click="deleteItem(item._id)" title="抹去">×</button>
+                        <button class="action-btn" @click="startEdit(item)" title="施展魔法(修改)">✎</button>
+                        <button class="action-btn btn-delete" @click="deleteItem(item._id)" title="消除回忆">×</button>
                     </div>
 
                     <template v-if="item.url && (currentTab === 'memory' || currentTab === 'story')">
                         <div v-if="isFuture(item.time)" class="capsule-overlay">
-                            <div style="font-size:24px; margin-bottom:10px;">✉️</div>
-                            <div style="font-family: var(--font-serif); color:var(--ink-light);">静待花开时</div>
+                            <div>💌</div>
+                            <div style="font-family: var(--font-serif); color:var(--ink-main); font-weight:bold; letter-spacing:2px; margin-top:10px;">魔法尚未解封</div>
                         </div>
                         <img :src="item.url" @click="!isFuture(item.time) && viewFull(item.url)">
                     </template>
-                    <img v-if="item.url && currentTab === 'wish'" :src="item.url" style="height: 150px;">
+                    <img v-if="item.url && currentTab === 'wish'" :src="item.url" style="height: 160px;">
 
                     <div class="card-info">
-                        <span class="date">{{ formatDate(item.date) }}</span>
+                        <span class="date">✦ {{ formatDate(item.date) }} ✦</span>
                         
                         <div v-if="editingId === item._id">
                             <template v-if="currentTab === 'story'">
@@ -236,9 +282,9 @@
                                         {{ seg.author }}
                                     </span>
                                     <textarea class="seg-textarea" v-model="seg.text"></textarea>
-                                    <button @click="editSegments.splice(index, 1)" class="action-btn" style="margin-top:5px;" title="删除此段">×</button>
+                                    <button @click="editSegments.splice(index, 1)" class="action-btn" style="margin-top:10px;" title="删除此段">×</button>
                                 </div>
-                                <button class="add-seg-btn" @click="addNewSegment">✦ 续写新段落</button>
+                                <button class="add-seg-btn" @click="addNewSegment">✨ 续写新的魔法段落</button>
                             </template>
                             
                             <template v-else>
@@ -246,8 +292,8 @@
                             </template>
 
                             <div class="edit-actions">
-                                <button @click="saveEdit(item._id)">保存落笔</button>
-                                <button style="background:transparent; border:1px solid var(--border-fine); color:var(--ink-main);" @click="cancelEdit">取消</button>
+                                <button class="action-submit" @click="saveEdit(item._id)">保存魔法</button>
+                                <button class="action-submit btn-cancel" @click="cancelEdit">取消</button>
                             </div>
                         </div>
 
@@ -269,15 +315,15 @@
                                     <span :class="['note', {'wish-completed': item.completed}]">{{ item.note }}</span>
                                 </div>
                                 <div v-else class="note">
-                                    <template v-if="currentTab === 'memory' && isFuture(item.time)">[ 时光胶囊 · 尚未解封 ]</template>
+                                    <template v-if="currentTab === 'memory' && isFuture(item.time)">[ 沉睡在时光里的胶囊 ]</template>
                                     <template v-else>{{ item.note }}</template>
                                 </div>
                             </template>
                         </div>
 
                         <div class="author-stamp">
-                            <span v-if="currentTab === 'story'">共创平行宇宙</span>
-                            <span v-else>记录者：{{ item.author }}</span>
+                            <span v-if="currentTab === 'story'">共创梦境</span>
+                            <span v-else>落笔：{{ item.author }}</span>
                         </div>
                     </div>
                 </div>
@@ -303,10 +349,10 @@
         },
         computed: {
             placeholderText() {
-                if (this.currentTab === 'memory') return '记叙那一刻的回忆...';
-                if (this.currentTab === 'diary') return '写下今天的随笔碎语...';
-                if (this.currentTab === 'story') return '在这个世界里，你写下了第一句话...';
-                return '许下一个愿望...';
+                if (this.currentTab === 'memory') return '珍藏那一刻的闪光...';
+                if (this.currentTab === 'diary') return '写下今天的碎碎念...';
+                if (this.currentTab === 'story') return '在这个世界里，你写下了第一句魔法...';
+                return '许下属于我们的星愿...';
             },
             btnText() {
                 if (this.currentTab === 'memory') return '入卷';
@@ -331,7 +377,7 @@
             login() {
                 if (this.loginCode === 'xiaoxin') this.currentUser = '小心';
                 else if (this.loginCode === 'xiaocheng') this.currentUser = '小橙';
-                else return alert('暗号有误，门扉紧闭');
+                else return alert('魔法暗号不对哦，门扉紧闭');
                 
                 localStorage.setItem('orange_user', this.currentUser);
                 this.initApp();
@@ -356,7 +402,7 @@
             },
             handleFile(e) { this.selectedFile = e.target.files[0]; },
             async uploadItem() {
-                if (!this.newNote && !this.selectedFile) return alert("总得留下些什么痕迹吧？");
+                if (!this.newNote && !this.selectedFile) return alert("总得留下点魔法痕迹吧？");
                 
                 const fd = new FormData();
                 if (this.selectedFile) fd.append('file', this.selectedFile);
@@ -381,14 +427,14 @@
                     if(fileInput) fileInput.value = '';
                     
                     this.getItems();
-                } catch (error) { alert("记录失败，请稍后重试"); }
+                } catch (error) { alert("记录失败，请稍后再试"); }
             },
             async getItems() {
                 const res = await axios.get(`/api/items?category=${this.currentTab}`);
                 this.items = res.data;
             },
             async deleteItem(id) {
-                if (confirm("是否确认将此记忆抹去？")) {
+                if (confirm("真的要消除这段回忆吗？")) {
                     await axios.delete(`/api/items/${id}`);
                     this.getItems();
                 }
