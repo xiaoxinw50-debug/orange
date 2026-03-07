@@ -184,10 +184,16 @@
         .fun-title { font-family: var(--font-serif); font-size: 24px; margin: 0 0 12px; color: var(--ink-main); }
         .fun-text { font-size: 14px; color: var(--ink-light); line-height: 1.8; margin-bottom: 16px; }
         .surprise-display { min-height: 220px; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-radius: 20px; border: 1px dashed var(--border-fine); padding: 22px; background: rgba(255,255,255,0.24); }
+        .surprise-display.rolling { position: relative; overflow: hidden; }
+        .surprise-display.rolling::after { content: ''; position: absolute; inset: -40%; background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%); animation: capsuleSweep 1.2s linear infinite; }
         .surprise-kicker { font-size: 13px; letter-spacing: 1px; color: var(--ink-light); }
         .surprise-title { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
         .surprise-meta { font-size: 13px; color: var(--ink-light); }
         .surprise-task { font-family: var(--font-serif); font-size: 18px; line-height: 1.9; color: var(--ink-main); }
+        .surprise-rolling-title { font-family: var(--font-serif); font-size: 28px; color: var(--ink-main); animation: capsuleBounce 0.9s ease-in-out infinite; }
+        .surprise-rolling-sub { font-size: 14px; color: var(--ink-light); }
+        @keyframes capsuleSweep { from { transform: translateX(-45%) rotate(18deg); } to { transform: translateX(45%) rotate(18deg); } }
+        @keyframes capsuleBounce { 0%, 100% { transform: translateY(0); opacity: 0.7; } 50% { transform: translateY(-6px); opacity: 1; } }
         .badge-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; margin-top: 18px; }
         .badge-card { border-radius: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.45); padding: 18px; text-align: center; transition: 0.25s; }
         .badge-card.unlocked { box-shadow: 0 10px 24px rgba(255, 182, 193, 0.18); transform: translateY(-2px); }
@@ -195,6 +201,30 @@
         .badge-icon { font-size: 34px; margin-bottom: 10px; }
         .badge-name { font-family: var(--font-serif); font-size: 17px; color: var(--ink-main); margin-bottom: 8px; }
         .badge-desc { font-size: 13px; color: var(--ink-light); line-height: 1.6; }
+        .quiz-stage { display: grid; gap: 14px; }
+        .quiz-prompt { font-family: var(--font-serif); font-size: 22px; color: var(--ink-main); line-height: 1.7; }
+        .quiz-meta { font-size: 13px; color: var(--ink-light); }
+        .quiz-options { display: grid; gap: 12px; margin-top: 8px; }
+        .quiz-option { width: 100%; text-align: left; border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.44); padding: 14px 16px; color: var(--ink-main); font-family: var(--font-ui); cursor: pointer; transition: 0.2s; }
+        .quiz-option:hover { transform: translateY(-2px); border-color: var(--accent-bronze); }
+        .quiz-sealed { border-radius: 16px; border: 1px dashed var(--border-fine); padding: 18px; background: rgba(255,255,255,0.2); text-align: center; color: var(--ink-light); }
+        .quiz-result { border-radius: 18px; padding: 18px; background: rgba(255,255,255,0.3); border: 1px solid var(--border-fine); }
+        .quiz-result.match { background: linear-gradient(135deg, rgba(255,183,178,0.28), rgba(130,202,255,0.28)); }
+        .quiz-score { font-family: var(--font-serif); font-size: 18px; color: var(--ink-main); }
+        .particle-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1400; }
+        .particle-burst { position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size); border-radius: 999px; background: hsl(var(--hue), 90%, 72%); opacity: 0; animation: particleBurst var(--dur) ease-out forwards; animation-delay: var(--delay); box-shadow: 0 0 18px rgba(255,255,255,0.28); }
+        @keyframes particleBurst {
+            0% { transform: translate3d(0, 0, 0) scale(0.3); opacity: 0; }
+            12% { opacity: 1; }
+            100% { transform: translate3d(var(--dx), var(--dy), 0) rotate(240deg) scale(1); opacity: 0; }
+        }
+        .achievement-modal-backdrop { position: fixed; inset: 0; background: rgba(28, 18, 38, 0.45); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 1500; padding: 20px; }
+        .achievement-modal { width: min(460px, 100%); background: var(--card-bg); border-radius: 28px; border: 1px solid var(--border-fine); padding: 30px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.18); animation: modalRise 0.28s ease-out; }
+        .achievement-modal-icon { font-size: 56px; margin-bottom: 14px; }
+        .achievement-modal-kicker { font-size: 13px; color: var(--ink-light); letter-spacing: 2px; margin-bottom: 8px; }
+        .achievement-modal-title { font-family: var(--font-serif); font-size: 28px; color: var(--ink-main); margin-bottom: 10px; }
+        .achievement-modal-text { font-size: 14px; line-height: 1.8; color: var(--ink-light); margin-bottom: 20px; }
+        @keyframes modalRise { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
         .timeline-group { margin-bottom: 60px; }
         .timeline-header { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin-bottom: 25px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(15px); padding: 15px 20px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
@@ -333,6 +363,23 @@
         </div>
 
         <div v-if="notice.text" :class="['notice', notice.type]">{{ notice.text }}</div>
+        <div class="particle-layer">
+            <span
+                v-for="particle in particles"
+                :key="particle.id"
+                class="particle-burst"
+                :style="particle.style"
+            ></span>
+        </div>
+        <div v-if="activeAchievement" class="achievement-modal-backdrop" @click.self="dismissAchievementModal">
+            <div class="achievement-modal">
+                <div class="achievement-modal-icon">{{ activeAchievement.icon }}</div>
+                <div class="achievement-modal-kicker">ACHIEVEMENT UNLOCKED</div>
+                <div class="achievement-modal-title">{{ activeAchievement.name }}</div>
+                <div class="achievement-modal-text">{{ activeAchievement.description }}</div>
+                <button class="action-submit" @click="dismissAchievementModal">收下这枚徽章</button>
+            </div>
+        </div>
 
         <div v-if="currentTab === 'game'" class="tarot-board midnight-mode">
             
@@ -506,8 +553,13 @@
             <div class="fun-card">
                 <h3 class="fun-title">时光扭蛋</h3>
                 <div class="fun-text">从你们已经写下的内容里随机抽一张，适合深夜重温，也适合没灵感的时候重新打开故事。</div>
-                <div class="surprise-display">
-                    <template v-if="surpriseItem">
+                <div :class="['surprise-display', { rolling: surpriseLoading }]">
+                    <template v-if="surpriseLoading">
+                        <div class="surprise-kicker">CAPSULE MACHINE</div>
+                        <div class="surprise-rolling-title">{{ surpriseRollingText }}</div>
+                        <div class="surprise-rolling-sub">扭蛋正在晃动，回忆碎片掉下来之前先屏住呼吸。</div>
+                    </template>
+                    <template v-else-if="surpriseItem">
                         <div class="surprise-kicker">{{ getCategoryLabel(surpriseItem.category) }} · {{ surpriseItem.author }}</div>
                         <div class="surprise-title">{{ getItemDisplayTitle(surpriseItem) }}</div>
                         <div v-if="surpriseItem.mood" class="mood-badge">{{ getMoodLabel(surpriseItem.mood) }}</div>
@@ -535,6 +587,44 @@
                 <div class="input-group" style="margin-top: 16px;">
                     <button class="action-submit" @click="drawSurpriseTask">抽一个今日任务</button>
                     <button v-if="surpriseTask" class="action-submit secondary-btn" @click="saveSurpriseTaskToWish">存进心愿</button>
+                </div>
+            </div>
+
+            <div class="fun-card wide">
+                <h3 class="fun-title">双人默契问答</h3>
+                <div class="fun-text">同一道题，两个人轮流偷偷选答案，最后揭晓你们是不是想到一块去了。</div>
+                <div class="quiz-stage">
+                    <div class="quiz-meta">第 {{ syncRound }} 题 · 已命中 {{ playStats.syncMatches }} 次默契</div>
+                    <div class="quiz-prompt">{{ currentSyncQuestion.prompt }}</div>
+
+                    <div v-if="syncPhase === 'answering'" class="quiz-options">
+                        <div class="quiz-meta">轮到 {{ currentSyncPlayer }} 选择。选完后会先封存，不会立刻显示。</div>
+                        <button
+                            v-for="option in currentSyncQuestion.options"
+                            :key="option.key"
+                            type="button"
+                            class="quiz-option"
+                            @click="submitSyncAnswer(option.key)"
+                        >
+                            {{ option.text }}
+                        </button>
+                    </div>
+
+                    <div v-else-if="syncPhase === 'sealed'" class="quiz-sealed">
+                        {{ sealedPlayer }} 的答案已经封存。把屏幕交给 {{ nextSyncPlayer }}，再点下面继续。
+                        <div class="input-group" style="justify-content:center; margin-top: 14px;">
+                            <button class="action-submit secondary-btn" @click="beginNextSyncTurn">轮到 {{ nextSyncPlayer }}</button>
+                        </div>
+                    </div>
+
+                    <div v-else class="quiz-result" :class="{ match: syncMatched }">
+                        <div class="quiz-score">{{ syncMatched ? '默契命中' : '这次没想到一起' }}</div>
+                        <div class="review-item-text" style="margin-top: 10px;">小橙：{{ getSyncOptionText(syncAnswers.小橙) }}</div>
+                        <div class="review-item-text">小心：{{ getSyncOptionText(syncAnswers.小心) }}</div>
+                        <div class="input-group" style="justify-content:center; margin-top: 16px;">
+                            <button class="action-submit" @click="nextSyncQuestion">{{ syncMatched ? '再来一道' : '换一题继续' }}</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -701,7 +791,19 @@
                 filterQuery: '', filterAuthor: '', filterMood: '', filterFrom: '', filterTo: '',
                 reviewData: null, reviewDate: '', reviewLoading: false, relationshipBaseDate: '',
                 selectedMood: '',
-                surpriseItem: null, surpriseTask: null, surpriseLoading: false,
+                surpriseItem: null, surpriseTask: null, surpriseLoading: false, surpriseRollingText: '回忆扭蛋准备中',
+                particles: [],
+                activeAchievement: null,
+                achievementQueue: [],
+                playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0 },
+                syncPhase: 'answering',
+                syncRound: 1,
+                syncQuestionIndex: 0,
+                syncCurrentPlayer: '小橙',
+                sealedPlayer: '',
+                nextSyncPlayer: '小心',
+                syncMatched: false,
+                syncAnswers: { '小橙': '', '小心': '' },
                 moodOptions: [
                     { key: 'spark', label: '✨ 怦然' },
                     { key: 'hug', label: '🤍 依偎' },
@@ -718,6 +820,14 @@
                     { tag: '小冒险', title: '交换歌单', text: '互相给对方发一首“最像你”的歌，并解释为什么。' },
                     { tag: '亲密互动', title: '安静抱抱', text: '放下手机，认真抱 60 秒，不说话，只感受呼吸和心跳。' },
                     { tag: '记录灵感', title: '双人一句话小说', text: '你一句我一句，现场续写一个只属于你们的 10 句短故事。' }
+                ],
+                syncQuestions: [
+                    { prompt: '如果你们今晚突然能瞬移，最想一起出现在哪里？', options: [{ key: 'sea', text: '海边散步' }, { key: 'hotel', text: '陌生城市小酒店' }, { key: 'home', text: '家里窝着不出门' }] },
+                    { prompt: '哪种小动作最容易让对方瞬间心软？', options: [{ key: 'hug', text: '从背后抱住' }, { key: 'look', text: '安静盯着看' }, { key: 'touch', text: '摸头或捏脸' }] },
+                    { prompt: '如果今天只能留下一条新回忆，你更想记录什么？', options: [{ key: 'photo', text: '一张照片' }, { key: 'story', text: '一段对话' }, { key: 'date', text: '一次出门体验' }] },
+                    { prompt: '你觉得对方最适合哪种约会氛围？', options: [{ key: 'quiet', text: '安静慢慢来' }, { key: 'wild', text: '临时起意瞎闯' }, { key: 'ritual', text: '有仪式感地安排好' }] },
+                    { prompt: '深夜最想和对方一起做什么？', options: [{ key: 'movie', text: '窝着看电影' }, { key: 'walk', text: '出去散步吹风' }, { key: 'talk', text: '躺着长聊到睡着' }] },
+                    { prompt: '如果要给今天的关系气氛起个代号，你会选哪个？', options: [{ key: 'spark', text: '火花四溅' }, { key: 'soft', text: '奶油融化' }, { key: 'storm', text: '疯玩到失控' }] }
                 ],
                 
                 // 🔮 塔罗牌相关状态
@@ -811,6 +921,12 @@
             showComposer() { return ['memory', 'album', 'diary', 'wish', 'story'].includes(this.currentTab); },
             showFilters() { return ['memory', 'album', 'diary', 'wish', 'story', 'recycle'].includes(this.currentTab); },
             showListView() { return ['memory', 'album', 'diary', 'wish', 'story', 'recycle'].includes(this.currentTab); },
+            currentSyncQuestion() {
+                return this.syncQuestions[this.syncQuestionIndex] || { prompt: '', options: [] };
+            },
+            currentSyncPlayer() {
+                return this.syncCurrentPlayer;
+            },
             achievementCards() {
                 const items = this.allItemsForStats || [];
                 const total = items.length;
@@ -819,6 +935,9 @@
                 const wishesDone = items.filter(item => item.category === 'wish' && item.completed).length;
                 const moodsUsed = new Set(items.map(item => item.mood).filter(Boolean)).size;
                 const authors = new Set(items.map(item => item.author).filter(Boolean)).size;
+                const draws = this.playStats.surpriseDraws || 0;
+                const syncMatches = this.playStats.syncMatches || 0;
+                const taskSaves = this.playStats.taskSaves || 0;
 
                 return [
                     { key: 'first', icon: '🌱', name: '初次落笔', condition: '留下任意 1 条内容', unlocked: total >= 1, description: '你们已经把这个小宇宙真正启动了。' },
@@ -826,7 +945,10 @@
                     { key: 'story', icon: '📖', name: '连载作者', condition: '写下 3 篇浮梦', unlocked: stories >= 3, description: '你们已经不只是记录，而是在共同连载故事。' },
                     { key: 'wish', icon: '🎯', name: '愿望兑现师', condition: '完成 5 个心愿', unlocked: wishesDone >= 5, description: '想法不再只是想法，已经开始变成现实。' },
                     { key: 'mood', icon: '🎨', name: '情绪采样员', condition: '使用 4 种不同心情贴纸', unlocked: moodsUsed >= 4, description: '你们的记录开始有了更丰富的颜色和温度。' },
-                    { key: 'duo', icon: '🤝', name: '双人共振', condition: '两个人都留下过内容', unlocked: authors >= 2, description: '这不再是一人的独白，而是真正的双人宇宙。' }
+                    { key: 'duo', icon: '🤝', name: '双人共振', condition: '两个人都留下过内容', unlocked: authors >= 2, description: '这不再是一人的独白，而是真正的双人宇宙。' },
+                    { key: 'capsule', icon: '🎁', name: '扭蛋成瘾', condition: '抽取 5 次回忆扭蛋', unlocked: draws >= 5, description: '你们已经开始把随机回忆当成一项正式娱乐。' },
+                    { key: 'telepathy', icon: '🫶', name: '心电感应', condition: '默契问答命中 3 次', unlocked: syncMatches >= 3, description: '不用说出口，也能猜到对方会怎么选。' },
+                    { key: 'planner', icon: '📝', name: '任务派发员', condition: '把 3 个任务盲盒存进心愿', unlocked: taskSaves >= 3, description: '随机小游戏已经开始接管你们的日程。' }
                 ];
             },
             emptyStateText() {
@@ -907,6 +1029,112 @@
                 }
                 return '这条记录里没有留下更多文字。';
             },
+            loadPlayStats() {
+                try {
+                    const raw = localStorage.getItem('orange_play_stats');
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    this.playStats = {
+                        surpriseDraws: Number(parsed.surpriseDraws || 0),
+                        syncMatches: Number(parsed.syncMatches || 0),
+                        taskSaves: Number(parsed.taskSaves || 0)
+                    };
+                } catch (error) {}
+            },
+            persistPlayStats() {
+                localStorage.setItem('orange_play_stats', JSON.stringify(this.playStats));
+            },
+            incrementPlayStat(key, amount = 1) {
+                this.playStats = {
+                    ...this.playStats,
+                    [key]: Number(this.playStats[key] || 0) + amount
+                };
+                this.persistPlayStats();
+                this.checkAchievementUnlocks();
+            },
+            playSuccessTone() {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                try {
+                    if (!this.audioCtx) this.audioCtx = new AudioCtx();
+                    const ctx = this.audioCtx;
+                    const now = ctx.currentTime;
+                    [440, 554.37, 659.25].forEach((freq, index) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.0001, now);
+                        gain.gain.exponentialRampToValueAtTime(0.05, now + 0.02 + index * 0.03);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28 + index * 0.04);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + index * 0.03);
+                        osc.stop(now + 0.35 + index * 0.04);
+                    });
+                } catch (error) {}
+            },
+            launchParticles(origin = { x: '50%', y: '32%' }, count = 20) {
+                const particles = Array.from({ length: count }, (_, index) => {
+                    const hue = Math.round(330 + Math.random() * 90);
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 80 + Math.random() * 180;
+                    const dx = `${Math.cos(angle) * distance}px`;
+                    const dy = `${Math.sin(angle) * distance - 40}px`;
+                    return {
+                        id: `${Date.now()}-${index}-${Math.random().toString(16).slice(2)}`,
+                        style: {
+                            '--x': origin.x,
+                            '--y': origin.y,
+                            '--dx': dx,
+                            '--dy': dy,
+                            '--delay': `${Math.random() * 0.08}s`,
+                            '--dur': `${0.8 + Math.random() * 0.45}s`,
+                            '--size': `${8 + Math.random() * 10}px`,
+                            '--hue': hue
+                        }
+                    };
+                });
+                this.particles = particles;
+                window.clearTimeout(this.particleTimer);
+                this.particleTimer = window.setTimeout(() => {
+                    this.particles = [];
+                }, 1400);
+            },
+            checkAchievementUnlocks() {
+                const storageKey = 'orange_known_achievements';
+                const unlocked = this.achievementCards.filter(item => item.unlocked);
+                const unlockedKeys = unlocked.map(item => item.key);
+                let knownKeys = [];
+                try {
+                    knownKeys = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                } catch (error) {
+                    knownKeys = [];
+                }
+                if (!localStorage.getItem(storageKey)) {
+                    localStorage.setItem(storageKey, JSON.stringify(unlockedKeys));
+                    return;
+                }
+                const fresh = unlocked.filter(item => !knownKeys.includes(item.key));
+                if (fresh.length > 0) {
+                    localStorage.setItem(storageKey, JSON.stringify([...new Set([...knownKeys, ...fresh.map(item => item.key)])]));
+                    this.achievementQueue.push(...fresh);
+                    if (!this.activeAchievement) this.showNextAchievement();
+                }
+            },
+            showNextAchievement() {
+                const next = this.achievementQueue.shift();
+                if (!next) return;
+                this.activeAchievement = next;
+                this.playSuccessTone();
+                this.launchParticles({ x: '50%', y: '50%' }, 24);
+            },
+            dismissAchievementModal() {
+                this.activeAchievement = null;
+                if (this.achievementQueue.length > 0) {
+                    window.setTimeout(() => this.showNextAchievement(), 120);
+                }
+            },
             formatDateTime(dateString) {
                 return new Date(dateString).toLocaleString('zh-CN', {
                     year: 'numeric',
@@ -948,6 +1176,7 @@
                 if (tab === 'stats' || tab === 'surprise') this.fetchAllItemsForStats();
                 else if (tab === 'review') this.loadAnniversaryReview();
                 else if (tab !== 'tarot' && tab !== 'game') this.getItems();
+                if (tab === 'surprise' && !this.surpriseTask) this.drawSurpriseTask();
             },
             applyFilters() {
                 if (this.currentTab === 'review') this.loadAnniversaryReview();
@@ -981,30 +1210,93 @@
                 }
             },
             async drawSurpriseItem() {
+                if (this.surpriseLoading) return;
                 this.surpriseLoading = true;
+                const candidates = (this.allItemsForStats || []).map(item => this.getItemDisplayTitle(item)).filter(Boolean);
+                const fallbackTitles = ['回忆扭蛋滚动中', '琉璃碎片翻转中', '故事书页正在落下'];
+                const pool = candidates.length > 0 ? candidates : fallbackTitles;
+                this.surpriseRollingText = pool[Math.floor(Math.random() * pool.length)];
+                window.clearInterval(this.surpriseRollTimer);
+                this.surpriseRollTimer = window.setInterval(() => {
+                    this.surpriseRollingText = pool[Math.floor(Math.random() * pool.length)];
+                }, 180);
                 try {
-                    const res = await axios.get('/api/fun/surprise');
+                    const [res] = await Promise.all([
+                        axios.get('/api/fun/surprise'),
+                        new Promise(resolve => window.setTimeout(resolve, 1150))
+                    ]);
                     this.surpriseItem = res.data;
-                    if (!res.data) this.showNotice('info', '还没有可抽取的内容，先记录一点新回忆吧');
+                    if (res.data) {
+                        this.incrementPlayStat('surpriseDraws');
+                        this.launchParticles({ x: '27%', y: '38%' }, 18);
+                    } else {
+                        this.showNotice('info', '还没有可抽取的内容，先记录一点新回忆吧');
+                    }
                 } catch (error) {
                     this.showNotice('error', this.getErrorMessage(error, '回忆扭蛋抽取失败'));
                 } finally {
+                    window.clearInterval(this.surpriseRollTimer);
                     this.surpriseLoading = false;
                 }
             },
             drawSurpriseTask() {
                 const randomIndex = Math.floor(Math.random() * this.surpriseTaskDeck.length);
                 this.surpriseTask = this.surpriseTaskDeck[randomIndex];
+                this.launchParticles({ x: '74%', y: '40%' }, 14);
                 this.vibrate([40, 40, 40]);
             },
             saveSurpriseTaskToWish() {
                 if (!this.surpriseTask) return;
+                this.incrementPlayStat('taskSaves');
                 this.switchTab('wish');
                 this.$nextTick(() => {
                     this.newNote = `${this.surpriseTask.title}：${this.surpriseTask.text}`;
                     this.selectedMood = 'spark';
                     this.showNotice('success', '任务已经写进心愿输入框了');
                 });
+            },
+            getSyncOptionText(optionKey) {
+                const option = this.currentSyncQuestion.options.find(item => item.key === optionKey);
+                return option ? option.text : '未作答';
+            },
+            submitSyncAnswer(optionKey) {
+                this.syncAnswers = {
+                    ...this.syncAnswers,
+                    [this.syncCurrentPlayer]: optionKey
+                };
+                if (this.syncCurrentPlayer === '小橙') {
+                    this.sealedPlayer = '小橙';
+                    this.nextSyncPlayer = '小心';
+                    this.syncCurrentPlayer = '小橙';
+                    this.syncPhase = 'sealed';
+                } else {
+                    this.syncMatched = this.syncAnswers.小橙 === optionKey;
+                    this.syncPhase = 'revealed';
+                    if (this.syncMatched) {
+                        this.incrementPlayStat('syncMatches');
+                        this.launchParticles({ x: '50%', y: '58%' }, 16);
+                    }
+                }
+            },
+            beginNextSyncTurn() {
+                this.syncCurrentPlayer = this.nextSyncPlayer;
+                this.syncPhase = 'answering';
+            },
+            nextSyncQuestion() {
+                if (this.syncQuestions.length > 1) {
+                    let nextIndex = this.syncQuestionIndex;
+                    while (nextIndex === this.syncQuestionIndex) {
+                        nextIndex = Math.floor(Math.random() * this.syncQuestions.length);
+                    }
+                    this.syncQuestionIndex = nextIndex;
+                }
+                this.syncRound += 1;
+                this.syncPhase = 'answering';
+                this.syncCurrentPlayer = '小橙';
+                this.sealedPlayer = '';
+                this.nextSyncPlayer = '小心';
+                this.syncMatched = false;
+                this.syncAnswers = { '小橙': '', '小心': '' };
             },
             
             // 🎲 秘戏：真心话大冒险抽卡逻辑
@@ -1157,6 +1449,7 @@
                     const res = await axios.get('/api/items');
                     this.allItemsForStats = res.data;
                     this.renderCharts();
+                    this.checkAchievementUnlocks();
                 } catch (error) {
                     this.allItemsForStats = [];
                     this.showNotice('error', this.getErrorMessage(error, '统计数据加载失败'));
@@ -1281,6 +1574,7 @@
             }
         },
         mounted() { 
+            this.loadPlayStats();
             const savedBaseDate = localStorage.getItem('orange_relationship_base'); if (savedBaseDate) this.relationshipBaseDate = savedBaseDate;
             const savedUser = localStorage.getItem('orange_user'); if (savedUser) { this.currentUser = savedUser; this.initApp(); }
             const savedTheme = localStorage.getItem('orange_theme'); if (savedTheme === 'dark') { this.isDarkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
