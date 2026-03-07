@@ -23,6 +23,10 @@
             --color-xiaocheng: #82CAFF; --color-xiaoxin: #FFB7B2;   
             --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+            
+            /* 午夜秘境专属色 */
+            --midnight-red: #8B0000;
+            --midnight-dark: #1A0505;
         }
 
         [data-theme="dark"] {
@@ -80,11 +84,20 @@
         button.action-submit { background: linear-gradient(135deg, var(--color-xiaoxin), var(--color-xiaocheng)); color: #FFFFFF; border: none; padding: 14px 28px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(255, 182, 193, 0.4); transition: 0.3s; }
         button.action-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255, 182, 193, 0.6); }
         button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+        
+        /* 午夜模式专属按钮 */
+        button.action-midnight { background: linear-gradient(135deg, #1A0505, #8B0000); box-shadow: 0 6px 20px rgba(139, 0, 0, 0.4); color: white;}
+        button.action-midnight:hover { box-shadow: 0 10px 25px rgba(139, 0, 0, 0.6); }
 
-        /* ====== 星月塔罗 2.0 (全解析优化版) ====== */
-        .tarot-board { display: flex; flex-direction: column; align-items: center; padding: 20px 0 50px 0; }
-        .tarot-title { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); margin-bottom: 10px; letter-spacing: 3px; font-weight: bold;}
-        .tarot-subtitle { font-family: var(--font-ui); font-size: 14px; color: var(--ink-light); margin-bottom: 40px; }
+        /* ====== 星月塔罗 & 午夜秘境 ====== */
+        .tarot-board { display: flex; flex-direction: column; align-items: center; padding: 20px 0 50px 0; transition: 0.5s;}
+        .tarot-title { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); margin-bottom: 10px; letter-spacing: 3px; font-weight: bold; transition: 0.5s;}
+        .tarot-subtitle { font-family: var(--font-ui); font-size: 14px; color: var(--ink-light); margin-bottom: 30px; transition: 0.5s;}
+        
+        /* 模式切换开关 */
+        .mode-switch-wrap { margin-bottom: 30px; }
+        .mode-switch { font-family: var(--font-serif); font-size: 13px; font-weight: bold; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s; border: 1px solid var(--border-fine); background: var(--glass-bg); color: var(--ink-main);}
+        .mode-switch.is-midnight { background: #2A0808; color: #FFD700; border-color: #8B0000; box-shadow: 0 0 15px rgba(139,0,0,0.5);}
         
         .tarot-card-container { width: 280px; height: 420px; perspective: 1000px; cursor: pointer; margin-bottom: 30px;}
         .tarot-inner { width: 100%; height: 100%; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; position: relative;}
@@ -92,20 +105,36 @@
         .tarot-card-container.shaking { animation: shake 0.5s infinite; }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         
-        .tarot-front, .tarot-back { width: 100%; height: 100%; position: absolute; backface-visibility: hidden; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); border: 2px solid var(--accent-bronze);}
+        .tarot-front, .tarot-back { width: 100%; height: 100%; position: absolute; backface-visibility: hidden; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); border: 2px solid var(--accent-bronze); transition: 0.5s;}
+        
+        /* 浪漫牌背 */
         .tarot-back { background: linear-gradient(135deg, #2C1A3D, #3B1C32); background-size: 200% 200%; animation: silkGradient 5s ease infinite; display: flex; align-items: center; justify-content: center;}
-        .tarot-back::after { content: '✨ 命运之轮 ✨'; color: rgba(255,255,255,0.7); font-family: var(--font-serif); font-size: 20px; letter-spacing: 3px; writing-mode: vertical-rl;}
+        .tarot-back::after { content: '✨ 命运之轮 ✨'; color: rgba(255,255,255,0.7); font-family: var(--font-serif); font-size: 20px; letter-spacing: 3px; writing-mode: vertical-rl; transition: 0.5s;}
+        
+        /* 午夜牌背 */
+        .midnight-mode .tarot-back { background: linear-gradient(135deg, #1A0505, #4A0E17); border-color: #8B0000; box-shadow: 0 0 20px rgba(139,0,0,0.4);}
+        .midnight-mode .tarot-back::after { content: '⛓️ 午夜秘境 ⛓️'; color: rgba(255, 69, 0, 0.7); }
         
         .tarot-front { background: var(--card-bg); transform: rotateY(180deg); padding: 30px 20px; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; overflow-y: auto;}
+        .midnight-mode .tarot-front { background: #1A1A1A; border-color: #8B0000;}
         .tarot-front::-webkit-scrollbar { width: 4px; }
         .tarot-front::-webkit-scrollbar-thumb { background: var(--border-fine); border-radius: 4px; }
+        .midnight-mode .tarot-front::-webkit-scrollbar-thumb { background: #8B0000; }
         
         .tarot-emoji { font-size: 65px; margin-bottom: 15px; filter: drop-shadow(0 4px 10px rgba(255,182,193,0.5));}
-        .tarot-name { font-family: var(--font-serif); font-size: 22px; font-weight: bold; color: var(--accent-bronze); margin-bottom: 15px; border-bottom: 1px solid var(--border-fine); padding-bottom: 15px; width: 100%; text-align: center;}
+        .midnight-mode .tarot-emoji { filter: drop-shadow(0 4px 15px rgba(255,0,0,0.4)); }
         
-        .tarot-text-box { text-align: left; width: 100%; font-family: var(--font-ui); font-size: 15px; color: var(--ink-main); line-height: 1.7;}
-        .tarot-keyword { color: var(--accent-bronze); font-weight: bold; font-family: var(--font-serif);}
-        .tarot-action { background: rgba(230, 168, 215, 0.15); padding: 12px 15px; border-radius: 12px; margin-top: 20px; font-weight: bold; color: var(--ink-main); border: 1px dashed var(--accent-bronze);}
+        .tarot-name { font-family: var(--font-serif); font-size: 22px; font-weight: bold; color: var(--accent-bronze); margin-bottom: 15px; border-bottom: 1px solid var(--border-fine); padding-bottom: 15px; width: 100%; text-align: center; transition: 0.5s;}
+        .midnight-mode .tarot-name { color: #FF4500; border-bottom-color: #8B0000; }
+        
+        .tarot-text-box { text-align: left; width: 100%; font-family: var(--font-ui); font-size: 15px; color: var(--ink-main); line-height: 1.7; transition: 0.5s;}
+        .midnight-mode .tarot-text-box { color: #E0E0E0; }
+        
+        .tarot-keyword { color: var(--accent-bronze); font-weight: bold; font-family: var(--font-serif); transition: 0.5s;}
+        .midnight-mode .tarot-keyword { color: #FF4500; }
+        
+        .tarot-action { background: rgba(230, 168, 215, 0.15); padding: 12px 15px; border-radius: 12px; margin-top: 20px; font-weight: bold; color: var(--ink-main); border: 1px dashed var(--accent-bronze); transition: 0.5s;}
+        .midnight-mode .tarot-action { background: rgba(139, 0, 0, 0.2); border-color: #8B0000; color: #FFB6C1; }
 
         /* 画廊与星图等原有样式 */
         .stats-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;}
@@ -238,9 +267,20 @@
             </div>
         </div>
 
-        <div v-if="currentTab === 'tarot'" class="tarot-board">
-            <div class="tarot-title">命运的指引</div>
-            <div class="tarot-subtitle">闭上眼睛，在心里默念你们的名字，然后翻开魔法牌。</div>
+        <div v-if="currentTab === 'tarot'" :class="['tarot-board', {'midnight-mode': isMidnightMode}]">
+            
+            <div class="tarot-title" :style="{ color: isMidnightMode ? '#FF4500' : 'var(--ink-main)' }">
+                {{ isMidnightMode ? '午夜秘境 (18+)' : '命运的指引' }}
+            </div>
+            <div class="tarot-subtitle" :style="{ color: isMidnightMode ? '#E0E0E0' : 'var(--ink-light)' }">
+                {{ isMidnightMode ? '嘘，闭上眼睛，翻开这充满张力的规则卡牌...' : '在心里默念你们的名字，然后翻开魔法牌。' }}
+            </div>
+            
+            <div class="mode-switch-wrap">
+                <button :class="['mode-switch', {'is-midnight': isMidnightMode}]" @click="toggleMidnightMode">
+                    {{ isMidnightMode ? '🌸 切换回白昼模式' : '💋 开启午夜秘境 (18+)' }}
+                </button>
+            </div>
             
             <div :class="['tarot-card-container', { 'flipped': drawnCard !== null, 'shaking': isDrawing }]" @click="drawTarotCard">
                 <div class="tarot-inner">
@@ -251,19 +291,21 @@
                         <div class="tarot-text-box">
                             <p><span class="tarot-keyword">✦ 关键词：</span>{{ drawnCard.keywords }}</p>
                             <p style="margin-top: 8px;">{{ drawnCard.meaning }}</p>
-                            <div class="tarot-action">💡 今日宜：{{ drawnCard.action }}</div>
+                            <div class="tarot-action">
+                                {{ isMidnightMode ? '⛓️ 午夜指令：' : '💡 今日宜：' }}{{ drawnCard.action }}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button v-if="drawnCard" class="action-submit" style="margin-top: 20px;" @click="saveTarotReading">
+            <button v-if="drawnCard" :class="['action-submit', {'action-midnight': isMidnightMode}]" style="margin-top: 20px;" @click="saveTarotReading">
                 💌 将指引刻入随笔
             </button>
-            <button v-if="drawnCard" class="action-submit" style="margin-top: 15px; background: transparent; color: var(--accent-bronze); border: 1px solid var(--accent-bronze); box-shadow: none;" @click="resetTarot">
+            <button v-if="drawnCard" class="action-submit" :style="{ marginTop: '15px', background: 'transparent', color: isMidnightMode ? '#FF4500' : 'var(--accent-bronze)', border: isMidnightMode ? '1px solid #FF4500' : '1px solid var(--accent-bronze)', boxShadow: 'none' }" @click="resetTarot">
                 再次转动命运之轮
             </button>
-            <button v-if="!drawnCard" class="action-submit" @click="drawTarotCard" :disabled="isDrawing">
+            <button v-if="!drawnCard" :class="['action-submit', {'action-midnight': isMidnightMode}]" @click="drawTarotCard" :disabled="isDrawing">
                 {{ isDrawing ? '命运之轮转动中...' : '揭开命运的卡牌' }}
             </button>
         </div>
@@ -370,8 +412,12 @@
                 isDarkMode: false, currentAlbum: null, appendFiles: [],
                 storyChartObj: null, activityChartObj: null,
                 
-                // 🔮 塔罗牌 2.0 (全22张大阿尔卡纳 专属恋爱改写版)
-                tarotDeck: [
+                isMidnightMode: false, // 18+ 模式开关
+                drawnCard: null,
+                isDrawing: false,
+
+                // 🌸 白昼模式 (22张完整版 恋爱指引)
+                tarotDeckRomantic: [
                     { name: '0. 愚者 (The Fool)', emoji: '🎒', keywords: '天马行空、说走就走', meaning: '今天是个充满奇思妙想的日子！别管什么严谨的计划表了，顺从内心的直觉，勇敢地踏出舒适圈吧。在感情里，这张牌意味着像孩子般纯粹的快乐。', action: '拉着对方的手去探索一个没去过的角落，或者尝试一家新奇的餐厅。' },
                     { name: '1. 魔术师 (The Magician)', emoji: '🪄', keywords: '默契满分、创造惊喜', meaning: '奇迹就在你们手中。你们之间的心灵感应正在发挥奇效，只要敢想，今天就能把平淡的日子变成魔法。想要实现的小心愿，不妨大声对彼此说出来！', action: '主动给对方制造一个小惊喜，哪怕是一杯突然出现的奶茶。' },
                     { name: '2. 女祭司 (The High Priestess)', emoji: '🌙', keywords: '灵魂共鸣、宁静陪伴', meaning: '直觉极其敏锐的一天。今天不需要太多言语，只需要静静地待在一起，就能感受到灵魂贴近的安宁。这也是倾听内心真实声音的绝佳时机。', action: '一起读同一本书，看同一部老电影，交换一个深情的眼神。' },
@@ -387,7 +433,7 @@
                     { name: '12. 倒吊人 (The Hanged Man)', emoji: '🙃', keywords: '换个视角、退让体谅', meaning: '偶尔倒立着看世界，会发现完全不一样的风景。今天如果你们之间有小分歧或小摩擦，试着站在对方的角度去想一想，退一步真的会海阔天空。', action: '包容并尝试去理解对方今天冒出来的奇奇怪怪的小念头。' },
                     { name: '13. 蜕变 (Death)', emoji: '🦋', keywords: '告别旧物、迎来新生', meaning: '别怕它本来的名字！在恋爱塔罗里，这象征着最美好的化茧成蝶。你们将告别某个不好的旧习惯，或者解决一个陈年心结，感情即将迈入一个更成熟的新阶段。', action: '一起做次大扫除，或者一起删掉手机里的负面信息，扔掉不开心！' },
                     { name: '14. 节制 (Temperance)', emoji: '🥂', keywords: '完美调和、岁月静好', meaning: '就像冰块与威士忌碰撞出的完美比例，你们今天的相处状态达到了极度的舒适。不冷不热，不急不躁，连呼吸的频率都默契得刚刚好。', action: '什么都不做也很好，一起在沙发上消磨一个慵懒的下午吧。' },
-                    { name: '15. 诱惑 (The Devil)', emoji: '😈', keywords: '危险迷人、极致吸引', meaning: '哇哦！这张牌代表着你们今天对彼此有着如同磁铁般致命的吸引力。也许是一抹香水味，也许是一个随意的撩拨眼神，都足以让对方心跳无限加速。', action: '别害羞，大胆尝试一点点平日里不敢做的小诱惑和小情趣吧！' },
+                    { name: '15. 诱惑 (The Devil)', emoji: '😈', keywords: '危险迷人、极致吸引', meaning: '这张牌代表着你们今天对彼此有着如同磁铁般致命的吸引力。也许是一抹香水味，也许是一个随意的撩拨眼神，都足以让对方心跳无限加速。', action: '别害羞，大胆尝试一点点平日里不敢做的小诱惑和小情趣吧！' },
                     { name: '16. 破冰 (The Tower)', emoji: '⚡', keywords: '打破常规、惊喜冲击', meaning: '日复一日的平淡生活需要一点“闪电”的刺激！今天非常适合去做一件你们平时绝对不会去做的事，打破日常的舒适壳，迎接令人兴奋的全新体验。', action: '去体验一项充满刺激的全新双人活动，比如密室逃脱或过山车！' },
                     { name: '17. 星星 (The Star)', emoji: '🌟', keywords: '治愈星光、未来可期', meaning: '所有的烦恼在今天都会被温柔地治愈。你们就像彼此暗夜里最亮的那颗星星，坚定地指引着未来的方向。满怀希望地憧憬你们的明天吧。', action: '拿出一张纸，一起认真地规划下一次的双人长途旅行。' },
                     { name: '18. 月亮 (The Moon)', emoji: '🌕', keywords: '朦胧潜意识、梦境交叠', meaning: '今晚的月色很美，风也温柔。这张牌代表着潜意识的浮现，非常适合分享一些平时藏在心底的脆弱。在朦胧的夜色中，你们会看到彼此最柔软的一面。', action: '关掉大灯，点一盏小夜灯，在睡前互相分享一个关于彼此的秘密梦境。' },
@@ -395,8 +441,32 @@
                     { name: '20. 觉醒 (Judgement)', emoji: '📯', keywords: '内心觉醒、感情升华', meaning: '随着号角的吹响，一个重要时刻已经到来。你们可能会在今天突然对彼此有了更深刻、更惊喜的认识，感情的浓度在此刻跨越了原来的界限，再次升华！', action: '在微信或者纸条上，给对方写一段发自内心的走心小长文。' },
                     { name: '21. 世界 (The World)', emoji: '🌍', keywords: '完美拼图、你即世界', meaning: '极致的圆满！“你在我身边，就是全世界。” 这张牌是对你们感情最高的赞美与祝福。一切都恰到好处，请好好享受这份确定的、完美的幸福吧。', action: '给对方一个最深、最紧的拥抱，用心庆祝在茫茫人海中遇到彼此。' }
                 ],
-                drawnCard: null,
-                isDrawing: false
+                
+                // 💋 午夜模式 (18+ BDSM 专属指令)
+                tarotDeckMidnight: [
+                    { name: '0. 愚者 (The Fool)', emoji: '🙈', keywords: '盲眼探索、未知刺激', meaning: '剥夺视觉会让人对其他感官更加敏感。这是对信任的绝对考验，也是将自己完全交付的开始。', action: '使用眼罩（或领带/丝巾）蒙住抽牌者的眼睛，由另一方主导接下来的 15 分钟探索。' },
+                    { name: '1. 魔术师 (The Magician)', emoji: '🧊', keywords: '感官魔法、道具掌控', meaning: '手指能做到的终究有限，今天是引入“魔法道具”的时刻。温度、材质的差异会让神经末梢战栗。', action: '准备冰块和羽毛（或类似软物），在对方敏感地带交替使用，体验冰火两重天的刺激。' },
+                    { name: '2. 女祭司 (The High Priestess)', emoji: '🤫', keywords: '绝对静音、规则服从', meaning: '女祭司象征着深沉与压抑的欲望。越是不允许出声，越是能体会到内心的波涛汹涌。', action: '在接下来的互动中，被动方禁止发出任何清晰的词汇，只能用肢体或呼吸回应，违规需接受小惩罚。' },
+                    { name: '3. 皇后 (The Empress)', emoji: '🍷', keywords: '极致侍奉、女王特权', meaning: '皇后的威严不容侵犯，她的愉悦高于一切。今天有一方将化身为高高在上的女王，享受另一方的全心侍奉。', action: '抽牌者今晚是“服侍者”，需为另一方进行全身精油按摩，并在指令下亲吻每一寸肌肤。' },
+                    { name: '4. 皇帝 (The Emperor)', emoji: '👑', keywords: '绝对支配、不容拒绝', meaning: '霸道的掌控欲在此刻全面苏醒。所有的姿势、节奏和深度，都由支配者全权接管。', action: '确立“主从关系”一小时。无论主导方提出什么不过分的动作要求，另一方都必须无条件服从。' },
+                    { name: '5. 教皇 (The Hierophant)', emoji: '📖', keywords: '羞耻戒律、言语调教', meaning: '言语的力量有时候比触碰更致命。强加的规则和刻意的称呼，能瞬间瓦解对方的心理防线。', action: '设定一个充满羞耻感的“专属称呼”。在今晚的每一句话前，都必须加上这个称呼，否则不予回应。' },
+                    { name: '6. 恋人 (The Lovers)', emoji: '🔗', keywords: '甜蜜束缚、紧密贴合', meaning: '爱有时是一种想要将对方完全捆绑在身边的冲动。束缚不仅限制了行动，更将两人的气息彻底交融。', action: '使用领带、丝带或专用软绳，轻轻束缚被动方的双手，在无法反抗的状态下进行爱抚。' },
+                    { name: '7. 战车 (The Chariot)', emoji: '⏳', keywords: '边缘控制、强行忍耐', meaning: '就像拉住狂奔的战马，极致的快感在于即将到达顶峰时的生生逼停。这是对耐力与欲望的极致玩弄。', action: '进行“边缘控制（Edging）”。在对方即将到达高潮时立即停止，反复 3 次后才允许释放。' },
+                    { name: '8. 力量 (Strength)', emoji: '🦷', keywords: '轻微痛楚、印记烙刻', meaning: '微小的痛觉能让快感成倍放大，那是独属于你们俩的野性标记。', action: '在安全的前提下，通过轻咬、吸吮或轻拍（Spanking），在对方的隐秘部位留下属于你的红痕印记。' },
+                    { name: '9. 隐士 (The Hermit)', emoji: '🪞', keywords: '窥视展示、视觉刺激', meaning: '在隐秘的结界里，打破平日里的端庄。看着镜子里的自己如何沉沦，是一种极具冲击力的视觉调教。', action: '面对一面大镜子进行互动（或打开手机前置摄像头）。被动方必须全程睁眼看着镜子里的自己。' },
+                    { name: '10. 命运之轮 (Wheel of Fortune)', emoji: '🎲', keywords: '盲盒快感、骰子决定', meaning: '放弃大脑思考，把接下来的命运完全交给概率。每一次未知都伴随着心跳加速。', action: '由主导方在纸条上写下 3 个平时不敢尝试的大尺度动作，揉成团让另一方抽取并强制执行。' },
+                    { name: '11. 正义 (Justice)', emoji: '⚖️', keywords: '罪与惩罚、清算旧账', meaning: '所有的“不乖”都要在今晚付出代价。以惩罚之名，行挑逗之实。', action: '回想对方最近犯的一个“小错”，以此为理由对她进行一场色气满满的小惩罚（如打屁股 10 下）。' },
+                    { name: '12. 倒吊人 (The Hanged Man)', emoji: '🪢', keywords: '无力挣扎、被迫承受', meaning: '倒吊人意味着放弃控制权，全身心地挂在对方的掌控网里。越是挣扎，越是陷入情欲。', action: '将被动方以一种“失去发力点”的姿势固定（如双手举过头顶压住，或双腿被抬起），任由主导方施为。' },
+                    { name: '13. 蜕变 (Death)', emoji: '🎭', keywords: '角色扮演、打破禁忌', meaning: '忘掉你们真实的名字和身份。今晚，你们是另一个人。穿上平日里不敢穿的衣服，撕下面具。', action: '设定一个背德/刺激的场景进行 Roleplay（如：冷酷女老板 x 犯错的小秘书），必须全程不出戏。' },
+                    { name: '14. 节制 (Temperance)', emoji: '🛑', keywords: '延迟满足、局部禁区', meaning: '最高级的挑逗是“偏不给你”。当你极度渴望某个部位被触碰时，对方却偏偏绕道而行。', action: '设定一个“绝对禁区”（如某个最敏感的地方）。在接下来的 20 分钟内，绝对不允许触碰该区域。' },
+                    { name: '15. 诱惑 (The Devil)', emoji: '😈', keywords: '欲望释放、野性本能', meaning: '恶魔在此，无需再伪装矜持。用最直白、最下流的语言去表达你的渴望，彻底释放野兽般的本能。', action: '进行一场毫无保留的 Dirty Talk（粗口调情）。把平时绝对说不出口的话，贴在对方耳边说出来。' },
+                    { name: '16. 破冰 (The Tower)', emoji: '💥', keywords: '击碎底线、猛烈冲击', meaning: '温柔到此为止，塔的崩塌伴随着剧烈的震荡。这是打破常规节奏，用狂风骤雨将对方淹没的时刻。', action: '抛弃所有的前戏与铺垫，用你们能承受的最快节奏和最猛烈的力度，给对方一次头晕目眩的冲击。' },
+                    { name: '17. 星星 (The Star)', emoji: '🕯️', keywords: '温热滴落、感官流淌', meaning: '液体的温度能在皮肤上划出星光的轨迹。那是视觉与触觉的双重奢靡享受。', action: '使用温热的按摩精油（或专业低温蜡烛），在对方的光裸的后背或大腿上缓缓滴落并揉开。' },
+                    { name: '18. 月亮 (The Moon)', emoji: '🐾', keywords: '不安等待、轻缓折磨', meaning: '月亮代表着心理上的拉扯。你不知道下一步的抚摸会落在哪里，这种如同猫抓般的等待，最是磨人。', action: '用极其缓慢、轻柔的动作（如指尖或发丝）在对方全身游走，故意避开敏感点，直到对方主动求饶。' },
+                    { name: '19. 太阳 (The Sun)', emoji: '🥵', keywords: '高调夸赞、羞耻展示', meaning: '把私密的潮红暴露在光明之下。在最敏感的时刻，强迫对方接受直白的赞美，是极大的心理冲击。', action: '在对方快要到达顶点时，强迫她睁眼看着你，并用最直白的语言夸赞她的身体反应（Praise Kink）。' },
+                    { name: '20. 觉醒 (Judgement)', emoji: '🐕', keywords: '宠物视角、绝对降级', meaning: '抛弃人类的尊严，退化成顺从的宠物。这种身份的极致降级，会带来强烈的背德快感。', action: '一方戴上项圈（或用丝巾代替），另一方牵着走。被动方需爬行，并像小狗一样祈求主人的赏赐。' },
+                    { name: '21. 世界 (The World)', emoji: '🌊', keywords: '彻底沉沦、潮汐释放', meaning: '经历了前面所有的克制与调教，这是规则彻底解除的时刻。将一切抛之脑后，一同在情欲的海啸中溺亡。', action: '解除所有束缚和限制条件。用彼此最舒服、最渴望的方式，一起毫无保留地达到最终的巅峰（并做好深度的 Aftercare 安抚）。' }
+                ]
             }
         },
         computed: {
@@ -413,6 +483,9 @@
                 if (this.currentTab === 'story') return '筑梦';
                 if (this.currentTab === 'wish') return '许愿';
                 return '入卷';
+            },
+            currentDeck() {
+                return this.isMidnightMode ? this.tarotDeckMidnight : this.tarotDeckRomantic;
             },
             groupedItems() {
                 const groups = {};
@@ -448,32 +521,37 @@
                 else if (tab !== 'tarot') this.getItems();
             },
             
-            // 🔮 塔罗牌方法 2.0
+            // 🔮 塔罗牌双模式方法
+            toggleMidnightMode() {
+                this.isMidnightMode = !this.isMidnightMode;
+                this.resetTarot(); // 切换模式时重置卡牌状态
+            },
             drawTarotCard() {
                 if (this.isDrawing || this.drawnCard) return; 
                 this.isDrawing = true;
                 setTimeout(() => {
-                    const randomIndex = Math.floor(Math.random() * this.tarotDeck.length);
-                    this.drawnCard = this.tarotDeck[randomIndex];
+                    const randomIndex = Math.floor(Math.random() * this.currentDeck.length);
+                    this.drawnCard = this.currentDeck[randomIndex];
                     this.isDrawing = false;
                 }, 1200);
             },
             resetTarot() { this.drawnCard = null; },
             saveTarotReading() {
-                this.newTitle = `🔮 星月指引：${this.drawnCard.name}`;
-                this.newNote = `【✦ 牌意解读】\n${this.drawnCard.meaning}\n\n【💡 今日互动】\n${this.drawnCard.action}`;
+                const prefix = this.isMidnightMode ? '⛓️ 午夜指令' : '🔮 星月指引';
+                const actionTitle = this.isMidnightMode ? '【⛓️ 午夜执行】' : '【💡 今日互动】';
+                
+                this.newTitle = `${prefix}：${this.drawnCard.name}`;
+                this.newNote = `【✦ 牌意解读】\n${this.drawnCard.meaning}\n\n${actionTitle}\n${this.drawnCard.action}`;
                 this.switchTab('diary'); 
                 setTimeout(() => { this.uploadItem(); }, 200);
             },
 
-            // ✨ 图片极致压缩魔法
             async compressImage(file) {
                 const options = { maxSizeMB: 0.8, maxWidthOrHeight: 1920, useWebWorker: true, fileType: 'image/jpeg' };
                 try { return await imageCompression(file, options); } 
                 catch (error) { console.error("图片压缩失败", error); return file; }
             },
 
-            // 📸 上传相关逻辑
             handleFiles(e) { this.selectedFiles = Array.from(e.target.files); },
             openAlbum(item) { this.currentAlbum = item; document.body.style.overflow = 'hidden'; },
             closeAlbum() { this.currentAlbum = null; this.appendFiles = []; document.body.style.overflow = 'auto'; this.getItems(); },
@@ -510,7 +588,6 @@
                 } catch (error) {} finally { this.isUploading = false; }
             },
 
-            // 📊 图表及其他功能
             async fetchAllItemsForStats() { const res = await axios.get('/api/items'); this.allItemsForStats = res.data; this.renderCharts(); },
             renderCharts() {
                 this.$nextTick(() => {
