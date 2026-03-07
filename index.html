@@ -64,6 +64,12 @@
         .theme-toggle:hover { transform: rotate(20deg); }
         .user-badge { font-family: var(--font-serif); font-size: 14px; color: var(--ink-main); background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4)); border: 1px solid var(--border-fine); padding: 6px 16px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); backdrop-filter: blur(10px);}
         [data-theme="dark"] .user-badge { background: rgba(0,0,0,0.2); }
+        .notice { margin: -15px 0 25px; padding: 14px 18px; border-radius: 16px; border: 1px solid var(--border-fine); background: var(--card-bg); backdrop-filter: blur(12px); box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+        .notice.success { color: #2f7a4c; border-color: rgba(93, 181, 122, 0.35); }
+        .notice.error { color: #b25463; border-color: rgba(255, 154, 162, 0.45); }
+        .notice.info { color: var(--ink-main); }
+        [data-theme="dark"] .notice.success { color: #a7e1bb; }
+        [data-theme="dark"] .notice.error { color: #ffc0ca; }
 
         .control-panel { background: var(--glass-bg); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px; margin-bottom: 50px; border: 1px solid var(--border-fine); display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15); }
         [data-theme="dark"] .control-panel { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); }
@@ -272,6 +278,8 @@
             </div>
         </div>
 
+        <div v-if="notice.text" :class="['notice', notice.type]">{{ notice.text }}</div>
+
         <div v-if="currentTab === 'game'" class="tarot-board midnight-mode">
             
             <div class="tarot-title" style="color: #FF4500;">午夜秘戏 (18+)</div>
@@ -446,6 +454,8 @@
                 editingId: null, editTitle: '', editNote: '', editSegments: [],
                 isDarkMode: false, currentAlbum: null, appendFiles: [],
                 storyChartObj: null, activityChartObj: null,
+                notice: { type: '', text: '' },
+                noticeTimer: null,
                 
                 // 🔮 塔罗牌相关状态
                 isMidnightMode: false, 
@@ -553,6 +563,30 @@
             vibrate(pattern = 50) {
                 if ('vibrate' in navigator) { try { navigator.vibrate(pattern); } catch (e) {} }
             },
+            showNotice(type, text) {
+                if (!text) return;
+                if (this.noticeTimer) clearTimeout(this.noticeTimer);
+                this.notice = { type, text };
+                this.noticeTimer = setTimeout(() => {
+                    this.notice = { type: '', text: '' };
+                    this.noticeTimer = null;
+                }, 4000);
+            },
+            clearNotice() {
+                if (this.noticeTimer) {
+                    clearTimeout(this.noticeTimer);
+                    this.noticeTimer = null;
+                }
+                this.notice = { type: '', text: '' };
+            },
+            getErrorMessage(error, fallback) {
+                return error?.response?.data?.error || fallback;
+            },
+            getLocalDateString() {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                return new Date(now.getTime() - offset).toISOString().split('T')[0];
+            },
             login() {
                 if (this.loginCode === 'xiaoxin') this.currentUser = '小心';
                 else if (this.loginCode === 'xiaocheng') this.currentUser = '小橙';
@@ -561,7 +595,15 @@
                 localStorage.setItem('orange_user', this.currentUser);
                 this.initApp();
             },
-            logout() { localStorage.removeItem('orange_user'); this.currentUser = null; this.loginCode = ''; this.vibrate(50); },
+            logout() {
+                localStorage.removeItem('orange_user');
+                this.currentUser = null;
+                this.loginCode = '';
+                this.currentAlbum = null;
+                document.body.style.overflow = 'auto';
+                this.clearNotice();
+                this.vibrate(50);
+            },
             toggleTheme() {
                 this.vibrate(30);
                 this.isDarkMode = !this.isDarkMode;
@@ -571,6 +613,7 @@
             },
             switchTab(tab) {
                 this.vibrate(30);
+                if (this.currentAlbum) this.closeAlbum(false);
                 this.currentTab = tab; this.selectedFiles = []; this.newNote = ''; this.newTitle = '';
                 if (tab === 'stats') this.fetchAllItemsForStats();
                 else if (tab !== 'tarot' && tab !== 'game') this.getItems();
@@ -606,9 +649,14 @@
             saveGameReading() {
                 this.vibrate(50);
                 const isTruth = this.drawnGameCard.type === 'truth';
-                this.newTitle = isTruth ? '👄 秘戏：真心话' : '⛓️ 秘戏：大冒险';
-                this.newNote = `【抽取挑战】\n${this.drawnGameCard.text}\n\n【执行结果】\n（在这里写下你们做了什么，或者对方的反应吧...）`;
-                this.switchTab('diary'); 
+                const gameTitle = isTruth ? '👄 秘戏：真心话' : '⛓️ 秘戏：大冒险';
+                const gameNote = `【抽取挑战】\n${this.drawnGameCard.text}\n\n【执行结果】\n（在这里写下你们做了什么，或者对方的反应吧...）`;
+                this.switchTab('diary');
+                this.$nextTick(() => {
+                    this.newTitle = gameTitle;
+                    this.newNote = gameNote;
+                    this.showNotice('info', '已把秘戏挑战写入随笔草稿');
+                });
             },
 
             // 🔮 塔罗牌相关逻辑
@@ -633,10 +681,14 @@
                 this.vibrate(50);
                 const prefix = this.isMidnightMode ? '⛓️ 午夜指令' : '🔮 星月指引';
                 const actionTitle = this.isMidnightMode ? '【⛓️ 午夜执行】' : '【💡 今日互动】';
-                this.newTitle = `${prefix}：${this.drawnCard.name}`;
-                this.newNote = `【✦ 牌意解读】\n${this.drawnCard.meaning}\n\n${actionTitle}\n${this.drawnCard.action}`;
-                this.switchTab('diary'); 
-                setTimeout(() => { this.uploadItem(); }, 200);
+                const tarotTitle = `${prefix}：${this.drawnCard.name}`;
+                const tarotNote = `【✦ 牌意解读】\n${this.drawnCard.meaning}\n\n${actionTitle}\n${this.drawnCard.action}`;
+                this.switchTab('diary');
+                this.$nextTick(() => {
+                    this.newTitle = tarotTitle;
+                    this.newNote = tarotNote;
+                    this.uploadItem({ successMessage: '星月指引已刻入随笔', resetTarot: true });
+                });
             },
 
             // 通用功能
@@ -646,19 +698,43 @@
             },
             handleFiles(e) { this.selectedFiles = Array.from(e.target.files); this.vibrate(30);},
             openAlbum(item) { this.vibrate(30); this.currentAlbum = item; document.body.style.overflow = 'hidden'; },
-            closeAlbum() { this.vibrate(30); this.currentAlbum = null; this.appendFiles = []; document.body.style.overflow = 'auto'; this.getItems(); },
+            closeAlbum(refresh = true) {
+                this.vibrate(30);
+                this.currentAlbum = null;
+                this.appendFiles = [];
+                document.body.style.overflow = 'auto';
+                if (refresh) this.getItems();
+            },
             handleAppendFiles(e) { this.appendFiles = Array.from(e.target.files); this.vibrate(30);},
             async submitAppendPhotos() {
                 if(this.appendFiles.length === 0) return;
                 this.vibrate(50); this.isUploading = true; const fd = new FormData(); 
                 for (let i = 0; i < this.appendFiles.length; i++) { const compressed = await this.compressImage(this.appendFiles[i]); fd.append('files', compressed, compressed.name); }
-                try { const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd); this.currentAlbum = res.data; this.appendFiles = []; document.querySelector('.append-area input[type="file"]').value = ''; this.vibrate([50,50,50]); } catch (e) {} finally { this.isUploading = false; }
+                try {
+                    const res = await axios.post(`/api/items/${this.currentAlbum._id}/images`, fd);
+                    this.currentAlbum = res.data;
+                    this.appendFiles = [];
+                    document.querySelector('.append-area input[type="file"]').value = '';
+                    this.showNotice('success', '照片已追加到相册');
+                    this.vibrate([50,50,50]);
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '追加照片失败'));
+                } finally { this.isUploading = false; }
             },
             async deleteImageFromAlbum(albumId, imageId) {
                 this.vibrate(30);
-                if(confirm("确定要把这张照片移出相册吗？")) { const res = await axios.delete(`/api/items/${albumId}/images/${imageId}`); this.currentAlbum = res.data; }
+                if(confirm("确定要把这张照片移出相册吗？")) {
+                    try {
+                        const res = await axios.delete(`/api/items/${albumId}/images/${imageId}`);
+                        this.currentAlbum = res.data;
+                        this.showNotice('success', '照片已从相册移除');
+                    } catch (error) {
+                        this.showNotice('error', this.getErrorMessage(error, '删除照片失败'));
+                    }
+                }
             },
-            async uploadItem() {
+            async uploadItem(optionsOrEvent) {
+                const options = optionsOrEvent && typeof optionsOrEvent.preventDefault === 'function' ? {} : (optionsOrEvent || {});
                 if (!this.newNote && this.selectedFiles.length === 0 && this.newTitle === '') return alert("总得留下点魔法痕迹吧？");
                 this.vibrate(50); this.isUploading = true; const fd = new FormData();
                 for (let i = 0; i < this.selectedFiles.length; i++) { const compressed = await this.compressImage(this.selectedFiles[i]); fd.append('files', compressed, compressed.name); }
@@ -668,12 +744,26 @@
                 else fd.append('note', this.newNote);
                 try {
                     await axios.post('/api/items', fd);
-                    this.newNote = ''; this.newTitle = ''; this.newDate = new Date().toISOString().split('T')[0]; this.selectedFiles = [];
+                    this.newNote = ''; this.newTitle = ''; this.newDate = this.getLocalDateString(); this.selectedFiles = [];
                     const fileInput = document.querySelector('.control-panel input[type="file"]'); if(fileInput) fileInput.value = '';
-                    this.getItems(); this.vibrate([50,50,50]); 
-                } catch (error) {} finally { this.isUploading = false; }
+                    this.getItems();
+                    if (options.resetTarot) this.resetTarot();
+                    this.showNotice('success', options.successMessage || '内容已保存');
+                    this.vibrate([50,50,50]); 
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '保存失败，请稍后重试'));
+                } finally { this.isUploading = false; }
             },
-            async fetchAllItemsForStats() { const res = await axios.get('/api/items'); this.allItemsForStats = res.data; this.renderCharts(); },
+            async fetchAllItemsForStats() {
+                try {
+                    const res = await axios.get('/api/items');
+                    this.allItemsForStats = res.data;
+                    this.renderCharts();
+                } catch (error) {
+                    this.allItemsForStats = [];
+                    this.showNotice('error', this.getErrorMessage(error, '统计数据加载失败'));
+                }
+            },
             renderCharts() {
                 this.$nextTick(() => {
                     let textCount = { '小橙': 0, '小心': 0 }; let monthlyActivity = {};
@@ -694,20 +784,65 @@
                     }
                 });
             },
-            async getItems() { const res = await axios.get(`/api/items?category=${this.currentTab}`); this.items = res.data; },
-            async deleteItem(id) { this.vibrate(30); if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) { await axios.delete(`/api/items/${id}`); this.getItems(); } },
+            async getItems() {
+                try {
+                    const res = await axios.get(`/api/items?category=${this.currentTab}`);
+                    this.items = res.data;
+                } catch (error) {
+                    this.items = [];
+                    this.showNotice('error', this.getErrorMessage(error, '内容加载失败'));
+                }
+            },
+            async deleteItem(id) {
+                this.vibrate(30);
+                if (confirm("真的要消除这段回忆吗？如果是相册，里面的照片也会随之消散哦。")) {
+                    try {
+                        await axios.delete(`/api/items/${id}`);
+                        this.showNotice('success', '内容已删除');
+                        this.getItems();
+                    } catch (error) {
+                        this.showNotice('error', this.getErrorMessage(error, '删除失败'));
+                    }
+                }
+            },
             startEdit(item) { this.vibrate(30); this.editingId = item._id; this.editTitle = item.title || ''; this.editNote = item.note || ''; if (this.currentTab === 'story') { this.editSegments = item.segments ? JSON.parse(JSON.stringify(item.segments)) : [{ id: Date.now().toString(), author: item.author, text: item.note }]; } },
             addNewSegment() { this.vibrate(30); this.editSegments.push({ id: Date.now().toString(), author: this.currentUser, text: '' }); },
             cancelEdit() { this.vibrate(30); this.editingId = null; },
-            async saveEdit(id) { this.vibrate(50); let payload = { title: this.editTitle }; if (this.currentTab === 'story') payload.segments = this.editSegments.filter(seg => seg.text.trim() !== ''); else payload.note = this.editNote; try { await axios.put(`/api/items/${id}`, payload); this.editingId = null; this.getItems(); } catch (e) {} },
-            async toggleWish(item, event) { this.vibrate(30); try { await axios.put(`/api/items/${item._id}`, { completed: event.target.checked }); item.completed = event.target.checked; } catch (e) { event.target.checked = !event.target.checked; } },
+            async saveEdit(id) {
+                this.vibrate(50);
+                let payload = { title: this.editTitle };
+                if (this.currentTab === 'story') payload.segments = this.editSegments.filter(seg => seg.text.trim() !== '');
+                else payload.note = this.editNote;
+                try {
+                    await axios.put(`/api/items/${id}`, payload);
+                    this.editingId = null;
+                    this.getItems();
+                    this.showNotice('success', '修改已保存');
+                } catch (error) {
+                    this.showNotice('error', this.getErrorMessage(error, '保存修改失败'));
+                }
+            },
+            async toggleWish(item, event) {
+                this.vibrate(30);
+                try {
+                    await axios.put(`/api/items/${item._id}`, { completed: event.target.checked });
+                    item.completed = event.target.checked;
+                } catch (error) {
+                    event.target.checked = !event.target.checked;
+                    this.showNotice('error', this.getErrorMessage(error, '心愿状态更新失败'));
+                }
+            },
             isFuture(timestamp) { return timestamp > Date.now(); },
             viewFull(url) { window.open(url, '_blank'); },
             formatDate(dateString) { return new Date(dateString).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }); },
             initApp() {
-                this.newDate = new Date().toISOString().split('T')[0];
+                this.newDate = this.getLocalDateString();
                 this.currentTab === 'stats' ? this.fetchAllItemsForStats() : (this.currentTab !== 'tarot' && this.currentTab !== 'game' && this.getItems());
-                if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js').catch(() => {
+                        this.showNotice('error', '离线能力注册失败');
+                    });
+                }
             }
         },
         mounted() { 
