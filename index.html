@@ -224,6 +224,14 @@
         .private-checklist { display: grid; gap: 10px; margin-top: 14px; }
         .private-check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(246, 237, 244, 0.8); }
         .private-check input { accent-color: #ffb7b2; }
+        .private-stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 4px; }
+        .private-stat-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.08); color: rgba(246, 237, 244, 0.88); font-size: 12px; }
+        .private-vote-options { display: grid; gap: 10px; margin-top: 14px; }
+        .private-vote-option { width: 100%; text-align: left; border-radius: 15px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.08); color: #fff8fc; padding: 13px 14px; cursor: pointer; transition: 0.2s; }
+        .private-vote-option:hover { transform: translateY(-2px); border-color: rgba(255,183,178,0.4); }
+        .private-vote-box { border-radius: 18px; border: 1px dashed rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); padding: 16px; }
+        .private-vote-result { border-radius: 18px; border: 1px solid rgba(255,255,255,0.12); padding: 16px; background: rgba(255,255,255,0.08); }
+        .private-vote-result.match { background: linear-gradient(135deg, rgba(255,183,178,0.2), rgba(184,165,230,0.18)); }
         .surprise-display { min-height: 220px; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-radius: 20px; border: 1px dashed var(--border-fine); padding: 22px; background: rgba(255,255,255,0.24); }
         .surprise-display.rolling { position: relative; overflow: hidden; }
         .surprise-display.rolling::after { content: ''; position: absolute; inset: -40%; background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%); animation: capsuleSweep 1.2s linear infinite; }
@@ -1034,6 +1042,11 @@
                 <div class="private-kicker">PRIVATE AFTER HOURS</div>
                 <h3 class="fun-title">私密模式</h3>
                 <div class="fun-text">这是偏成熟、偏暧昧的夜间玩法区，但不会出现露骨内容。内容只保存在当前设备，本地密码解锁。</div>
+                <div v-if="privateUnlocked" class="private-stats">
+                    <div class="private-stat-chip">🌙 配方 {{ privatePlayStats.mixCount }} 次</div>
+                    <div class="private-stat-chip">🫶 投票命中 {{ privatePlayStats.voteMatches }} 次</div>
+                    <div class="private-stat-chip">✨ 今晚主题 {{ currentPrivateThemeMeta.label }}</div>
+                </div>
 
                 <div v-if="!privateHasPasscode" class="private-gate">
                     <input type="password" class="private-input" v-model="privatePasscodeDraft" placeholder="先设置一个本地密码">
@@ -1191,6 +1204,49 @@
                                 </button>
                             </div>
                             <div class="private-note">{{ currentPrivateAftercareSummary }}</div>
+                        </div>
+
+                        <div class="private-highlight" style="margin-top: 14px;">
+                            <div class="private-highlight-label">NIGHT RECIPE</div>
+                            <div class="private-highlight-text">{{ privateRecipeCard.title }}</div>
+                            <div class="private-note">{{ privateRecipeCard.summary }}</div>
+                            <div class="private-note">关键词：{{ privateRecipeCard.keywords }}</div>
+                            <div class="fun-actions">
+                                <button class="action-submit" @click="rollPrivateRecipe">重摇一张夜色配方</button>
+                            </div>
+                        </div>
+
+                        <div class="private-highlight" style="margin-top: 14px;">
+                            <div class="private-highlight-label">SECRET VOTE</div>
+                            <div class="private-note" style="margin-top: 0;">两个人轮流秘密投票，看看今晚想要的感觉是不是想到一块去了。</div>
+                            <div class="private-vote-box" v-if="privateVotePhase === 'voting'">
+                                <div class="private-panel-text">轮到 {{ privateVoteCurrentPlayer }} 选择：</div>
+                                <div class="private-vote-options">
+                                    <button
+                                        v-for="option in privateVoteOptions"
+                                        :key="option.key"
+                                        type="button"
+                                        class="private-vote-option"
+                                        @click="submitPrivateVote(option.key)"
+                                    >
+                                        {{ option.text }}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="private-vote-box" v-else-if="privateVotePhase === 'sealed'">
+                                {{ privateVoteSealedPlayer }} 的选择已封存。把屏幕交给 {{ privateVoteNextPlayer }}，再继续。
+                                <div class="fun-actions">
+                                    <button class="action-submit secondary-btn" @click="beginNextPrivateVoteTurn">轮到 {{ privateVoteNextPlayer }}</button>
+                                </div>
+                            </div>
+                            <div :class="['private-vote-result', { match: privateVoteMatched }]" v-else>
+                                <div class="private-panel-title" style="margin-bottom: 6px;">{{ privateVoteMatched ? '今晚想法对上了' : '今晚想要的感觉不完全一样' }}</div>
+                                <div class="private-note" style="margin-top: 0;">小橙：{{ getPrivateVoteText(privateVoteAnswers.小橙) }}</div>
+                                <div class="private-note">小心：{{ getPrivateVoteText(privateVoteAnswers.小心) }}</div>
+                                <div class="fun-actions">
+                                    <button class="action-submit" @click="resetPrivateVote">再投一轮</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1613,6 +1669,14 @@
                 privateSelectedTags: ['夜聊'],
                 privateSelectedAftercare: ['抱一会儿'],
                 privateAftercareNote: '',
+                privatePlayStats: { mixCount: 0, voteMatches: 0 },
+                privateRecipeSeed: 0,
+                privateVotePhase: 'voting',
+                privateVoteCurrentPlayer: '小橙',
+                privateVoteSealedPlayer: '',
+                privateVoteNextPlayer: '小心',
+                privateVoteMatched: false,
+                privateVoteAnswers: { '小橙': '', '小心': '' },
                 privateQuestionIndex: 0,
                 privateTask: '关掉大灯，只留一盏小灯，认真看对方半分钟。',
                 decisionPreset: 'date',
@@ -1690,6 +1754,28 @@
                 ],
                 privateTagOptions: ['夜聊', '边界', '心动', '修复', '照顾', '仪式感'],
                 privateAftercareOptions: ['抱一会儿', '喝水', '聊五分钟', '安静靠着', '洗澡后再说'],
+                privateVoteDecks: {
+                    soft: [
+                        { key: 'slow_hug', text: '先抱一下，把节奏放慢' },
+                        { key: 'deep_talk', text: '先认真聊一会儿' },
+                        { key: 'lamp_sit', text: '先坐近一点，什么都别急' }
+                    ],
+                    spark: [
+                        { key: 'eye_contact', text: '先从对视和停顿开始' },
+                        { key: 'music_close', text: '先听歌，让气氛慢慢升上来' },
+                        { key: 'whisper', text: '先靠近一点，低声讲话' }
+                    ],
+                    repair: [
+                        { key: 'apology', text: '先说清楚今天哪里不舒服' },
+                        { key: 'reassure', text: '先把安抚和确认讲明白' },
+                        { key: 'soft_restart', text: '先重新用更温柔的方式开始' }
+                    ]
+                },
+                privateRecipeTitles: {
+                    soft: ['月光缓降', '低声靠岸', '慢热小夜航'],
+                    spark: ['心跳前奏', '夜色升温', '暧昧回声'],
+                    repair: ['重新靠近', '缝补夜色', '安静和好']
+                },
                 privateQuestions: [
                     { theme: 'soft', text: '如果今晚只能用一句话告诉我你最想被怎样靠近，你会怎么说？' },
                     { theme: 'soft', text: '什么样的语气或小动作，会让你一下子从紧绷变得放松？' },
@@ -1938,6 +2024,23 @@
                     return '还没选事后照顾方式，今晚结束后别让彼此靠猜。';
                 }
                 return `结束后优先：${this.privateSelectedAftercare.join(' / ')}`;
+            },
+            privateVoteOptions() {
+                return this.privateVoteDecks[this.privateTheme] || this.privateVoteDecks.soft;
+            },
+            privateRecipeCard() {
+                const theme = this.currentPrivateThemeMeta.label;
+                const themeKey = this.privateTheme;
+                const titles = this.privateRecipeTitles[themeKey] || this.privateRecipeTitles.soft;
+                const title = titles[this.privateRecipeSeed % titles.length] || titles[0];
+                const role = this.privateRoleOptions.find(item => item.key === this.privateRoleMode)?.label || this.privateRoleMode;
+                const atmosphere = this.privateAtmosphereOptions.find(item => item.key === this.privateAtmosphere)?.label || this.privateAtmosphere;
+                const signal = this.privateConsentSignals.find(item => item.key === this.privateConsentSignal)?.label || this.privateConsentSignal;
+                return {
+                    title: `${title} · ${theme}`,
+                    summary: `今晚更适合以「${role}」的感觉进入，在「${atmosphere}」里，把节奏放在「${this.currentPrivateIntensityLabel}」。当前信号是「${signal}」。`,
+                    keywords: [`#${theme}`, `#${role}`, `#${this.currentPrivateIntensityLabel}`].join(' ')
+                };
             },
             relationshipItems() {
                 return (this.allItemsForStats || []).filter(item => !item.deletedAt).slice().sort((a, b) => b.time - a.time).slice(0, 24);
@@ -2687,6 +2790,11 @@
                     this.privateSelectedTags = Array.isArray(parsed.privateSelectedTags) && parsed.privateSelectedTags.length > 0 ? parsed.privateSelectedTags : this.privateSelectedTags;
                     this.privateSelectedAftercare = Array.isArray(parsed.privateSelectedAftercare) && parsed.privateSelectedAftercare.length > 0 ? parsed.privateSelectedAftercare : this.privateSelectedAftercare;
                     this.privateAftercareNote = parsed.privateAftercareNote || '';
+                    this.privatePlayStats = {
+                        ...this.privatePlayStats,
+                        ...(parsed.privatePlayStats || {})
+                    };
+                    this.privateRecipeSeed = Number(parsed.privateRecipeSeed || 0);
                     this.privateQuestionIndex = Number.isInteger(parsed.privateQuestionIndex) ? parsed.privateQuestionIndex : 0;
                     this.privateTask = parsed.privateTask || this.privateTask;
                 } catch (error) {}
@@ -2704,6 +2812,8 @@
                     privateSelectedTags: this.privateSelectedTags,
                     privateSelectedAftercare: this.privateSelectedAftercare,
                     privateAftercareNote: this.privateAftercareNote,
+                    privatePlayStats: this.privatePlayStats,
+                    privateRecipeSeed: this.privateRecipeSeed,
                     privateQuestionIndex: this.privateQuestionIndex,
                     privateTask: this.privateTask
                 }));
@@ -2750,6 +2860,7 @@
                 this.privateTheme = key;
                 this.privateQuestionIndex = 0;
                 this.drawPrivateTask(false);
+                this.resetPrivateVote();
                 this.persistPrivatePlayState();
             },
             setPrivateConsentSignal(key) {
@@ -2795,6 +2906,55 @@
                 } else {
                     this.privateSelectedAftercare = [...this.privateSelectedAftercare, option];
                 }
+                this.persistPrivatePlayState();
+            },
+            rollPrivateRecipe() {
+                this.privateRecipeSeed += 1;
+                this.privatePlayStats = {
+                    ...this.privatePlayStats,
+                    mixCount: Number(this.privatePlayStats.mixCount || 0) + 1
+                };
+                this.persistPrivatePlayState();
+                this.launchParticles({ x: '70%', y: '79%' }, 12);
+                this.showNotice('success', '夜色配方已重摇');
+            },
+            getPrivateVoteText(optionKey) {
+                const option = this.privateVoteOptions.find(item => item.key === optionKey);
+                return option ? option.text : '未选择';
+            },
+            submitPrivateVote(optionKey) {
+                this.privateVoteAnswers = {
+                    ...this.privateVoteAnswers,
+                    [this.privateVoteCurrentPlayer]: optionKey
+                };
+                if (this.privateVoteCurrentPlayer === '小橙') {
+                    this.privateVoteSealedPlayer = '小橙';
+                    this.privateVoteNextPlayer = '小心';
+                    this.privateVotePhase = 'sealed';
+                } else {
+                    this.privateVoteMatched = this.privateVoteAnswers.小橙 === optionKey;
+                    this.privateVotePhase = 'revealed';
+                    if (this.privateVoteMatched) {
+                        this.privatePlayStats = {
+                            ...this.privatePlayStats,
+                            voteMatches: Number(this.privatePlayStats.voteMatches || 0) + 1
+                        };
+                        this.launchParticles({ x: '72%', y: '88%' }, 16);
+                    }
+                    this.persistPrivatePlayState();
+                }
+            },
+            beginNextPrivateVoteTurn() {
+                this.privateVoteCurrentPlayer = this.privateVoteNextPlayer;
+                this.privateVotePhase = 'voting';
+            },
+            resetPrivateVote() {
+                this.privateVotePhase = 'voting';
+                this.privateVoteCurrentPlayer = '小橙';
+                this.privateVoteSealedPlayer = '';
+                this.privateVoteNextPlayer = '小心';
+                this.privateVoteMatched = false;
+                this.privateVoteAnswers = { '小橙': '', '小心': '' };
                 this.persistPrivatePlayState();
             },
             drawPrivateTask(showNotice = true) {
