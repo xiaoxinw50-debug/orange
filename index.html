@@ -487,6 +487,43 @@
         .play-chip { border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.42); color: var(--ink-main); padding: 10px 16px; cursor: pointer; transition: 0.2s; }
         .play-chip.active { background: linear-gradient(135deg, rgba(255,183,178,0.96), rgba(130,202,255,0.96)); color: white; border-color: transparent; transform: translateY(-2px); }
         .play-panel { display: grid; gap: 20px; }
+        .idv-board { gap: 22px; }
+        .idv-ribbon { position: relative; overflow: hidden; }
+        .idv-ribbon::before { content: ''; position: absolute; inset: 0; background:
+            radial-gradient(circle at top left, rgba(130, 202, 255, 0.22), transparent 34%),
+            radial-gradient(circle at bottom right, rgba(255, 183, 178, 0.24), transparent 30%);
+            pointer-events: none; }
+        .idv-kicker { font-size: 12px; letter-spacing: 2px; color: var(--ink-light); margin-bottom: 8px; }
+        .idv-summary { margin: 0; color: var(--ink-main); line-height: 1.9; }
+        .idv-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+        .idv-stat { border-radius: 18px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.38); padding: 16px; }
+        .idv-stat-label { font-size: 12px; color: var(--ink-light); margin-bottom: 8px; }
+        .idv-stat-value { font-family: var(--font-serif); font-size: 26px; color: var(--ink-main); }
+        .idv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+        .idv-panel { border-radius: 24px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.32); padding: 22px; display: grid; gap: 14px; }
+        .idv-panel-title { margin: 0; font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
+        .idv-panel-text { color: var(--ink-main); line-height: 1.8; }
+        .idv-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .idv-chip { border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.42); color: var(--ink-main); padding: 9px 14px; cursor: pointer; transition: 0.2s; }
+        .idv-chip.active { background: linear-gradient(135deg, rgba(130,202,255,0.95), rgba(255,183,178,0.92)); color: white; border-color: transparent; transform: translateY(-2px); }
+        .idv-role-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .idv-role-card { border-radius: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.28); padding: 18px; display: grid; gap: 12px; }
+        .idv-role-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .idv-role-name { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); }
+        .idv-role-badge { border-radius: 999px; padding: 6px 12px; background: rgba(130,202,255,0.16); color: var(--ink-main); font-size: 12px; border: 1px solid var(--border-fine); }
+        .idv-role-badge.hunter { background: rgba(255,183,178,0.16); }
+        .idv-role-picks { display: flex; gap: 8px; flex-wrap: wrap; }
+        .idv-role-pill { border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.46); color: var(--ink-main); padding: 8px 12px; cursor: pointer; font-size: 13px; }
+        .idv-role-pill.active { background: linear-gradient(135deg, rgba(130,202,255,0.95), rgba(255,183,178,0.92)); color: white; border-color: transparent; }
+        .idv-input { width: 100%; box-sizing: border-box; border-radius: 14px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.46); color: var(--ink-main); padding: 13px 14px; font-family: var(--font-ui); }
+        .idv-highlight { border-radius: 20px; border: 1px solid var(--border-fine); background: linear-gradient(135deg, rgba(255,255,255,0.42), rgba(255,240,245,0.34)); padding: 18px; }
+        .idv-highlight-kicker { font-size: 12px; letter-spacing: 2px; color: var(--ink-light); margin-bottom: 8px; }
+        .idv-highlight-title { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); margin-bottom: 8px; }
+        .idv-highlight-text { color: var(--ink-main); line-height: 1.85; }
+        .idv-highlight-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .idv-highlight-tag { border-radius: 999px; padding: 6px 12px; background: rgba(255,255,255,0.56); border: 1px solid var(--border-fine); color: var(--ink-main); font-size: 12px; }
+        .idv-log-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .idv-note { font-size: 13px; color: var(--ink-light); line-height: 1.7; }
 
         .timeline-group { margin-bottom: 60px; }
         .timeline-header { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); margin-bottom: 25px; position: sticky; top: 0; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(15px); padding: 15px 20px; border-radius: 20px; border: 1px solid var(--border-fine); display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
@@ -638,6 +675,7 @@
             .home-recent-item { padding: 12px 14px; }
             .private-grid { grid-template-columns: 1fr; }
             .night-play-grid { grid-template-columns: 1fr; }
+            .idv-grid, .idv-role-grid, .idv-log-grid, .idv-stats { grid-template-columns: 1fr; }
             .utility-grid { grid-template-columns: 1fr; }
             .decision-wheel-grid { grid-template-columns: 1fr; }
             .scenario-grid { grid-template-columns: 1fr; }
@@ -647,6 +685,7 @@
             .bond-weekly-grid { grid-template-columns: 1fr; }
             .bond-split { grid-template-columns: 1fr; }
             .bond-card, .bond-highlight, .private-panel, .night-panel { border-radius: 18px; }
+            .idv-panel, .idv-stat, .idv-highlight, .idv-role-card { border-radius: 18px; }
             .bond-section-head { align-items: flex-start; }
             .bond-section-toggle { width: 40px; height: 40px; flex: none; }
             .night-dice { width: 100%; min-height: 116px; }
@@ -673,7 +712,7 @@
             .note, .story-content { font-size: 15px; line-height: 1.9; }
             .timeline-header { top: 64px; font-size: 16px; }
             .home-title { font-size: 24px; }
-            .home-card-title, .fun-title, .night-play-title { font-size: 20px; }
+            .home-card-title, .fun-title, .night-play-title, .idv-panel-title { font-size: 20px; }
             .album-modal-body { padding: 16px 12px 24px; }
             .lightbox-header { padding: 12px; }
             .lightbox-stage { padding: 0 8px 14px; }
@@ -895,12 +934,13 @@
         <div v-if="currentTab === 'play'" class="play-shell">
             <div class="control-panel play-hero">
                 <div class="play-kicker">PLAYGROUND</div>
-                <h2 class="play-title">把星占、秘戏和盲盒收进一个游乐场</h2>
-                <p class="play-text">这里保留原来的玩法，但不再把导航切得很碎。现在除了命运卡牌、午夜秘戏和盲盒乐园，还多了一个更成熟但不过线的深夜玩法分组。</p>
+                <h2 class="play-title">把星占、秘戏、盲盒和庄园灵感收进一个游乐场</h2>
+                <p class="play-text">这里保留原来的玩法，但不再把导航切得很碎。现在除了命运卡牌、午夜秘戏、深夜玩法和盲盒乐园，还多了一个给第五人格玩家用的庄园分组。</p>
                 <div class="play-switchers">
                     <button type="button" :class="['play-chip', { active: playMode === 'tarot' }]" @click="playMode = 'tarot'">星占 🔮</button>
                     <button type="button" :class="['play-chip', { active: playMode === 'game' }]" @click="playMode = 'game'">秘戏 🎲</button>
                     <button type="button" :class="['play-chip', { active: playMode === 'night' }]" @click="playMode = 'night'">夜色 🌙</button>
+                    <button type="button" :class="['play-chip', { active: playMode === 'idv' }]" @click="playMode = 'idv'">庄园 🃏</button>
                     <button type="button" :class="['play-chip', { active: playMode === 'surprise' }]" @click="playMode = 'surprise'">盲盒 🎁</button>
                 </div>
             </div>
@@ -1100,6 +1140,139 @@
                             <div class="night-callout-label">搭配建议</div>
                             <div class="night-callout-text">如果抽到的是“认真说一句”这种任务，可以接着去关系页写一封短回信；如果抽到的是“做一件小事”，做完再把感受记进随笔，后面回看会很有味道。</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="currentTab === 'play' && playMode === 'idv'" class="fun-dashboard idv-board">
+            <div class="fun-card wide idv-ribbon">
+                <div class="idv-kicker">IDENTITY V</div>
+                <h3 class="arcade-title">给你们的庄园双排留一个专门位置</h3>
+                <p class="idv-summary">把本命角色、双排挑战、赛后小结和庄园默契签收在一起。它不追求做复杂数据面板，而是让你们每次打完都更容易留下“这一局最像我们的那一刻”。</p>
+                <div class="idv-stats">
+                    <div class="idv-stat">
+                        <div class="idv-stat-label">庄园挑战</div>
+                        <div class="idv-stat-value">{{ playStats.idvChallenges || 0 }} 次</div>
+                    </div>
+                    <div class="idv-stat">
+                        <div class="idv-stat-label">默契签抽取</div>
+                        <div class="idv-stat-value">{{ playStats.idvOmens || 0 }} 次</div>
+                    </div>
+                    <div class="idv-stat">
+                        <div class="idv-stat-label">赛后小结</div>
+                        <div class="idv-stat-value">{{ playStats.idvLogs || 0 }} 篇</div>
+                    </div>
+                    <div class="idv-stat">
+                        <div class="idv-stat-label">主玩阵营</div>
+                        <div class="idv-stat-value">{{ currentIdvCampLabel }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="idv-grid">
+                <div class="fun-card idv-panel">
+                    <h3 class="idv-panel-title">庄园偏好</h3>
+                    <div class="idv-panel-text">先把你们最常进的阵营和本命角色记下来。这里不做完整角色图鉴，只保留最常用的几位，并支持自己补充。</div>
+                    <div class="idv-row">
+                        <button
+                            v-for="option in idvCampOptions"
+                            :key="option.key"
+                            type="button"
+                            :class="['idv-chip', { active: idvCamp === option.key }]"
+                            @click="setIdvCamp(option.key)"
+                        >
+                            {{ option.label }}
+                        </button>
+                    </div>
+                    <div class="idv-role-grid">
+                        <div v-for="player in idvPlayerOrder" :key="player" class="idv-role-card">
+                            <div class="idv-role-head">
+                                <div class="idv-role-name">{{ player }}</div>
+                                <div :class="['idv-role-badge', { hunter: idvCamp === 'hunter' }]">{{ currentIdvCampLabel }}</div>
+                            </div>
+                            <div class="idv-role-picks">
+                                <button
+                                    v-for="role in currentIdvRolePool"
+                                    :key="`${player}-${role}`"
+                                    type="button"
+                                    :class="['idv-role-pill', { active: idvFavorites[player] === role }]"
+                                    @click="selectIdvFavorite(player, role)"
+                                >
+                                    {{ role }}
+                                </button>
+                            </div>
+                            <input
+                                type="text"
+                                class="idv-input"
+                                v-model.trim="idvCustomFavorites[player]"
+                                :placeholder="`${player} 也可以自己写一个角色`"
+                                @keyup.enter="applyIdvCustomFavorite(player)"
+                            >
+                            <div class="fun-actions">
+                                <button class="action-submit secondary-btn" @click="applyIdvCustomFavorite(player)">保存这个本命</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="idv-note">当前摘要：{{ idvProfileSummary }}</div>
+                </div>
+
+                <div class="fun-card idv-panel">
+                    <h3 class="idv-panel-title">双排挑战池</h3>
+                    <div class="idv-panel-text">适合开局前抽一条，给这一晚一个轻目标。不是高压任务，更像“这一局想一起做到什么”。</div>
+                    <div class="idv-highlight">
+                        <div class="idv-highlight-kicker">DUO CHALLENGE</div>
+                        <template v-if="currentIdvChallenge">
+                            <div class="idv-highlight-title">{{ currentIdvChallenge.title }}</div>
+                            <div class="idv-highlight-text">{{ currentIdvChallenge.text }}</div>
+                            <div class="idv-highlight-meta">
+                                <div class="idv-highlight-tag">{{ currentIdvChallenge.tag }}</div>
+                                <div class="idv-highlight-tag">奖励感：{{ currentIdvChallenge.reward }}</div>
+                            </div>
+                        </template>
+                        <div v-else class="idv-highlight-text">还没抽到挑战，点下面那颗按钮让庄园自己发牌。</div>
+                    </div>
+                    <div class="fun-actions">
+                        <button class="action-submit" @click="drawIdvChallenge">抽一条庄园挑战</button>
+                        <button class="action-submit secondary-btn" @click="saveIdvChallengeToWish" :disabled="!currentIdvChallenge">存进心愿</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="idv-grid">
+                <div class="fun-card idv-panel">
+                    <h3 class="idv-panel-title">庄园默契签</h3>
+                    <div class="idv-panel-text">比攻略轻一点，比玩笑认真一点。适合排位前抽一句，看看你们这一晚会怎么配合。</div>
+                    <div class="idv-highlight">
+                        <div class="idv-highlight-kicker">TEAM OMEN</div>
+                        <template v-if="currentIdvOmen">
+                            <div class="idv-highlight-title">{{ currentIdvOmen.title }}</div>
+                            <div class="idv-highlight-text">{{ currentIdvOmen.text }}</div>
+                            <div class="idv-highlight-meta">
+                                <div class="idv-highlight-tag">{{ currentIdvOmen.focus }}</div>
+                                <div class="idv-highlight-tag">{{ currentIdvOmen.mood }}</div>
+                            </div>
+                        </template>
+                        <div v-else class="idv-highlight-text">今晚还没抽到默契签，先翻一张看看庄园想让你们怎么打配合。</div>
+                    </div>
+                    <div class="fun-actions">
+                        <button class="action-submit" @click="drawIdvOmen">抽一张默契签</button>
+                        <button class="action-submit secondary-btn" @click="saveIdvOmenToDiary" :disabled="!currentIdvOmen">写进随笔草稿</button>
+                    </div>
+                </div>
+
+                <div class="fun-card idv-panel">
+                    <h3 class="idv-panel-title">赛后小结</h3>
+                    <div class="idv-panel-text">不做复杂战绩记录，只留下一局里最值得回看的细节。这样以后翻到时，能立刻想起那天谁在救、谁在 C、谁又差一点翻盘。</div>
+                    <div class="idv-log-grid">
+                        <input type="text" class="idv-input" v-model.trim="idvMatchDraft.role" placeholder="这局你们拿了什么角色">
+                        <input type="text" class="idv-input" v-model.trim="idvMatchDraft.map" placeholder="地图，比如月亮河公园">
+                        <input type="text" class="idv-input" v-model.trim="idvMatchDraft.result" placeholder="结果，比如三跑 / 四抓 / 平局">
+                        <input type="text" class="idv-input" v-model.trim="idvMatchDraft.label" placeholder="一句标签，比如极限救人局">
+                    </div>
+                    <textarea class="bond-textarea" v-model.trim="idvMatchDraft.highlight" placeholder="写一句这一局最值得记住的瞬间，比如“地下室把人摸起来那一刻差点喊出来”"></textarea>
+                    <div class="fun-actions">
+                        <button class="action-submit" @click="saveIdvMatchLogToDiary">写成赛后小结</button>
                     </div>
                 </div>
             </div>
@@ -2181,8 +2354,14 @@
                 particles: [],
                 activeAchievement: null,
                 achievementQueue: [],
-                playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0, wheelSpins: 0, scenarioDraws: 0, bingoWins: 0, nightPlays: 0 },
+                playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0, wheelSpins: 0, scenarioDraws: 0, bingoWins: 0, nightPlays: 0, idvChallenges: 0, idvOmens: 0, idvLogs: 0 },
                 playMode: 'tarot',
+                idvCamp: 'survivor',
+                idvFavorites: { '小橙': '先知', '小心': '祭司' },
+                idvCustomFavorites: { '小橙': '', '小心': '' },
+                currentIdvChallenge: null,
+                currentIdvOmen: null,
+                idvMatchDraft: { role: '', map: '', result: '', label: '', highlight: '' },
                 privatePasscodeDraft: '',
                 privatePasscodeConfirm: '',
                 privatePasscodeInput: '',
@@ -2239,6 +2418,33 @@
                 nextSyncPlayer: '小心',
                 syncMatched: false,
                 syncAnswers: { '小橙': '', '小心': '' },
+                idvCampOptions: [
+                    { key: 'survivor', label: '求生双排' },
+                    { key: 'hunter', label: '监管练习' },
+                    { key: 'flex', label: '双修乱斗' }
+                ],
+                idvRolePools: {
+                    survivor: ['先知', '祭司', '佣兵', '调香师', '病患', '心理学家'],
+                    hunter: ['红蝶', '杰克', '雕刻家', '渔女', '守夜人', '歌剧演员'],
+                    flex: ['先知', '祭司', '佣兵', '红蝶', '杰克', '渔女']
+                },
+                idvPlayerOrder: ['小橙', '小心'],
+                idvChallengeDeck: [
+                    { title: '这晚先打一把救人默契局', tag: '双排协作', reward: '打完会很有配合感', text: '这一把提前说好第一救和补位顺序。哪怕输了，也尽量把沟通做满，不让“你怎么不来”留到结算后。' },
+                    { title: '月亮河就玩一次稳住节奏', tag: '地图心态', reward: '少一点上头', text: '如果进到容易追节奏的地图，这把目标不是秀翻，而是尽量减少无效失误。把“稳住”当成今晚的胜利标准。' },
+                    { title: '这把给对方一个高光位', tag: '让对方发光', reward: '会很想夸人', text: '有意识地给对方一次更舒服的节奏或资源，让其中一个人能打出“这波真像主角”的瞬间。' },
+                    { title: '打一把赛后认真复盘局', tag: '排位复盘', reward: '后面更少吵架', text: '这把结束后不急着下一局，先各自说一个“刚才其实可以更好”的点，只讲当局，不翻旧账。' },
+                    { title: '开一把整活娱乐局', tag: '庄园放松', reward: '今晚会更轻松', text: '允许这把不按最优解来。可以选平时少玩的角色，目标是给这晚留一个真的会笑出来的记忆点。' },
+                    { title: '给彼此留一句赛后夸奖', tag: '情绪管理', reward: '输赢都不扫兴', text: '这局不管结果怎样，结算后都要先说一句对方这一把做得好的地方，再决定要不要继续。' }
+                ],
+                idvOmenDeck: [
+                    { title: '今晚是“一个报点一个接话”的夜晚', focus: '语音默契', mood: '稳稳推进', text: '你们这晚的关键不是操作上限，而是谁能把信息说得更清楚、谁能把对方的节奏接住。' },
+                    { title: '今晚更适合当彼此的兜底位', focus: '保底配合', mood: '少怪多补', text: '比起谁 C 全场，今晚更像是谁能在对方失误那一瞬间，先补位而不是先上情绪。' },
+                    { title: '今晚会有一局值得反复回味', focus: '高光瞬间', mood: '会想截图', text: '不一定是四跑或四抓，但会有一个“刚才那波太像我们了”的瞬间，适合打完马上记下来。' },
+                    { title: '今晚适合先赢一把心态局', focus: '状态调整', mood: '别急着证明', text: '如果前几把不顺，不要急着靠下一把翻盘证明什么。把情绪稳住，本身就是今晚最值的一局。' },
+                    { title: '今晚的默契点在“愿意等一下”', focus: '节奏同步', mood: '慢半拍反而更对', text: '有一方会更急，有一方会更稳。今晚最好的配合，可能就是其中一个人愿意多等对方半秒。' },
+                    { title: '今晚适合把输赢写得轻一点', focus: '关系优先', mood: '打完还想继续聊', text: '真正该留下的不是战绩，而是这晚你们有没有因为同一局而更懂对方一点。' }
+                ],
                 moodOptions: [
                     { key: 'spark', label: '✨ 怦然' },
                     { key: 'hug', label: '🤍 依偎' },
@@ -2642,8 +2848,20 @@
             currentSyncPlayer() {
                 return this.syncCurrentPlayer;
             },
+            currentIdvCampLabel() {
+                return this.idvCampOptions.find(item => item.key === this.idvCamp)?.label || '求生双排';
+            },
+            currentIdvRolePool() {
+                return this.idvRolePools[this.idvCamp] || this.idvRolePools.survivor;
+            },
+            idvProfileSummary() {
+                const orange = this.idvFavorites['小橙'] || '还没选';
+                const xinxin = this.idvFavorites['小心'] || '还没选';
+                return `当前更像是 ${this.currentIdvCampLabel} 配置，小橙常用 ${orange}，小心常用 ${xinxin}。`;
+            },
             arcadeStats() {
                 return [
+                    { label: '庄园挑战', value: `${this.playStats.idvChallenges || 0} 次`, note: '双排前抽一条，比空口说“随便打吧”更容易进入状态。' },
                     { label: '夜色玩法', value: `${this.playStats.nightPlays || 0} 次`, note: '夜里没灵感时，先用一条轻玩法把气氛点亮。' },
                     { label: '回忆扭蛋', value: `${this.playStats.surpriseDraws} 次`, note: '随机抽旧故事最容易把人拉回当时。' },
                     { label: '转盘决定', value: `${this.playStats.wheelSpins} 次`, note: '让“今晚干嘛”少一点犹豫，多一点直接。' },
@@ -2652,6 +2870,9 @@
                 ];
             },
             arcadeSummary() {
+                if ((this.playStats.idvChallenges || 0) >= 3 && (this.playStats.idvLogs || 0) >= 1) {
+                    return '游乐区现在也能接住你们的庄园日常了。双排前抽挑战，赛后留一段小结，过一阵回看时会比战绩截图更有记忆点。';
+                }
                 if ((this.playStats.nightPlays || 0) >= 3 && this.playStats.bingoWins >= 2) {
                     return '现在这页已经不只是抽卡了。它能帮你们在夜里起氛围、在犹豫时做决定、在没灵感时起剧情，再把真正做过的小事一格格点亮。';
                 }
@@ -2924,6 +3145,9 @@
                 const scenarioDraws = this.playStats.scenarioDraws || 0;
                 const bingoWins = this.playStats.bingoWins || 0;
                 const nightPlays = this.playStats.nightPlays || 0;
+                const idvChallenges = this.playStats.idvChallenges || 0;
+                const idvOmens = this.playStats.idvOmens || 0;
+                const idvLogs = this.playStats.idvLogs || 0;
 
                 return [
                     { key: 'first', icon: '🌱', name: '初次落笔', condition: '留下任意 1 条内容', unlocked: total >= 1, description: '你们已经把这个小宇宙真正启动了。' },
@@ -2938,7 +3162,9 @@
                     { key: 'spinner', icon: '🎡', name: '今晚你来选', condition: '转盘决定 3 次', unlocked: wheelSpins >= 3, description: '犹豫的时刻被你们做成了更轻松的小游戏。' },
                     { key: 'director', icon: '🎬', name: '氛围导演', condition: '抽取 3 次剧情盲盒', unlocked: scenarioDraws >= 3, description: '你们已经开始把普通夜晚演成只属于彼此的小片段。' },
                     { key: 'bingo', icon: '🧩', name: '陪伴通关者', condition: '完成 2 次 Bingo 连线', unlocked: bingoWins >= 2, description: '一起做的小事已经从随机灵感变成了可重复的陪伴节奏。' },
-                    { key: 'afterhours', icon: '🌙', name: '夜色策展人', condition: '完成 4 次夜色玩法', unlocked: nightPlays >= 4, description: '你们已经把“今晚做什么”慢慢玩成了一套自己的夜间语言。' }
+                    { key: 'afterhours', icon: '🌙', name: '夜色策展人', condition: '完成 4 次夜色玩法', unlocked: nightPlays >= 4, description: '你们已经把“今晚做什么”慢慢玩成了一套自己的夜间语言。' },
+                    { key: 'manor_duo', icon: '🃏', name: '庄园双排搭子', condition: '抽取 3 次庄园挑战', unlocked: idvChallenges >= 3, description: '你们的双排已经不只是开局，更开始形成自己的配合仪式。' },
+                    { key: 'manor_diary', icon: '🪑', name: '庄园观战席', condition: '保存 2 次赛后小结或默契签', unlocked: (idvLogs + idvOmens) >= 2, description: '你们开始把庄园里的高光和情绪，认真留在回忆里。' }
                 ];
             },
             emptyStateText() {
@@ -3695,7 +3921,10 @@
                         wheelSpins: Number(parsed.wheelSpins || 0),
                         scenarioDraws: Number(parsed.scenarioDraws || 0),
                         bingoWins: Number(parsed.bingoWins || 0),
-                        nightPlays: Number(parsed.nightPlays || 0)
+                        nightPlays: Number(parsed.nightPlays || 0),
+                        idvChallenges: Number(parsed.idvChallenges || 0),
+                        idvOmens: Number(parsed.idvOmens || 0),
+                        idvLogs: Number(parsed.idvLogs || 0)
                     };
                 } catch (error) {}
             },
@@ -3709,6 +3938,121 @@
                 };
                 this.persistPlayStats();
                 this.checkAchievementUnlocks();
+            },
+            loadIdvState() {
+                try {
+                    const raw = localStorage.getItem('orange_idv_state');
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    this.idvCamp = parsed.idvCamp || this.idvCamp;
+                    this.idvFavorites = {
+                        ...this.idvFavorites,
+                        ...(parsed.idvFavorites || {})
+                    };
+                    this.idvCustomFavorites = {
+                        ...this.idvCustomFavorites,
+                        ...(parsed.idvCustomFavorites || {})
+                    };
+                    this.currentIdvChallenge = parsed.currentIdvChallenge || null;
+                    this.currentIdvOmen = parsed.currentIdvOmen || null;
+                    this.idvMatchDraft = {
+                        ...this.idvMatchDraft,
+                        ...(parsed.idvMatchDraft || {})
+                    };
+                } catch (error) {}
+            },
+            persistIdvState() {
+                localStorage.setItem('orange_idv_state', JSON.stringify({
+                    idvCamp: this.idvCamp,
+                    idvFavorites: this.idvFavorites,
+                    idvCustomFavorites: this.idvCustomFavorites,
+                    currentIdvChallenge: this.currentIdvChallenge,
+                    currentIdvOmen: this.currentIdvOmen,
+                    idvMatchDraft: this.idvMatchDraft
+                }));
+            },
+            setIdvCamp(camp) {
+                this.idvCamp = camp;
+                this.persistIdvState();
+                this.showNotice('success', `庄园分组已切到「${this.currentIdvCampLabel}」`);
+            },
+            selectIdvFavorite(player, role) {
+                this.idvFavorites = {
+                    ...this.idvFavorites,
+                    [player]: role
+                };
+                this.idvCustomFavorites = {
+                    ...this.idvCustomFavorites,
+                    [player]: ''
+                };
+                this.persistIdvState();
+            },
+            applyIdvCustomFavorite(player) {
+                const role = String(this.idvCustomFavorites[player] || '').trim();
+                if (!role) {
+                    this.showNotice('info', '先写一个角色名');
+                    return;
+                }
+                this.idvFavorites = {
+                    ...this.idvFavorites,
+                    [player]: role
+                };
+                this.persistIdvState();
+                this.showNotice('success', `${player} 的本命角色已更新`);
+            },
+            drawIdvChallenge() {
+                const randomIndex = Math.floor(Math.random() * this.idvChallengeDeck.length);
+                this.currentIdvChallenge = this.idvChallengeDeck[randomIndex];
+                this.persistIdvState();
+                this.incrementPlayStat('idvChallenges');
+                this.launchParticles({ x: '28%', y: '42%' }, 16);
+                this.vibrate([35, 40, 60]);
+                this.showNotice('success', '庄园挑战已经发下来了');
+            },
+            saveIdvChallengeToWish() {
+                if (!this.currentIdvChallenge) return;
+                this.switchTab('wish');
+                this.$nextTick(() => {
+                    this.newNote = `【庄园挑战】${this.currentIdvChallenge.title}：${this.currentIdvChallenge.text}`;
+                    this.selectedMood = 'brave';
+                    this.showNotice('success', '庄园挑战已写进心愿');
+                });
+            },
+            drawIdvOmen() {
+                const randomIndex = Math.floor(Math.random() * this.idvOmenDeck.length);
+                this.currentIdvOmen = this.idvOmenDeck[randomIndex];
+                this.persistIdvState();
+                this.incrementPlayStat('idvOmens');
+                this.launchParticles({ x: '28%', y: '64%' }, 16);
+                this.vibrate([30, 30, 50]);
+                this.showNotice('success', '庄园默契签已翻开');
+            },
+            saveIdvOmenToDiary() {
+                if (!this.currentIdvOmen) return;
+                this.switchTab('diary');
+                this.$nextTick(() => {
+                    this.newTitle = `🃏 庄园默契签：${this.currentIdvOmen.title}`;
+                    this.newNote = `【关注点】${this.currentIdvOmen.focus}\n【今晚气氛】${this.currentIdvOmen.mood}\n【庄园提示】\n${this.currentIdvOmen.text}\n\n【这一晚后来真的发生了什么】\n`;
+                    this.selectedMood = 'brave';
+                    this.showNotice('success', '庄园默契签已写进随笔草稿');
+                });
+            },
+            saveIdvMatchLogToDiary() {
+                const draft = this.idvMatchDraft;
+                if (!draft.role && !draft.map && !draft.result && !draft.highlight) {
+                    this.showNotice('info', '至少留一点这一局的细节');
+                    return;
+                }
+                this.switchTab('diary');
+                this.$nextTick(() => {
+                    this.newTitle = draft.label ? `🎮 庄园赛后：${draft.label}` : '🎮 庄园赛后小结';
+                    this.newNote = `【角色】${draft.role || '未写'}\n【地图】${draft.map || '未写'}\n【结果】${draft.result || '未写'}\n【这一局最值得记住的瞬间】\n${draft.highlight || '这局的细节，等你们慢慢补完。'}\n`;
+                    this.selectedMood = 'chaos';
+                    this.idvMatchDraft = { role: '', map: '', result: '', label: '', highlight: '' };
+                    this.persistIdvState();
+                    this.incrementPlayStat('idvLogs');
+                    this.showNotice('success', '赛后小结已写进随笔草稿');
+                });
             },
             loadPrivatePlayState() {
                 try {
@@ -4233,6 +4577,7 @@
             handleBeforeUnload() {
                 this.saveScrollPosition(this.currentTab);
                 this.persistComposerDraft();
+                this.persistIdvState();
                 this.persistUiState();
             },
             exportLocalBackup() {
@@ -4240,6 +4585,7 @@
                     const backup = {
                         exportedAt: new Date().toISOString(),
                         playStats: JSON.parse(localStorage.getItem('orange_play_stats') || '{}'),
+                        idvState: JSON.parse(localStorage.getItem('orange_idv_state') || '{}'),
                         playBingo: JSON.parse(localStorage.getItem('orange_play_bingo') || '[]'),
                         privateState: JSON.parse(localStorage.getItem('orange_private_state') || '{}'),
                         relationshipBaseDate: localStorage.getItem('orange_relationship_base') || '',
@@ -4267,6 +4613,7 @@
                     const text = await file.text();
                     const parsed = JSON.parse(text);
                     if (parsed.playStats) localStorage.setItem('orange_play_stats', JSON.stringify(parsed.playStats));
+                    if (parsed.idvState) localStorage.setItem('orange_idv_state', JSON.stringify(parsed.idvState));
                     if (parsed.playBingo) localStorage.setItem('orange_play_bingo', JSON.stringify(parsed.playBingo));
                     if (parsed.privateState) localStorage.setItem('orange_private_state', JSON.stringify(parsed.privateState));
                     if (parsed.relationshipBaseDate) localStorage.setItem('orange_relationship_base', parsed.relationshipBaseDate);
@@ -4276,6 +4623,7 @@
                         });
                     }
                     this.loadPlayStats();
+                    this.loadIdvState();
                     this.loadPrivatePlayState();
                     this.loadBingoBoard();
                     this.refreshComposerDraftMeta();
@@ -4943,11 +5291,20 @@
             newDate() { this.scheduleComposerDraftSave(); },
             selectedMood() { this.scheduleComposerDraftSave(); },
             playMode() { this.persistUiState(); },
-            listDensityMode() { this.persistUiState(); }
+            listDensityMode() { this.persistUiState(); },
+            idvCustomFavorites: {
+                handler() { this.persistIdvState(); },
+                deep: true
+            },
+            idvMatchDraft: {
+                handler() { this.persistIdvState(); },
+                deep: true
+            }
         },
         mounted() { 
             this.loadUiState();
             this.loadPlayStats();
+            this.loadIdvState();
             this.loadPrivatePlayState();
             this.loadBingoBoard();
             this.refreshComposerDraftMeta();
