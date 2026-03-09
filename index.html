@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="/manifest.json">
+    <meta name="description" content="橙心回忆，一款适合手机安装的双人回忆与游乐小宇宙。">
     <meta name="theme-color" content="#FFB7B2">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/512x512/1f3f0.png">
+    <meta name="apple-mobile-web-app-title" content="橙心回忆">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     
     <title>橙心回忆 - 我们的琉璃城堡</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -215,6 +217,11 @@
         .home-card { background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border-fine); padding: 26px; box-shadow: 0 10px 30px rgba(255, 182, 193, 0.12); backdrop-filter: blur(10px); }
         .home-card-title { margin: 0 0 10px; font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
         .home-card-text { font-size: 14px; line-height: 1.8; color: var(--ink-light); margin-bottom: 14px; }
+        .install-card { display: grid; gap: 14px; background: linear-gradient(135deg, rgba(255,255,255,0.94), rgba(255,240,245,0.76)); }
+        .install-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .install-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.65); color: var(--ink-main); padding: 8px 12px; font-size: 13px; }
+        .install-steps { margin: 0; padding-left: 18px; color: var(--ink-main); line-height: 1.8; }
+        .install-steps li + li { margin-top: 6px; }
         .home-recent-list { display: grid; gap: 12px; }
         .home-recent-item { padding: 14px 16px; border-radius: 18px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.3); cursor: pointer; transition: 0.2s; }
         .home-recent-item:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(255, 182, 193, 0.12); }
@@ -937,6 +944,27 @@
                             <div class="chart-container"><canvas id="activityChart"></canvas></div>
                         </div>
                     </div>
+                </div>
+
+                <div class="home-card install-card" style="grid-column: 1 / -1;">
+                    <h3 class="home-card-title">安装到手机</h3>
+                    <div class="home-card-text">现在可以把它当成手机主屏上的小客户端来用。安装后会用独立窗口打开，图标和启动页都走本地资源。</div>
+                    <div class="install-row">
+                        <div class="install-badge">📱 {{ isStandaloneApp ? '已作为客户端打开' : '可添加到主屏幕' }}</div>
+                        <div class="install-badge">🛰️ 支持基础离线缓存</div>
+                        <div class="install-badge">🎨 本地图标已就位</div>
+                    </div>
+                    <div class="home-actions">
+                        <button v-if="canInstallApp" class="action-submit" @click="promptInstallApp">安装到手机</button>
+                        <button v-else-if="showIosInstallHint" class="action-submit" @click="toggleIosInstallHint">{{ iosInstallHintOpen ? '收起 iPhone 安装步骤' : '查看 iPhone 安装步骤' }}</button>
+                        <button v-else-if="isStandaloneApp" class="action-submit secondary-btn" disabled>当前已在客户端模式</button>
+                        <button v-else class="action-submit secondary-btn" disabled>等待浏览器允许安装</button>
+                    </div>
+                    <ol v-if="showIosInstallHint && iosInstallHintOpen" class="install-steps">
+                        <li>在 Safari 打开这个页面。</li>
+                        <li>点击底部“分享”按钮。</li>
+                        <li>选择“添加到主屏幕”，名称保留为“橙心回忆”。</li>
+                    </ol>
                 </div>
             </div>
         </div>
@@ -2311,6 +2339,12 @@
                 selectedFilePreviews: [], appendFilePreviews: [],
                 storyChartObj: null, activityChartObj: null,
                 itemsLoading: false, dashboardLoading: false,
+                deferredInstallPrompt: null,
+                canInstallApp: false,
+                isStandaloneApp: false,
+                isIosDevice: false,
+                showIosInstallHint: false,
+                iosInstallHintOpen: false,
                 notice: { type: '', text: '' },
                 noticeTimer: null,
                 undoAction: null,
@@ -3184,6 +3218,47 @@
             // ✨ 震动触觉核心魔法
             vibrate(pattern = 50) {
                 if ('vibrate' in navigator) { try { navigator.vibrate(pattern); } catch (e) {} }
+            },
+            refreshInstallState() {
+                const standaloneByDisplayMode = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+                const standaloneByNavigator = window.navigator.standalone === true;
+                this.isStandaloneApp = Boolean(standaloneByDisplayMode || standaloneByNavigator);
+                const ua = window.navigator.userAgent || '';
+                this.isIosDevice = /iPhone|iPad|iPod/i.test(ua);
+                this.showIosInstallHint = this.isIosDevice && !this.isStandaloneApp && !this.canInstallApp;
+                if (this.isStandaloneApp) {
+                    this.canInstallApp = false;
+                    this.deferredInstallPrompt = null;
+                }
+            },
+            handleBeforeInstallPrompt(event) {
+                event.preventDefault();
+                this.deferredInstallPrompt = event;
+                this.canInstallApp = true;
+                this.refreshInstallState();
+            },
+            async promptInstallApp() {
+                if (!this.deferredInstallPrompt) {
+                    this.refreshInstallState();
+                    this.showNotice('info', this.showIosInstallHint ? '请按下方步骤添加到主屏幕' : '当前浏览器还没给出安装时机');
+                    return;
+                }
+                this.deferredInstallPrompt.prompt();
+                try {
+                    await this.deferredInstallPrompt.userChoice;
+                } catch (error) {}
+                this.deferredInstallPrompt = null;
+                this.canInstallApp = false;
+                this.refreshInstallState();
+            },
+            handleAppInstalled() {
+                this.deferredInstallPrompt = null;
+                this.canInstallApp = false;
+                this.refreshInstallState();
+                this.showNotice('success', '已经安装到主屏幕，可以像客户端一样打开了');
+            },
+            toggleIosInstallHint() {
+                this.iosInstallHintOpen = !this.iosInstallHintOpen;
             },
             showNotice(type, text) {
                 if (!text) return;
@@ -5278,12 +5353,15 @@
             this.loadPrivatePlayState();
             this.loadBingoBoard();
             this.refreshComposerDraftMeta();
+            this.refreshInstallState();
             const savedBaseDate = localStorage.getItem('orange_relationship_base'); if (savedBaseDate) this.relationshipBaseDate = savedBaseDate;
             const savedUser = localStorage.getItem('orange_user'); if (savedUser) { this.currentUser = savedUser; this.initApp(); }
             const savedTheme = localStorage.getItem('orange_theme'); if (savedTheme === 'dark') { this.isDarkMode = true; document.documentElement.setAttribute('data-theme', 'dark'); }
             document.addEventListener('click', this.closeCardMenu);
             document.addEventListener('click', this.handleGlobalActivity, true);
             document.addEventListener('keydown', this.handleGlobalKeydown, true);
+            window.addEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
+            window.addEventListener('appinstalled', this.handleAppInstalled);
             window.addEventListener('beforeunload', this.handleBeforeUnload);
         },
         beforeUnmount() {
@@ -5300,6 +5378,8 @@
             document.removeEventListener('click', this.closeCardMenu);
             document.removeEventListener('click', this.handleGlobalActivity, true);
             document.removeEventListener('keydown', this.handleGlobalKeydown, true);
+            window.removeEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
+            window.removeEventListener('appinstalled', this.handleAppInstalled);
             window.removeEventListener('beforeunload', this.handleBeforeUnload);
         }
     }).mount('#app');

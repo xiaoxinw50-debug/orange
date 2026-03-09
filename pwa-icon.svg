@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="橙心回忆图标">
+  <rect width="1024" height="1024" rx="220" fill="#ededed"/>
+
+  <g transform="translate(300 180)">
+    <path
+      d="M192 592
+         C176 460 188 346 214 232
+         C234 145 282 112 312 142
+         C342 173 330 271 297 344
+         C273 397 239 453 208 510"
+      fill="none"
+      stroke="#8f2d27"
+      stroke-width="10"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <path
+      d="M184 394
+         C131 354 92 325 66 294
+         C45 268 46 236 69 223
+         C101 205 150 223 188 262
+         C211 286 230 320 238 358"
+      fill="none"
+      stroke="#8f2d27"
+      stroke-width="10"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <g transform="translate(228 450)">
+      <ellipse cx="74" cy="78" rx="54" ry="50" fill="#ff7a00"/>
+      <ellipse cx="57" cy="96" rx="18" ry="14" fill="#ff9f40" opacity="0.9"/>
+      <ellipse cx="90" cy="60" rx="14" ry="10" fill="#ffb45e" opacity="0.75"/>
+      <path
+        d="M65 40
+           C72 18 84 7 102 3
+           C116 0 132 4 142 14"
+        fill="none"
+        stroke="#2f6e23"
+        stroke-width="8"
+        stroke-linecap="round"
+      />
+      <path
+        d="M86 31
+           C72 9 48 1 31 11
+           C41 29 56 42 74 45"
+        fill="#3f8b2b"
+      />
+      <path
+        d="M96 28
+           C109 10 133 5 153 10
+           C144 30 127 42 109 43"
+        fill="#3b7f28"
+      />
+    </g>
+  </g>
+</svg>
