@@ -2364,6 +2364,10 @@
                 listDensityMode: 'compact',
                 scrollPositions: {},
                 seenTabActivity: {},
+                remoteLatestByCategory: {},
+                notificationPermissionState: 'prompt',
+                notificationState: { lastNotifiedTime: 0 },
+                notificationCheckInFlight: false,
                 reminderPollTimer: null,
                 fallbackImage: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='640' viewBox='0 0 640 640'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23ffe4ec'/><stop offset='100%' stop-color='%23f6d4ff'/></linearGradient></defs><rect width='640' height='640' rx='48' fill='url(%23g)'/><text x='50%' y='46%' dominant-baseline='middle' text-anchor='middle' font-size='120'>📸</text><text x='50%' y='60%' dominant-baseline='middle' text-anchor='middle' font-size='34' fill='%237b5c6a'>照片暂时没加载出来</text></svg>",
                 filterQuery: '', filterAuthor: '', filterMood: '', filterFrom: '', filterTo: '',
@@ -2817,7 +2821,10 @@
             tabReminderMap() {
                 const next = {};
                 this.getTrackedTabs().forEach(tab => {
-                    const latest = this.getLatestActivityForTab(tab);
+                    const latest = Math.max(
+                        this.getLatestActivityForTab(tab),
+                        this.getLatestRemoteActivityForTab(tab)
+                    );
                     const seen = Number(this.seenTabActivity?.[tab] || 0);
                     next[tab] = Boolean(latest && latest > seen);
                 });
@@ -3353,6 +3360,22 @@
             getSeenTabStateKey() {
                 return this.currentUser ? `orange_seen_tabs_${this.currentUser}` : 'orange_seen_tabs_guest';
             },
+            getNotificationStateKey() {
+                return this.currentUser ? `orange_notification_state_${this.currentUser}` : 'orange_notification_state_guest';
+            },
+            getCapacitorPlugin(name) {
+                return window.Capacitor?.Plugins?.[name] || null;
+            },
+            isNativeShell() {
+                try {
+                    return Boolean(window.Capacitor?.isNativePlatform?.());
+                } catch (error) {
+                    return false;
+                }
+            },
+            getApiBaseUrl() {
+                return ORANGE_API_BASE || window.location.origin;
+            },
             loadSeenTabState() {
                 try {
                     const raw = localStorage.getItem(this.getSeenTabStateKey());
@@ -3361,16 +3384,36 @@
                     this.seenTabActivity = {};
                 }
             },
+            loadNotificationState() {
+                try {
+                    const raw = localStorage.getItem(this.getNotificationStateKey());
+                    this.notificationState = raw ? JSON.parse(raw) : { lastNotifiedTime: 0 };
+                } catch (error) {
+                    this.notificationState = { lastNotifiedTime: 0 };
+                }
+            },
             persistSeenTabState() {
                 try {
                     localStorage.setItem(this.getSeenTabStateKey(), JSON.stringify(this.seenTabActivity || {}));
                 } catch (error) {}
             },
+            persistNotificationState() {
+                try {
+                    localStorage.setItem(this.getNotificationStateKey(), JSON.stringify(this.notificationState || { lastNotifiedTime: 0 }));
+                } catch (error) {}
+            },
             getItemActivityTimestamp(item) {
-                const direct = Number(item?.time || item?.updatedAt || item?.createdAt || 0);
-                if (Number.isFinite(direct) && direct > 0) return direct;
+                const numericDirect = Number(item?.time || 0);
+                if (Number.isFinite(numericDirect) && numericDirect > 0) return numericDirect;
+                const createdAt = item?.createdAt ? Date.parse(item.createdAt) : NaN;
+                if (Number.isFinite(createdAt) && createdAt > 0) return createdAt;
+                const updatedAt = item?.updatedAt ? Date.parse(item.updatedAt) : NaN;
+                if (Number.isFinite(updatedAt) && updatedAt > 0) return updatedAt;
                 const parsed = Date.parse(item?.date || item?.deletedAt || '');
                 return Number.isFinite(parsed) ? parsed : 0;
+            },
+            getLatestRemoteActivityForTab(tab) {
+                return Math.max(0, Number(this.remoteLatestByCategory?.[tab]?.activityTime || 0));
             },
             getLatestActivityForTab(tab, sourceItems) {
                 const items = Array.isArray(sourceItems) ? sourceItems : this.activeItems;
@@ -3392,6 +3435,111 @@
                 };
                 this.persistSeenTabState();
             },
+            async ensureNotificationChannel() {
+                const localNotifications = this.getCapacitorPlugin('LocalNotifications');
+                if (!this.isNativeShell() || !localNotifications?.createChannel) return;
+                try {
+                    await localNotifications.createChannel({
+                        id: 'content-updates',
+                        name: '新内容提醒',
+                        description: '对方新增纪事、相册、随笔或浮梦时提醒',
+                        importance: 5,
+                        visibility: 1
+                    });
+                } catch (error) {}
+            },
+            async ensureContentNotificationSetup(interactive = false) {
+                const backgroundRunner = this.getCapacitorPlugin('BackgroundRunner');
+                if (this.isNativeShell()) {
+                    const localNotifications = this.getCapacitorPlugin('LocalNotifications');
+                    if (localNotifications?.checkPermissions) {
+                        try {
+                            let permission = await localNotifications.checkPermissions();
+                            let display = permission?.display || 'granted';
+                            if (display === 'prompt' && interactive && localNotifications.requestPermissions) {
+                                permission = await localNotifications.requestPermissions();
+                                display = permission?.display || display;
+                            }
+                            this.notificationPermissionState = display;
+                        } catch (error) {
+                            this.notificationPermissionState = 'denied';
+                        }
+                    } else {
+                        this.notificationPermissionState = 'granted';
+                    }
+                    if (backgroundRunner?.requestPermissions && interactive) {
+                        try {
+                            await backgroundRunner.requestPermissions({ apis: ['notifications'] });
+                        } catch (error) {}
+                    }
+                    if (this.notificationPermissionState === 'granted') {
+                        await this.ensureNotificationChannel();
+                    }
+                } else if ('Notification' in window) {
+                    this.notificationPermissionState = Notification.permission || 'default';
+                    if (interactive && this.notificationPermissionState === 'default') {
+                        try {
+                            this.notificationPermissionState = await Notification.requestPermission();
+                        } catch (error) {}
+                    }
+                }
+                this.persistNotificationState();
+                await this.syncBackgroundNotificationConfig();
+            },
+            async syncBackgroundNotificationConfig() {
+                const backgroundRunner = this.getCapacitorPlugin('BackgroundRunner');
+                if (!backgroundRunner?.dispatchEvent) return;
+                try {
+                    await backgroundRunner.dispatchEvent({
+                        label: 'com.orange.memories.notifications',
+                        event: 'configureNotifications',
+                        details: {
+                            enabled: this.notificationPermissionState === 'granted' && Boolean(this.currentUser),
+                            viewer: this.currentUser || '',
+                            apiBase: this.getApiBaseUrl(),
+                            lastNotifiedTime: Number(this.notificationState?.lastNotifiedTime || 0)
+                        }
+                    });
+                } catch (error) {}
+            },
+            async checkRemoteNotifications() {
+                if (!this.currentUser || this.notificationCheckInFlight) return;
+                this.notificationCheckInFlight = true;
+                try {
+                    const res = await axios.get('/api/notifications/check', {
+                        params: {
+                            viewer: this.currentUser,
+                            since: Number(this.notificationState?.lastNotifiedTime || 0)
+                        }
+                    });
+                    const payload = res.data || {};
+                    this.remoteLatestByCategory = payload.latestByCategory || {};
+                    if (this.getTrackedTabs().includes(this.currentTab)) {
+                        const previousSeen = Number(this.seenTabActivity?.[this.currentTab] || 0);
+                        const currentTabLatest = Math.max(
+                            this.getLatestActivityForTab(this.currentTab),
+                            this.getLatestRemoteActivityForTab(this.currentTab)
+                        );
+                        if (currentTabLatest) {
+                            this.markTabAsSeen(this.currentTab, currentTabLatest);
+                            if (currentTabLatest > previousSeen && document.visibilityState === 'visible') {
+                                this.getItems();
+                            }
+                        }
+                    }
+                } catch (error) {}
+                finally {
+                    this.notificationCheckInFlight = false;
+                }
+            },
+            handleWindowFocus() {
+                this.checkRemoteNotifications();
+            },
+            handleVisibilityRefresh() {
+                if (document.visibilityState === 'visible') {
+                    this.checkRemoteNotifications();
+                }
+            },
             async refreshAllItemsSnapshot(showError = false) {
                 try {
                     const res = await axios.get('/api/items');
@@ -3411,7 +3559,7 @@
                 this.stopReminderPolling();
                 if (!this.currentUser) return;
                 this.reminderPollTimer = window.setInterval(() => {
-                    this.refreshAllItemsSnapshot(false);
+                    this.checkRemoteNotifications();
                 }, 90000);
             },
             stopReminderPolling() {
@@ -4798,8 +4946,12 @@
                 this.albumReadOnly = false;
                 this.privateUnlocked = false;
                 this.privatePasscodeInput = '';
+                this.remoteLatestByCategory = {};
+                this.notificationPermissionState = 'prompt';
+                this.notificationState = { lastNotifiedTime: 0 };
                 window.clearTimeout(this.privateAutoLockTimer);
                 this.stopReminderPolling();
+                this.syncBackgroundNotificationConfig();
                 document.body.style.overflow = 'auto';
                 this.clearNotice();
                 this.clearUndoAction();
@@ -5422,9 +5574,12 @@
                 this.newDate = this.getLocalDateString();
                 this.reviewDate = this.getLocalDateString();
                 this.loadSeenTabState();
+                this.loadNotificationState();
                 if (this.showComposer) this.loadComposerDraftForTab(this.currentTab);
                 if (this.currentTab === 'home' || this.currentTab === 'play') this.fetchAllItemsForStats();
                 else this.getItems();
+                this.ensureContentNotificationSetup(true);
+                this.checkRemoteNotifications();
                 this.startReminderPolling();
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('/sw.js').catch(() => {
@@ -5463,9 +5618,11 @@
             document.addEventListener('click', this.closeCardMenu);
             document.addEventListener('click', this.handleGlobalActivity, true);
             document.addEventListener('keydown', this.handleGlobalKeydown, true);
+            document.addEventListener('visibilitychange', this.handleVisibilityRefresh);
             window.addEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
             window.addEventListener('appinstalled', this.handleAppInstalled);
             window.addEventListener('beforeunload', this.handleBeforeUnload);
+            window.addEventListener('focus', this.handleWindowFocus);
         },
         beforeUnmount() {
             window.clearTimeout(this.draftSaveTimer);
@@ -5482,9 +5639,11 @@
             document.removeEventListener('click', this.closeCardMenu);
             document.removeEventListener('click', this.handleGlobalActivity, true);
             document.removeEventListener('keydown', this.handleGlobalKeydown, true);
+            document.removeEventListener('visibilitychange', this.handleVisibilityRefresh);
             window.removeEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
             window.removeEventListener('appinstalled', this.handleAppInstalled);
             window.removeEventListener('beforeunload', this.handleBeforeUnload);
+            window.removeEventListener('focus', this.handleWindowFocus);
         }
     }).mount('#app');
 </script>

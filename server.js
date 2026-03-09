@@ -75,6 +75,8 @@ const itemSchema = new mongoose.Schema({
     completed: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
     deletedBy: { type: String, default: '' }
+}, {
+    timestamps: true
 });
 const Item = mongoose.model('Item', itemSchema);
 
@@ -516,6 +518,25 @@ function toCardItem(item) {
     };
 }
 
+function getActivityTimestamp(item) {
+    const createdAt = item?.createdAt ? new Date(item.createdAt).getTime() : 0;
+    const updatedAt = item?.updatedAt ? new Date(item.updatedAt).getTime() : 0;
+    const legacyTime = Number(item?.time || 0);
+    return Math.max(createdAt || 0, updatedAt || 0, legacyTime || 0);
+}
+
+function toNotificationItem(item) {
+    const cardItem = toCardItem(item);
+    return {
+        ...cardItem,
+        activityTime: getActivityTimestamp(item),
+        preview: cardItem.note
+            || cardItem.title
+            || cardItem.segments?.[0]?.text
+            || (cardItem.category === 'album' ? '对方刚刚整理了一本相册。' : '')
+    };
+}
+
 async function destroyItemAssets(item) {
     if (item.images && item.images.length > 0) {
         await Promise.all(item.images.map(img => cloudinary.uploader.destroy(img.public_id)));
@@ -627,6 +648,47 @@ app.get('/api/items', async (req, res) => {
         const sort = parseBooleanFlag(req.query.deletedOnly) ? { deletedAt: -1 } : { time: -1 };
         const items = await Item.find(query).sort(sort).lean();
         res.json(items.map(toClientItem));
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+app.get('/api/notifications/check', async (req, res) => {
+    try {
+        const viewer = normalizeOptionalAuthor(req.query.viewer);
+        const since = Math.max(0, Number(req.query.since || 0));
+        const trackedCategories = ['memory', 'album', 'diary', 'story'];
+        const query = {
+            deletedAt: null,
+            category: { $in: trackedCategories }
+        };
+
+        if (viewer) {
+            query.author = { $ne: viewer };
+        }
+
+        const items = await Item.find(query).sort({ updatedAt: -1, createdAt: -1, time: -1 }).limit(32).lean();
+        const latestByCategory = {};
+        trackedCategories.forEach(category => {
+            const item = items.find(entry => entry.category === category);
+            latestByCategory[category] = item ? toNotificationItem(item) : null;
+        });
+
+        const latestItem = items[0] ? toNotificationItem(items[0]) : null;
+        const unseenItems = items
+            .map(toNotificationItem)
+            .filter(item => item.activityTime > since)
+            .slice(0, 6);
+
+        res.json({
+            serverTime: Date.now(),
+            viewer: viewer || '',
+            latestTime: latestItem?.activityTime || 0,
+            latestItem,
+            latestByCategory,
+            unseenCount: unseenItems.length,
+            unseenItems
+        });
     } catch (err) {
         handleError(res, err);
     }
