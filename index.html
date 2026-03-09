@@ -799,13 +799,8 @@
                 <div :class="['tab', {active: currentTab === 'memory'}]" @click="switchTab('memory')">纪事</div>
                 <div :class="['tab', {active: currentTab === 'album'}]" @click="switchTab('album')">相册</div>
                 <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')">随笔</div>
-                <div :class="['tab', {active: currentTab === 'wish'}]" @click="switchTab('wish')">心愿</div>
                 <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')">浮梦</div>
                 <div :class="['tab', {active: currentTab === 'play'}]" @click="switchTab('play')">游乐 🎲</div>
-                <div :class="['tab', {active: currentTab === 'review'}]" @click="switchTab('review')">回顾 💌</div>
-                <div :class="['tab', {active: currentTab === 'bond'}]" @click="switchTab('bond')">关系 💞</div>
-                <div :class="['tab', {active: currentTab === 'recycle'}]" @click="switchTab('recycle')">回收站 🗑️</div>
-                <div :class="['tab', {active: currentTab === 'stats'}]" @click="switchTab('stats')">星图 🌟</div>
             </div>
             <div class="header-actions">
                 <button class="theme-toggle" @click="toggleTheme">{{ isDarkMode ? '🌙' : '✨' }}</button>
@@ -897,7 +892,7 @@
                         </div>
                         <div class="home-actions">
                             <button class="action-submit" @click="switchTab(homeTonightCard.primaryTab)">{{ homeTonightCard.primaryLabel }}</button>
-                            <button class="action-submit secondary-btn" @click="switchTab('review')">回顾一下去年今天</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('play')">直接去游乐区</button>
                         </div>
                     </div>
                 </div>
@@ -905,15 +900,15 @@
                 <div class="home-stack">
                     <div class="home-card">
                         <h3 class="home-card-title">继续处理</h3>
-                        <div class="home-card-text">把没做完的输入、未完成的心愿和最近常去的入口收在一块。</div>
+                        <div class="home-card-text">把没做完的输入、最近常去的入口和当前内容规模收在一块，不再拆成很多页。</div>
                         <div class="home-pill-row">
                             <div class="home-pill">📝 草稿 {{ composerDraftCount }} 份</div>
-                            <div class="home-pill">🎯 未完成心愿 {{ homePendingWishCount }} 条</div>
                             <div class="home-pill">📸 相册 {{ homeAlbumCount }} 本</div>
+                            <div class="home-pill">🎲 游乐 {{ totalPlayCount }} 次</div>
                         </div>
                         <div class="home-actions">
                             <button class="action-submit secondary-btn" @click="switchTab('diary')">打开随笔</button>
-                            <button class="action-submit secondary-btn" @click="switchTab('wish')">查看心愿</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('memory')">继续纪事</button>
                             <button class="action-submit secondary-btn" @click="switchTab('play')">去游乐区</button>
                         </div>
                     </div>
@@ -924,7 +919,22 @@
                         <div class="home-actions">
                             <button class="action-submit secondary-btn" @click="switchTab('memory')">写纪事</button>
                             <button class="action-submit secondary-btn" @click="switchTab('album')">看相册</button>
-                            <button class="action-submit secondary-btn" @click="switchTab('bond')">去关系页</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('story')">打开浮梦</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="home-card" style="grid-column: 1 / -1;">
+                    <h3 class="home-card-title">统计概览</h3>
+                    <div class="home-card-text">原来的统计单独页已经并到首页了。这里直接看内容贡献和时间轨迹，不用再跳出去。</div>
+                    <div class="stats-dashboard" style="margin-top: 18px;">
+                        <div class="stats-card">
+                            <div class="stats-title">📝 梦境字数贡献度</div>
+                            <div class="chart-container"><canvas id="storyChart"></canvas></div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-title">👣 时空魔法轨迹</div>
+                            <div class="chart-container"><canvas id="activityChart"></canvas></div>
                         </div>
                     </div>
                 </div>
@@ -1234,7 +1244,7 @@
                     </div>
                     <div class="fun-actions">
                         <button class="action-submit" @click="drawIdvChallenge">抽一条庄园挑战</button>
-                        <button class="action-submit secondary-btn" @click="saveIdvChallengeToWish" :disabled="!currentIdvChallenge">存进心愿</button>
+                        <button class="action-submit secondary-btn" @click="saveIdvChallengeToDiary" :disabled="!currentIdvChallenge">写进随笔草稿</button>
                     </div>
                 </div>
             </div>
@@ -1275,17 +1285,6 @@
                         <button class="action-submit" @click="saveIdvMatchLogToDiary">写成赛后小结</button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div v-if="currentTab === 'stats'" class="stats-dashboard">
-            <div class="stats-card">
-                <div class="stats-title">📝 梦境字数贡献度</div>
-                <div class="chart-container"><canvas id="storyChart"></canvas></div>
-            </div>
-            <div class="stats-card">
-                <div class="stats-title">👣 时空魔法轨迹</div>
-                <div class="chart-container"><canvas id="activityChart"></canvas></div>
             </div>
         </div>
 
@@ -1946,7 +1945,7 @@
                 </div>
                 <div class="fun-actions">
                     <button class="action-submit" @click="drawSurpriseTask">抽一个今日任务</button>
-                    <button v-if="surpriseTask" class="action-submit secondary-btn" @click="saveSurpriseTaskToWish">存进心愿</button>
+                    <button v-if="surpriseTask" class="action-submit secondary-btn" @click="saveSurpriseTaskToDiary">写进随笔草稿</button>
                 </div>
             </div>
 
@@ -1993,7 +1992,7 @@
                 </div>
                 <div class="fun-actions">
                     <button class="action-submit" @click="spinDecisionWheel" :disabled="decisionSpinning">{{ decisionSpinning ? '转盘旋转中...' : '开始转一圈' }}</button>
-                    <button v-if="decisionResult" class="action-submit secondary-btn" @click="saveDecisionToWish">按这个决定安排今晚</button>
+                    <button v-if="decisionResult" class="action-submit secondary-btn" @click="saveDecisionToDiary">把这个决定写下来</button>
                 </div>
             </div>
 
@@ -2166,7 +2165,7 @@
                 </button>
             </div>
             <div class="input-group">
-                <div class="file-upload-wrapper" v-if="currentTab === 'memory' || currentTab === 'wish' || currentTab === 'story' || currentTab === 'album'">
+                <div class="file-upload-wrapper" v-if="currentTab === 'memory' || currentTab === 'story' || currentTab === 'album'">
                     <input type="file" @change="handleFiles" accept="image/*" :multiple="currentTab === 'album'">
                     <span class="file-upload-text">{{ selectedFiles.length > 0 ? `已选 ${selectedFiles.length} 张 🌸` : (currentTab==='album' ? '📸 批量选择照片' : '📸 唤醒记忆') }}</span>
                 </div>
@@ -2247,17 +2246,6 @@
                             <button v-if="canExpandCard(item)" type="button" class="card-section-toggle" @click="toggleCardExpanded(item._id)">
                                 {{ isCardExpanded(item) ? '收起细节' : '展开内容' }}
                             </button>
-                            <div v-if="shouldShowExtraDetails(item) && getItemInteractionCount(item) > 0 && currentTab !== 'recycle'" class="interaction-strip">
-                                <button type="button" class="interaction-pill" @click="openReplyFromList(item)">💌 {{ item.replies ? item.replies.length : 0 }} 封回信</button>
-                                <button type="button" class="interaction-pill" @click="openPerspectiveFromList(item)">🪞 {{ item.perspectives ? item.perspectives.length : 0 }} 个视角</button>
-                            </div>
-                            <div v-if="shouldShowExtraDetails(item) && getLatestInteractionPreview(item) && currentTab !== 'recycle'" class="interaction-preview" @click="switchTabWithMemory(item, getLatestInteractionPreview(item).type)">
-                                最近互动 · {{ getLatestInteractionPreview(item).label }}：{{ getLatestInteractionPreview(item).text }}
-                            </div>
-                            <div v-if="shouldShowExtraDetails(item) && currentTab !== 'recycle'" class="bond-quick-actions">
-                                <button type="button" class="interaction-pill action" @click="openReplyFromList(item)">写回信</button>
-                                <button type="button" class="interaction-pill action" @click="openPerspectiveFromList(item)">补个视角</button>
-                            </div>
                         </div>
                         <div v-else>
                             <div class="mood-row" style="margin-bottom: 16px;">
@@ -2705,16 +2693,15 @@
                     memory: '今天发生了什么，值得被记住？',
                     album: '给这本相册留一句封面说明...',
                     diary: '把这一刻的情绪和细节写下来...',
-                    wish: '想一起做的一件小事是什么？',
                     story: '从这一段梦境开始续写...'
                 };
                 return map[this.currentTab] || '珍藏那一刻的闪光...';
             },
             btnText() { return '入卷'; },
             currentDeck() { return this.isMidnightMode ? this.tarotDeckMidnight : this.tarotDeckRomantic; },
-            showComposer() { return ['memory', 'album', 'diary', 'wish', 'story'].includes(this.currentTab); },
-            showFilters() { return ['memory', 'album', 'diary', 'wish', 'story', 'recycle'].includes(this.currentTab); },
-            showListView() { return ['memory', 'album', 'diary', 'wish', 'story', 'recycle'].includes(this.currentTab); },
+            showComposer() { return ['memory', 'album', 'diary', 'story'].includes(this.currentTab); },
+            showFilters() { return ['memory', 'album', 'diary', 'story'].includes(this.currentTab); },
+            showListView() { return ['memory', 'album', 'diary', 'story'].includes(this.currentTab); },
             composerDraftCount() {
                 return Object.keys(this.composerDraftMetaByTab || {}).length;
             },
@@ -2736,38 +2723,42 @@
                 return (this.allItemsForStats || []).filter(item => !item.deletedAt);
             },
             homeRecentItems() {
-                return this.activeItems.slice().sort((a, b) => (b.time || 0) - (a.time || 0)).slice(0, 4);
-            },
-            homePendingWishCount() {
-                return this.activeItems.filter(item => item.category === 'wish' && !item.completed).length;
+                return this.activeItems
+                    .filter(item => ['memory', 'album', 'diary', 'story'].includes(item.category))
+                    .slice()
+                    .sort((a, b) => (b.time || 0) - (a.time || 0))
+                    .slice(0, 4);
             },
             homeAlbumCount() {
                 return this.activeItems.filter(item => item.category === 'album').length;
             },
+            totalPlayCount() {
+                return Object.values(this.playStats || {}).reduce((sum, value) => sum + Number(value || 0), 0);
+            },
             homeSummary() {
                 if (this.composerDraftCount > 0) {
-                    return `你还有 ${this.composerDraftCount} 份草稿没写完，未完成心愿 ${this.homePendingWishCount} 条。先从最容易继续的一页开始，会比重新找入口顺很多。`;
+                    return `你还有 ${this.composerDraftCount} 份草稿没写完。首页现在只保留最常用的几个入口，先从最容易继续的一页开始会顺很多。`;
                 }
                 if (this.homeRecentItems.length > 0) {
-                    return `最近一次记录停在 ${this.formatDate(this.homeRecentItems[0].date)}。首页会把最近内容、今晚推荐和高频入口收在一起，不用再先想“应该点哪一页”。`;
+                    return `最近一次记录停在 ${this.formatDate(this.homeRecentItems[0].date)}。现在首页会把最近内容、统计和高频入口收在一起，不用再先想“应该点哪一页”。`;
                 }
                 return '这里会把今天最值得先打开的内容放在最前面。等你们开始写下第一条回忆，这里就会慢慢长成真正的首页。';
             },
             homeMetrics() {
                 return [
                     { label: '已留下内容', value: `${this.activeItems.length}`, note: '现在所有还在主宇宙里的记录。' },
-                    { label: '未完成心愿', value: `${this.homePendingWishCount}`, note: '不用很多，先做最近的一条。' },
                     { label: '本地草稿', value: `${this.composerDraftCount}`, note: '随手写了一半的内容都还在。' },
-                    { label: '夜色玩法', value: `${this.playStats.nightPlays || 0}`, note: '最近夜晚气氛是被怎么玩起来的。' }
+                    { label: '相册数量', value: `${this.homeAlbumCount}`, note: '照片还在持续变多。' },
+                    { label: '游乐次数', value: `${this.totalPlayCount}`, note: '最近互动更偏向记录还是偏向玩，能一眼看出来。' }
                 ];
             },
             homeRecommendedAction() {
                 if (this.composerDraftCount > 0) return { tab: this.latestDraftTab, label: '继续写草稿' };
-                if (this.homePendingWishCount > 0) return { tab: 'wish', label: '处理心愿清单' };
+                if (this.homeRecentItems.length > 0) return { tab: this.homeRecentItems[0]?.category || 'memory', label: '回到最近内容' };
                 return { tab: 'play', label: '打开今晚推荐' };
             },
             lastContentTab() {
-                const candidates = ['memory', 'album', 'diary', 'wish', 'story'];
+                const candidates = ['memory', 'album', 'diary', 'story'];
                 const raw = localStorage.getItem('orange_ui_state');
                 if (!raw) return 'memory';
                 try {
@@ -2786,15 +2777,6 @@
                         tags: ['🌙 夜间', '🫶 轻起步', '💌 可写进随笔'],
                         primaryTab: 'play',
                         primaryLabel: '去夜色玩法'
-                    };
-                }
-                if (this.homePendingWishCount > 0) {
-                    return {
-                        title: '白天更适合把一条心愿落地',
-                        text: '现在不一定要玩更多，选一条最近最容易完成的心愿，把它真的做掉，会比继续收藏更有满足感。',
-                        tags: ['🎯 执行', '📌 低压力', '🌤️ 白天适合'],
-                        primaryTab: 'wish',
-                        primaryLabel: '去心愿清单'
                     };
                 }
                 return {
@@ -3268,7 +3250,7 @@
             },
             persistUiState() {
                 try {
-                    const contentTabs = ['memory', 'album', 'diary', 'wish', 'story'];
+                    const contentTabs = ['memory', 'album', 'diary', 'story'];
                     const payload = {
                         currentTab: this.currentTab,
                         playMode: this.playMode,
@@ -3289,7 +3271,8 @@
                     const raw = localStorage.getItem(this.getUiStateKey());
                     if (!raw) return;
                     const parsed = JSON.parse(raw);
-                    this.currentTab = parsed.currentTab || this.currentTab;
+                    const allowedTabs = ['home', 'memory', 'album', 'diary', 'story', 'play'];
+                    this.currentTab = allowedTabs.includes(parsed.currentTab) ? parsed.currentTab : this.currentTab;
                     this.playMode = parsed.playMode || this.playMode;
                     this.listDensityMode = parsed.listDensityMode || this.listDensityMode;
                     this.filterQuery = parsed.filterQuery || '';
@@ -3318,7 +3301,7 @@
                 return `orange_draft_${tab}`;
             },
             refreshComposerDraftMeta() {
-                const tabs = ['memory', 'album', 'diary', 'wish', 'story'];
+                const tabs = ['memory', 'album', 'diary', 'story'];
                 const next = {};
                 tabs.forEach(tab => {
                     try {
@@ -3514,7 +3497,7 @@
                 return hasMediaCard ? 'grid-memory' : 'grid-list';
             },
             getCategoryLabel(category) {
-                const labels = { memory: '纪事', album: '相册', diary: '随笔', wish: '心愿', story: '浮梦' };
+                const labels = { memory: '纪事', album: '相册', diary: '随笔', story: '浮梦' };
                 return labels[category] || '内容';
             },
             getItemDisplayTitle(item) {
@@ -3558,8 +3541,8 @@
             canExpandCard(item) {
                 const category = this.getDisplayCategory(item);
                 if (category === 'album') return false;
-                if (category === 'story') return (item?.segments || []).length > 2 || this.getItemInteractionCount(item) > 0;
-                return (item?.note || '').length > 120 || this.getItemInteractionCount(item) > 0;
+                if (category === 'story') return (item?.segments || []).length > 2;
+                return (item?.note || '').length > 120;
             },
             shouldShowExtraDetails(item) {
                 return this.isCardExpanded(item) || this.getDisplayCategory(item) === 'album';
@@ -3606,24 +3589,13 @@
                 };
             },
             openReplyFromList(item) {
-                this.responseComposerMode = 'reply';
-                this.selectedReplyItemId = item._id;
-                this.switchTab('bond');
+                this.showNotice('info', '关系页入口已收起，先专注在记录和游乐里。');
             },
             openPerspectiveFromList(item) {
-                this.responseComposerMode = 'perspective';
-                this.selectedPerspectiveItemId = item._id;
-                this.switchTab('bond');
+                this.showNotice('info', '关系页入口已收起，先专注在记录和游乐里。');
             },
             switchTabWithMemory(item, type) {
-                if (type === 'perspective') {
-                    this.responseComposerMode = 'perspective';
-                    this.selectedPerspectiveItemId = item._id;
-                } else {
-                    this.responseComposerMode = 'reply';
-                    this.selectedReplyItemId = item._id;
-                }
-                this.switchTab('bond');
+                this.showNotice('info', '这类互动入口暂时已从主界面收起。');
             },
             getTemperatureLabel(state) {
                 const target = this.temperatureOptions.find(item => item.key === state);
@@ -3676,7 +3648,7 @@
                     this.allItemsForStats = itemsRes.data;
                     this.setRelationshipEntries(entriesRes.data);
                     this.dailyQuestion = questionRes.data;
-                    if (this.currentTab === 'stats') this.renderCharts();
+                    if (this.currentTab === 'home') this.renderCharts();
                     this.ensureRelationshipSelections();
                 } catch (error) {
                     this.showNotice('error', this.getErrorMessage(error, '关系页数据加载失败'));
@@ -4009,13 +3981,14 @@
                 this.vibrate([35, 40, 60]);
                 this.showNotice('success', '庄园挑战已经发下来了');
             },
-            saveIdvChallengeToWish() {
+            saveIdvChallengeToDiary() {
                 if (!this.currentIdvChallenge) return;
-                this.switchTab('wish');
+                this.switchTab('diary');
                 this.$nextTick(() => {
-                    this.newNote = `【庄园挑战】${this.currentIdvChallenge.title}：${this.currentIdvChallenge.text}`;
+                    this.newTitle = `🃏 庄园挑战：${this.currentIdvChallenge.title}`;
+                    this.newNote = `【庄园挑战】${this.currentIdvChallenge.text}\n【奖励感】${this.currentIdvChallenge.reward}\n【这一局后来发生了什么】\n`;
                     this.selectedMood = 'brave';
-                    this.showNotice('success', '庄园挑战已写进心愿');
+                    this.showNotice('success', '庄园挑战已写进随笔草稿');
                 });
             },
             drawIdvOmen() {
@@ -4591,7 +4564,7 @@
                         relationshipBaseDate: localStorage.getItem('orange_relationship_base') || '',
                         drafts: {}
                     };
-                    ['memory', 'album', 'diary', 'wish', 'story'].forEach(tab => {
+                    ['memory', 'album', 'diary', 'story'].forEach(tab => {
                         const raw = localStorage.getItem(this.getComposerDraftKey(tab));
                         if (raw) backup.drafts[tab] = JSON.parse(raw);
                     });
@@ -4663,7 +4636,7 @@
                 this.isDarkMode = !this.isDarkMode;
                 document.documentElement.setAttribute('data-theme', this.isDarkMode ? 'dark' : 'light');
                 localStorage.setItem('orange_theme', this.isDarkMode ? 'dark' : 'light');
-                if(this.currentTab === 'stats') this.renderCharts(); 
+                if(this.currentTab === 'home') this.renderCharts(); 
             },
             switchTab(tab) {
                 this.vibrate(30);
@@ -4675,18 +4648,15 @@
                 this.revokePreviewUrls(this.selectedFilePreviews);
                 this.currentTab = tab; this.selectedFiles = []; this.selectedFilePreviews = []; this.newNote = ''; this.newTitle = ''; this.selectedMood = '';
                 this.newDate = this.getLocalDateString();
-                if (['memory', 'album', 'diary', 'wish', 'story'].includes(tab)) this.loadComposerDraftForTab(tab);
-                if (tab === 'home' || tab === 'stats' || tab === 'play') this.fetchAllItemsForStats();
-                else if (tab === 'bond') this.loadRelationshipHub();
-                else if (tab === 'review') this.loadAnniversaryReview();
-                else if (tab !== 'play') this.getItems();
+                if (['memory', 'album', 'diary', 'story'].includes(tab)) this.loadComposerDraftForTab(tab);
+                if (tab === 'home' || tab === 'play') this.fetchAllItemsForStats();
+                else this.getItems();
                 if (tab === 'play' && !this.surpriseTask) this.drawSurpriseTask();
                 this.persistUiState();
                 this.$nextTick(() => this.restoreScrollPosition(tab));
             },
             applyFilters() {
-                if (this.currentTab === 'review') this.loadAnniversaryReview();
-                else if (this.showListView) this.getItems();
+                if (this.showListView) this.getItems();
                 this.persistUiState();
             },
             clearFilters() {
@@ -4782,13 +4752,14 @@
                     this.showNotice('success', `今晚就按「${this.decisionResult}」来`);
                 }, 3600);
             },
-            saveDecisionToWish() {
+            saveDecisionToDiary() {
                 if (!this.decisionResult) return;
-                this.switchTab('wish');
+                this.switchTab('diary');
                 this.$nextTick(() => {
-                    this.newNote = `今晚就按「${this.decisionResult}」来，不再反复纠结了。`;
+                    this.newTitle = '🎡 今晚的转盘决定';
+                    this.newNote = `今晚就按「${this.decisionResult}」来，不再反复纠结了。\n\n【后来真的发生了什么】\n`;
                     this.selectedMood = 'spark';
-                    this.showNotice('success', '决定已经写进心愿输入框');
+                    this.showNotice('success', '决定已经写进随笔草稿');
                 });
             },
             drawScenarioBox() {
@@ -4834,14 +4805,15 @@
                     this.showNotice('success', '桥段已经写进随笔草稿');
                 });
             },
-            saveSurpriseTaskToWish() {
+            saveSurpriseTaskToDiary() {
                 if (!this.surpriseTask) return;
                 this.incrementPlayStat('taskSaves');
-                this.switchTab('wish');
+                this.switchTab('diary');
                 this.$nextTick(() => {
-                    this.newNote = `${this.surpriseTask.title}：${this.surpriseTask.text}`;
+                    this.newTitle = `🎁 今日任务：${this.surpriseTask.title}`;
+                    this.newNote = `${this.surpriseTask.text}\n\n【做完以后想记下什么】\n`;
                     this.selectedMood = 'spark';
-                    this.showNotice('success', '任务已经写进心愿输入框了');
+                    this.showNotice('success', '任务已经写进随笔草稿了');
                 });
             },
             getNightPlayTabLabel(tab) {
@@ -5123,7 +5095,7 @@
                     this.refreshComposerDraftMeta();
                     const fileInput = document.querySelector('.control-panel input[type="file"]'); if(fileInput) fileInput.value = '';
                     this.getItems();
-                    if (this.currentTab === 'play' || this.currentTab === 'stats') this.fetchAllItemsForStats();
+                    if (this.currentTab === 'play' || this.currentTab === 'home') this.fetchAllItemsForStats();
                     if (options.resetTarot) this.resetTarot();
                     this.showNotice('success', options.successMessage || '内容已保存');
                     this.vibrate([50,50,50]); 
@@ -5274,10 +5246,8 @@
                 this.newDate = this.getLocalDateString();
                 this.reviewDate = this.getLocalDateString();
                 if (this.showComposer) this.loadComposerDraftForTab(this.currentTab);
-                if (this.currentTab === 'home' || this.currentTab === 'stats' || this.currentTab === 'play') this.fetchAllItemsForStats();
-                else if (this.currentTab === 'bond') this.loadRelationshipHub();
-                else if (this.currentTab === 'review') this.loadAnniversaryReview();
-                else if (this.currentTab !== 'play') this.getItems();
+                if (this.currentTab === 'home' || this.currentTab === 'play') this.fetchAllItemsForStats();
+                else this.getItems();
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('/sw.js').catch(() => {
                         this.showNotice('error', '离线能力注册失败');
