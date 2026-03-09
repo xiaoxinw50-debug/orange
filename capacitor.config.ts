@@ -5,6 +5,20 @@ const config: CapacitorConfig = {
   appName: '橙心回忆',
   webDir: 'mobile-web',
   bundledWebRuntime: false,
+  plugins: {
+    LocalNotifications: {
+      smallIcon: 'ic_stat_orange',
+      iconColor: '#FF8FA3'
+    },
+    BackgroundRunner: {
+      label: 'com.orange.memories.notifications',
+      src: 'runners/background-notifications.js',
+      event: 'orangeNotificationCheck',
+      repeat: true,
+      interval: 15,
+      autoStart: true
+    }
+  },
   ios: {
     contentInset: 'automatic'
   },
