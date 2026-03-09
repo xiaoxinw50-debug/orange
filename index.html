@@ -961,8 +961,8 @@
                 <div :class="['tab', {active: currentTab === 'home'}]" @click="switchTab('home')"><span>首页</span><span v-if="hasAnyUnreadContent" class="tab-badge"></span></div>
                 <div :class="['tab', {active: currentTab === 'memory'}]" @click="switchTab('memory')"><span>记事</span><span v-if="hasUnreadForTab('memory')" class="tab-badge"></span></div>
                 <div :class="['tab', {active: currentTab === 'album'}]" @click="switchTab('album')"><span>相册</span><span v-if="hasUnreadForTab('album')" class="tab-badge"></span></div>
-                <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')"><span>浮梦</span><span v-if="hasUnreadForTab('story')" class="tab-badge"></span></div>
-                <div :class="['tab', {active: currentTab === 'game'}]" @click="switchTab('game')"><span>游戏 🎲</span></div>
+                <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')"><span>代餐</span><span v-if="hasUnreadForTab('story')" class="tab-badge"></span></div>
+                <div :class="['tab', {active: currentTab === 'game'}]" @click="switchTab('game')"><span>游戏</span></div>
             </div>
             <div class="header-actions">
                 <button class="theme-toggle" @click="toggleTheme">{{ isDarkMode ? '🌙' : '✨' }}</button>
@@ -1041,7 +1041,7 @@
                             <div v-if="homeRecentItems.length === 0" class="empty-state rich">
                                 <div class="empty-state-icon">📖</div>
                                 <div class="empty-state-title">最近回忆还没有出现</div>
-                            <div class="empty-state-text">等你们写下第一条记事、相册或浮梦，这里会自动变成最方便继续的入口。</div>
+                            <div class="empty-state-text">等你们写下第一条记事、相册或代餐，这里会自动变成最方便继续的入口。</div>
                             </div>
                         </div>
                     </div>
@@ -1075,7 +1075,7 @@
                         <div class="home-actions">
                             <button class="action-submit secondary-btn" @click="switchTab('memory')">打开记事</button>
                             <button class="action-submit secondary-btn" @click="switchTab('memory')">继续记事</button>
-                            <button class="action-submit secondary-btn" @click="switchTab('story')">续写浮梦</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('story')">续写代餐</button>
                         </div>
                     </div>
 
@@ -1105,34 +1105,12 @@
                     </div>
                 </div>
 
-                <div class="home-card install-card" style="grid-column: 1 / -1;">
-                    <h3 class="home-card-title">安装到手机</h3>
-                    <div class="home-card-text">现在可以把它当成手机主屏上的小客户端来用。安装后会用独立窗口打开，文字内容支持离线暂存，重新联网后会自动同步。</div>
-                    <div class="install-row">
-                        <div class="install-badge">📱 {{ isStandaloneApp ? '已作为客户端打开' : '可添加到主屏幕' }}</div>
-                        <div class="install-badge">🛰️ 支持离线写作与自动同步</div>
-                        <div class="install-badge">🎨 本地图标已就位</div>
-                    </div>
-                    <div class="home-actions">
-                        <button v-if="canInstallApp" class="action-submit" @click="promptInstallApp">安装到手机</button>
-                        <button v-else-if="showIosInstallHint" class="action-submit" @click="toggleIosInstallHint">{{ iosInstallHintOpen ? '收起 iPhone 安装步骤' : '查看 iPhone 安装步骤' }}</button>
-                        <button v-else-if="isStandaloneApp" class="action-submit secondary-btn" disabled>当前已在客户端模式</button>
-                        <button v-else class="action-submit secondary-btn" disabled>等待浏览器允许安装</button>
-                    </div>
-                    <ol v-if="showIosInstallHint && iosInstallHintOpen" class="install-steps">
-                        <li>在 Safari 打开这个页面。</li>
-                        <li>点击底部“分享”按钮。</li>
-                        <li>选择“添加到主屏幕”，名称保留为“橙心回忆”。</li>
-                    </ol>
-                </div>
             </div>
         </div>
 
         <div v-if="currentTab === 'game'" class="game-shell">
             <div class="control-panel game-hero">
                 <div class="game-kicker">GAME ROOM</div>
-                <h2 class="game-title">留一个轻松点开的小游戏页</h2>
-                <div class="game-text">现在的游戏区只保留两样：适合两个人轮流玩的掷骰子，以及一局能慢慢下完的五子棋。都走本地状态，安卓上随时打开就能接着玩。</div>
                 <div class="game-metrics">
                     <div class="game-metric" v-for="metric in gameMetrics" :key="metric.label">
                         <div class="game-metric-label">{{ metric.label }}</div>
@@ -2767,13 +2745,10 @@
                     { title: '今晚适合把输赢写得轻一点', focus: '关系优先', mood: '打完还想继续聊', text: '真正该留下的不是战绩，而是这晚你们有没有因为同一局而更懂对方一点。' }
                 ],
                 moodOptions: [
-                    { key: 'spark', label: '✨ 怦然' },
-                    { key: 'hug', label: '🤍 依偎' },
-                    { key: 'sweet', label: '🍯 甜蜜' },
-                    { key: 'chaos', label: '🎢 闹腾' },
-                    { key: 'dream', label: '🌙 梦游' },
-                    { key: 'brave', label: '🦁 勇敢' },
-                    { key: 'calm', label: '🍵 平静' }
+                    { key: 'happy', label: '开心' },
+                    { key: 'sad', label: '难过' },
+                    { key: 'angry', label: '生气' },
+                    { key: 'miss', label: '想念' }
                 ],
                 temperatureOptions: [
                     { key: 'close', label: '🤍 想靠近' },
@@ -4446,8 +4421,27 @@
                 };
             },
             getMoodLabel(moodKey) {
-                const mood = this.moodOptions.find(item => item.key === moodKey);
+                const normalizedKey = this.normalizeMoodKey(moodKey);
+                const mood = this.moodOptions.find(item => item.key === normalizedKey);
                 return mood ? mood.label : '';
+            },
+            normalizeMoodKey(moodKey) {
+                const mapping = {
+                    spark: 'happy',
+                    sweet: 'happy',
+                    hug: 'miss',
+                    dream: 'miss',
+                    calm: 'sad',
+                    brave: 'angry',
+                    chaos: 'angry'
+                };
+                return mapping[moodKey] || moodKey || '';
+            },
+            getMoodOptionsWithNormalizedItems(items = []) {
+                return (items || []).map(item => ({
+                    ...item,
+                    mood: this.normalizeMoodKey(item.mood)
+                }));
             },
             normalizeClientImageUrl(url) {
                 const normalized = typeof url === 'string' ? url.trim() : '';
