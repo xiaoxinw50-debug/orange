@@ -1086,7 +1086,7 @@
                         </div>
                         <div class="home-actions" style="margin-top: 0;">
                             <button class="action-submit secondary-btn" @click="undoGomokuMove" :disabled="gomokuMoves.length === 0 || Boolean(gomokuWinner)">悔棋一步</button>
-                            <button class="action-submit secondary-btn" @click="resetGomokuBoard">重新开局</button>
+                            <button class="action-submit secondary-btn" @click="resetGomokuBoard">重新开局并换先手</button>
                         </div>
                     </div>
                     <div class="gomoku-board">
@@ -1104,6 +1104,9 @@
                     <div class="gomoku-legend">
                         <div class="gomoku-legend-pill"><span class="gomoku-legend-dot black"></span> 小橙 · {{ gomokuWins.小橙 }} 胜</div>
                         <div class="gomoku-legend-pill"><span class="gomoku-legend-dot white"></span> 小心 · {{ gomokuWins.小心 }} 胜</div>
+                        <div class="gomoku-legend-pill">🔥 {{ currentGomokuStreakLabel }}</div>
+                        <div class="gomoku-legend-pill">🏁 最高：小橙 {{ gomokuStreak.best.小橙 }} / 小心 {{ gomokuStreak.best.小心 }}</div>
+                        <div class="gomoku-legend-pill">⏭️ 下一局 {{ gomokuStartingPlayer }} 先手</div>
                     </div>
                 </div>
             </div>
@@ -2988,11 +2991,12 @@
                 ];
             },
             gameMetrics() {
+                const streakText = this.gomokuStreak.owner ? `${this.gomokuStreak.owner} ${this.gomokuStreak.count} 连胜` : '还没有连胜';
                 return [
                     { label: '骰子局数', value: `${this.gameDiceHistory.length}`, note: '已经掷完并记录下来的双人回合。' },
                     { label: '小橙胜场', value: `${this.gameDiceWins.小橙}`, note: '掷骰子累计胜场。' },
                     { label: '小心胜场', value: `${this.gameDiceWins.小心}`, note: '掷骰子累计胜场。' },
-                    { label: '五子棋胜场', value: `${this.gomokuWins.小橙 + this.gomokuWins.小心}`, note: this.gomokuWinner ? `这一局由 ${this.gomokuWinner} 拿下。` : `当前轮到 ${this.gomokuCurrentPlayer} 落子。` }
+                    { label: '五子棋连胜', value: `${this.gomokuStreak.count}`, note: this.gomokuWinner ? `${this.gomokuWinner} 刚赢下这一局，${streakText}。` : `当前轮到 ${this.gomokuCurrentPlayer} 落子，下一局由 ${this.gomokuStartingPlayer} 先手。` }
                 ];
             },
             homeRecommendedAction() {
@@ -3056,8 +3060,13 @@
                 })));
             },
             gomokuStatusText() {
-                if (this.gomokuWinner) return `这一局是 ${this.gomokuWinner} 获胜，想继续就重新开局。`;
-                return `当前轮到 ${this.gomokuCurrentPlayer} 落子，先连成五个就是赢家。`;
+                if (this.gomokuWinner) return `这一局是 ${this.gomokuWinner} 获胜，当前 ${this.currentGomokuStreakLabel}。重新开局会自动换先手。`;
+                if (this.gomokuMoves.length >= this.gomokuSize * this.gomokuSize) return `这一局打成和棋，当前连胜已重置。重新开局会自动换先手。`;
+                return `当前轮到 ${this.gomokuCurrentPlayer} 落子，先连成五个就是赢家。下一局由 ${this.gomokuStartingPlayer} 先手。`;
+            },
+            currentGomokuStreakLabel() {
+                if (!this.gomokuStreak.owner || !this.gomokuStreak.count) return '还没有连胜';
+                return `${this.gomokuStreak.owner} ${this.gomokuStreak.count} 连胜`;
             },
             decisionOptionsResolved() {
                 const custom = this.decisionOptionsInput
@@ -4121,11 +4130,20 @@
                         ? parsed.gomokuBoard.map(row => Array.isArray(row) ? row.slice(0, this.gomokuSize) : Array(this.gomokuSize).fill(''))
                         : this.createEmptyGomokuBoard();
                     this.gomokuMoves = Array.isArray(parsed.gomokuMoves) ? parsed.gomokuMoves : [];
-                    this.gomokuCurrentPlayer = parsed.gomokuCurrentPlayer || '小橙';
+                    this.gomokuStartingPlayer = parsed.gomokuStartingPlayer || '小橙';
+                    this.gomokuCurrentPlayer = parsed.gomokuCurrentPlayer || this.gomokuStartingPlayer;
                     this.gomokuWinner = parsed.gomokuWinner || '';
                     this.gomokuWins = {
                         '小橙': Number(parsed.gomokuWins?.['小橙'] || 0),
                         '小心': Number(parsed.gomokuWins?.['小心'] || 0)
+                    };
+                    this.gomokuStreak = {
+                        owner: parsed.gomokuStreak?.owner || '',
+                        count: Number(parsed.gomokuStreak?.count || 0),
+                        best: {
+                            '小橙': Number(parsed.gomokuStreak?.best?.['小橙'] || 0),
+                            '小心': Number(parsed.gomokuStreak?.best?.['小心'] || 0)
+                        }
                     };
                 } catch (error) {
                     this.gomokuBoard = this.createEmptyGomokuBoard();
@@ -4140,9 +4158,11 @@
                         gameDiceWins: this.gameDiceWins,
                         gomokuBoard: this.gomokuBoard,
                         gomokuMoves: this.gomokuMoves,
+                        gomokuStartingPlayer: this.gomokuStartingPlayer,
                         gomokuCurrentPlayer: this.gomokuCurrentPlayer,
                         gomokuWinner: this.gomokuWinner,
-                        gomokuWins: this.gomokuWins
+                        gomokuWins: this.gomokuWins,
+                        gomokuStreak: this.gomokuStreak
                     }));
                 } catch (error) {}
             },
@@ -4213,7 +4233,23 @@
                         ...this.gomokuWins,
                         [this.gomokuCurrentPlayer]: this.gomokuWins[this.gomokuCurrentPlayer] + 1
                     };
+                    const streakCount = this.gomokuStreak.owner === this.gomokuCurrentPlayer ? this.gomokuStreak.count + 1 : 1;
+                    this.gomokuStreak = {
+                        owner: this.gomokuCurrentPlayer,
+                        count: streakCount,
+                        best: {
+                            ...this.gomokuStreak.best,
+                            [this.gomokuCurrentPlayer]: Math.max(this.gomokuStreak.best[this.gomokuCurrentPlayer] || 0, streakCount)
+                        }
+                    };
                     this.vibrate([120, 80, 160]);
+                } else if (this.gomokuMoves.length >= this.gomokuSize * this.gomokuSize) {
+                    this.gomokuStreak = {
+                        ...this.gomokuStreak,
+                        owner: '',
+                        count: 0
+                    };
+                    this.vibrate(90);
                 } else {
                     this.gomokuCurrentPlayer = this.gomokuCurrentPlayer === '小橙' ? '小心' : '小橙';
                     this.vibrate(30);
@@ -4255,7 +4291,8 @@
             resetGomokuBoard() {
                 this.gomokuBoard = this.createEmptyGomokuBoard();
                 this.gomokuMoves = [];
-                this.gomokuCurrentPlayer = '小橙';
+                this.gomokuStartingPlayer = this.gomokuStartingPlayer === '小橙' ? '小心' : '小橙';
+                this.gomokuCurrentPlayer = this.gomokuStartingPlayer;
                 this.gomokuWinner = '';
                 this.persistGameState();
             },
