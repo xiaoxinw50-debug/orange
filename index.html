@@ -242,6 +242,46 @@
         .fun-card.wide { grid-column: span 2; }
         .fun-title { font-family: var(--font-serif); font-size: 24px; margin: 0 0 12px; color: var(--ink-main); }
         .fun-text { font-size: 14px; color: var(--ink-light); line-height: 1.8; margin-bottom: 16px; }
+        .game-shell { display: grid; gap: 22px; }
+        .game-hero { position: relative; overflow: hidden; background:
+            radial-gradient(circle at top left, rgba(255, 183, 178, 0.22), transparent 34%),
+            radial-gradient(circle at top right, rgba(130, 202, 255, 0.18), transparent 30%),
+            linear-gradient(135deg, rgba(255,255,255,0.62), rgba(255,240,245,0.36)); }
+        .game-hero::after { content: ''; position: absolute; inset: auto -8% -48% auto; width: 240px; height: 240px; background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 65%); pointer-events: none; }
+        .game-kicker { font-size: 12px; letter-spacing: 3px; color: var(--ink-light); }
+        .game-title { margin: 8px 0 10px; font-family: var(--font-serif); font-size: 32px; color: var(--ink-main); }
+        .game-text { max-width: 720px; font-size: 15px; line-height: 1.9; color: var(--ink-main); }
+        .game-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+        .game-metric { border-radius: 20px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.38); padding: 16px; }
+        .game-metric-label { font-size: 12px; color: var(--ink-light); margin-bottom: 8px; letter-spacing: 1px; }
+        .game-metric-value { font-family: var(--font-serif); font-size: 28px; color: var(--ink-main); }
+        .game-metric-note { font-size: 12px; line-height: 1.6; color: var(--ink-light); margin-top: 6px; }
+        .game-dice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+        .game-dice-card { border-radius: 22px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.28); padding: 20px; display: grid; gap: 12px; }
+        .game-dice-name { font-family: var(--font-serif); font-size: 24px; color: var(--ink-main); }
+        .game-dice-face { min-height: 110px; border-radius: 24px; border: 1px dashed var(--border-fine); background: rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 72px; color: var(--ink-main); }
+        .game-dice-face.rolling { animation: shake 0.45s infinite; }
+        .game-dice-meta { font-size: 13px; color: var(--ink-light); }
+        .game-result-strip { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .game-result-pill { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.38); color: var(--ink-main); }
+        .game-history { display: grid; gap: 10px; margin-top: 16px; }
+        .game-history-item { padding: 13px 14px; border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.26); }
+        .game-history-title { font-size: 13px; color: var(--ink-light); margin-bottom: 6px; }
+        .game-history-text { font-size: 14px; color: var(--ink-main); line-height: 1.7; }
+        .gomoku-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+        .gomoku-status { font-size: 14px; color: var(--ink-main); line-height: 1.7; }
+        .gomoku-board { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 4px; background: rgba(150, 111, 68, 0.16); padding: 8px; border-radius: 24px; border: 1px solid var(--border-fine); }
+        .gomoku-cell { aspect-ratio: 1; border: none; border-radius: 10px; background: rgba(255,255,255,0.55); position: relative; cursor: pointer; transition: 0.15s; }
+        .gomoku-cell:hover { transform: translateY(-1px); background: rgba(255,255,255,0.72); }
+        .gomoku-cell:disabled { cursor: default; }
+        .gomoku-stone { position: absolute; inset: 18%; border-radius: 999px; box-shadow: inset 0 2px 8px rgba(255,255,255,0.15), 0 4px 10px rgba(0,0,0,0.16); }
+        .gomoku-stone.black { background: linear-gradient(135deg, #2d2630, #0f0f14); }
+        .gomoku-stone.white { background: linear-gradient(135deg, #fffdf8, #e7e3db); border: 1px solid rgba(123, 92, 106, 0.18); }
+        .gomoku-legend { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+        .gomoku-legend-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.32); color: var(--ink-main); font-size: 13px; }
+        .gomoku-legend-dot { width: 16px; height: 16px; border-radius: 999px; }
+        .gomoku-legend-dot.black { background: linear-gradient(135deg, #2d2630, #0f0f14); }
+        .gomoku-legend-dot.white { background: linear-gradient(135deg, #fffdf8, #e7e3db); border: 1px solid rgba(123, 92, 106, 0.18); box-sizing: border-box; }
         .arcade-ribbon { position: relative; overflow: hidden; background:
             radial-gradient(circle at top left, rgba(255, 183, 178, 0.22), transparent 34%),
             radial-gradient(circle at top right, rgba(130, 202, 255, 0.18), transparent 30%),
@@ -687,6 +727,9 @@
             .review-card.wide { grid-column: auto; }
             .fun-dashboard { grid-template-columns: 1fr; }
             .fun-card.wide { grid-column: auto; }
+            .game-metrics, .game-dice-grid { grid-template-columns: 1fr; }
+            .gomoku-board { gap: 3px; padding: 6px; border-radius: 18px; }
+            .gomoku-cell { border-radius: 8px; }
             .arcade-stats { grid-template-columns: 1fr 1fr; }
             .home-metrics { grid-template-columns: 1fr 1fr; }
             .home-grid { grid-template-columns: 1fr; }
@@ -821,6 +864,7 @@
                 <div :class="['tab', {active: currentTab === 'album'}]" @click="switchTab('album')"><span>相册</span><span v-if="hasUnreadForTab('album')" class="tab-badge"></span></div>
                 <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')"><span>随笔</span><span v-if="hasUnreadForTab('diary')" class="tab-badge"></span></div>
                 <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')"><span>浮梦</span><span v-if="hasUnreadForTab('story')" class="tab-badge"></span></div>
+                <div :class="['tab', {active: currentTab === 'game'}]" @click="switchTab('game')"><span>游戏 🎲</span></div>
             </div>
             <div class="header-actions">
                 <button class="theme-toggle" @click="toggleTheme">{{ isDarkMode ? '🌙' : '✨' }}</button>
@@ -943,7 +987,7 @@
                         <div class="home-actions">
                             <button class="action-submit secondary-btn" @click="switchTab('memory')">写纪事</button>
                             <button class="action-submit secondary-btn" @click="switchTab('album')">看相册</button>
-                            <button class="action-submit secondary-btn" @click="switchTab('story')">打开浮梦</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('game')">打开游戏</button>
                         </div>
                     </div>
                 </div>
@@ -982,6 +1026,85 @@
                         <li>点击底部“分享”按钮。</li>
                         <li>选择“添加到主屏幕”，名称保留为“橙心回忆”。</li>
                     </ol>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="currentTab === 'game'" class="game-shell">
+            <div class="control-panel game-hero">
+                <div class="game-kicker">GAME ROOM</div>
+                <h2 class="game-title">留一个轻松点开的小游戏页</h2>
+                <div class="game-text">现在的游戏区只保留两样：适合两个人轮流玩的掷骰子，以及一局能慢慢下完的五子棋。都走本地状态，安卓上随时打开就能接着玩。</div>
+                <div class="game-metrics">
+                    <div class="game-metric" v-for="metric in gameMetrics" :key="metric.label">
+                        <div class="game-metric-label">{{ metric.label }}</div>
+                        <div class="game-metric-value">{{ metric.value }}</div>
+                        <div class="game-metric-note">{{ metric.note }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fun-dashboard">
+                <div class="fun-card">
+                    <h3 class="fun-title">双人掷骰子</h3>
+                    <div class="fun-text">一局里两个人各掷一次，系统自动判定胜负。适合临时决定谁先来、谁选晚饭，或者单纯玩一玩。</div>
+                    <div class="game-dice-grid">
+                        <div class="game-dice-card" v-for="player in gamePlayerOrder" :key="player">
+                            <div class="game-dice-name">{{ player }}</div>
+                            <div :class="['game-dice-face', { rolling: diceRollingPlayer === player }]">{{ getDiceFace(gameDiceRound[player]) }}</div>
+                            <div class="game-dice-meta">
+                                {{ gameDiceRound[player] ? `本轮点数 ${gameDiceRound[player]}` : '这一轮还没掷出点数' }}
+                            </div>
+                            <button class="action-submit" @click="rollDiceForPlayer(player)" :disabled="Boolean(gameDiceRound[player]) || Boolean(diceRollingPlayer)">
+                                {{ diceRollingPlayer === player ? '骰子滚动中...' : `让 ${player} 掷一次` }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="game-result-strip">
+                        <div class="game-result-pill">当前结果：{{ gameDiceRoundWinner || '等待两个人都掷完' }}</div>
+                        <div class="game-result-pill">小橙 {{ gameDiceWins.小橙 }} 胜</div>
+                        <div class="game-result-pill">小心 {{ gameDiceWins.小心 }} 胜</div>
+                    </div>
+                    <div class="home-actions">
+                        <button class="action-submit secondary-btn" @click="startNewDiceRound" :disabled="!canResetDiceRound">开始下一局</button>
+                        <button class="action-submit secondary-btn" @click="clearDiceHistory" :disabled="gameDiceHistory.length === 0">清空记录</button>
+                    </div>
+                    <div class="game-history">
+                        <div v-for="round in gameDiceHistory.slice(0, 6)" :key="round.id" class="game-history-item">
+                            <div class="game-history-title">第 {{ round.index }} 局</div>
+                            <div class="game-history-text">小橙 {{ round.rolls.小橙 }} 点，小心 {{ round.rolls.小心 }} 点，{{ round.winner }}。</div>
+                        </div>
+                        <div v-if="gameDiceHistory.length === 0" class="empty-state">还没有开始掷骰子，先来第一局。</div>
+                    </div>
+                </div>
+
+                <div class="fun-card">
+                    <div class="gomoku-head">
+                        <div>
+                            <h3 class="fun-title" style="margin-bottom: 6px;">五子棋</h3>
+                            <div class="gomoku-status">{{ gomokuStatusText }}</div>
+                        </div>
+                        <div class="home-actions" style="margin-top: 0;">
+                            <button class="action-submit secondary-btn" @click="undoGomokuMove" :disabled="gomokuMoves.length === 0 || Boolean(gomokuWinner)">悔棋一步</button>
+                            <button class="action-submit secondary-btn" @click="resetGomokuBoard">重新开局</button>
+                        </div>
+                    </div>
+                    <div class="gomoku-board">
+                        <button
+                            v-for="cell in gomokuFlatBoard"
+                            :key="`${cell.row}-${cell.col}`"
+                            type="button"
+                            class="gomoku-cell"
+                            :disabled="Boolean(gomokuWinner) || Boolean(cell.value)"
+                            @click="placeGomokuStone(cell.row, cell.col)"
+                        >
+                            <span v-if="cell.value" :class="['gomoku-stone', cell.value]"></span>
+                        </button>
+                    </div>
+                    <div class="gomoku-legend">
+                        <div class="gomoku-legend-pill"><span class="gomoku-legend-dot black"></span> 小橙 · {{ gomokuWins.小橙 }} 胜</div>
+                        <div class="gomoku-legend-pill"><span class="gomoku-legend-dot white"></span> 小心 · {{ gomokuWins.小心 }} 胜</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2437,6 +2560,20 @@
                 particles: [],
                 activeAchievement: null,
                 achievementQueue: [],
+                gamePlayerOrder: ['小橙', '小心'],
+                diceRollingPlayer: '',
+                gameDiceRound: { '小橙': 0, '小心': 0 },
+                gameDiceRoundWinner: '',
+                gameDiceHistory: [],
+                gameDiceWins: { '小橙': 0, '小心': 0 },
+                gomokuSize: 15,
+                gomokuBoard: [],
+                gomokuMoves: [],
+                gomokuStartingPlayer: '小橙',
+                gomokuCurrentPlayer: '小橙',
+                gomokuWinner: '',
+                gomokuWins: { '小橙': 0, '小心': 0 },
+                gomokuStreak: { owner: '', count: 0, best: { '小橙': 0, '小心': 0 } },
                 playStats: { surpriseDraws: 0, syncMatches: 0, taskSaves: 0, wheelSpins: 0, scenarioDraws: 0, bingoWins: 0, nightPlays: 0, idvChallenges: 0, idvOmens: 0, idvLogs: 0 },
                 playMode: 'tarot',
                 idvCamp: 'survivor',
@@ -2850,6 +2987,14 @@
                     { label: '待同步', value: `${this.pendingSyncCount}`, note: this.pendingSyncCount > 0 ? '有内容正在等网络恢复后发出。' : '当前没有积压，线上线下已经一致。' }
                 ];
             },
+            gameMetrics() {
+                return [
+                    { label: '骰子局数', value: `${this.gameDiceHistory.length}`, note: '已经掷完并记录下来的双人回合。' },
+                    { label: '小橙胜场', value: `${this.gameDiceWins.小橙}`, note: '掷骰子累计胜场。' },
+                    { label: '小心胜场', value: `${this.gameDiceWins.小心}`, note: '掷骰子累计胜场。' },
+                    { label: '五子棋胜场', value: `${this.gomokuWins.小橙 + this.gomokuWins.小心}`, note: this.gomokuWinner ? `这一局由 ${this.gomokuWinner} 拿下。` : `当前轮到 ${this.gomokuCurrentPlayer} 落子。` }
+                ];
+            },
             homeRecommendedAction() {
                 if (this.composerDraftCount > 0) return { tab: this.latestDraftTab, label: '继续写草稿' };
                 if (this.homeRecentItems.length > 0) return { tab: this.homeRecentItems[0]?.category || 'memory', label: '回到最近内容' };
@@ -2899,6 +3044,20 @@
                     primaryTab: this.homeRecentItems[0]?.category || 'memory',
                     primaryLabel: '去最近内容'
                 };
+            },
+            canResetDiceRound() {
+                return Boolean(this.gameDiceRound.小橙 || this.gameDiceRound.小心 || this.gameDiceRoundWinner);
+            },
+            gomokuFlatBoard() {
+                return (this.gomokuBoard || []).flatMap((row, rowIndex) => row.map((value, colIndex) => ({
+                    row: rowIndex,
+                    col: colIndex,
+                    value
+                })));
+            },
+            gomokuStatusText() {
+                if (this.gomokuWinner) return `这一局是 ${this.gomokuWinner} 获胜，想继续就重新开局。`;
+                return `当前轮到 ${this.gomokuCurrentPlayer} 落子，先连成五个就是赢家。`;
             },
             decisionOptionsResolved() {
                 const custom = this.decisionOptionsInput
@@ -3833,7 +3992,7 @@
                     const raw = localStorage.getItem(this.getUiStateKey());
                     if (!raw) return;
                     const parsed = JSON.parse(raw);
-                    const allowedTabs = ['home', 'memory', 'album', 'diary', 'story'];
+                    const allowedTabs = ['home', 'memory', 'album', 'diary', 'story', 'game'];
                     this.currentTab = allowedTabs.includes(parsed.currentTab) ? parsed.currentTab : this.currentTab;
                     this.listDensityMode = parsed.listDensityMode || this.listDensityMode;
                     this.filterQuery = parsed.filterQuery || '';
@@ -3935,6 +4094,170 @@
                 const now = new Date();
                 const offset = now.getTimezoneOffset() * 60000;
                 return new Date(now.getTime() - offset).toISOString().split('T')[0];
+            },
+            getGameStateKey() {
+                return 'orange_game_state_v1';
+            },
+            createEmptyGomokuBoard() {
+                return Array.from({ length: this.gomokuSize }, () => Array(this.gomokuSize).fill(''));
+            },
+            loadGameState() {
+                this.gomokuBoard = this.createEmptyGomokuBoard();
+                try {
+                    const raw = localStorage.getItem(this.getGameStateKey());
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    this.gameDiceRound = {
+                        '小橙': Number(parsed.gameDiceRound?.['小橙'] || 0),
+                        '小心': Number(parsed.gameDiceRound?.['小心'] || 0)
+                    };
+                    this.gameDiceRoundWinner = parsed.gameDiceRoundWinner || '';
+                    this.gameDiceHistory = Array.isArray(parsed.gameDiceHistory) ? parsed.gameDiceHistory : [];
+                    this.gameDiceWins = {
+                        '小橙': Number(parsed.gameDiceWins?.['小橙'] || 0),
+                        '小心': Number(parsed.gameDiceWins?.['小心'] || 0)
+                    };
+                    this.gomokuBoard = Array.isArray(parsed.gomokuBoard) && parsed.gomokuBoard.length === this.gomokuSize
+                        ? parsed.gomokuBoard.map(row => Array.isArray(row) ? row.slice(0, this.gomokuSize) : Array(this.gomokuSize).fill(''))
+                        : this.createEmptyGomokuBoard();
+                    this.gomokuMoves = Array.isArray(parsed.gomokuMoves) ? parsed.gomokuMoves : [];
+                    this.gomokuCurrentPlayer = parsed.gomokuCurrentPlayer || '小橙';
+                    this.gomokuWinner = parsed.gomokuWinner || '';
+                    this.gomokuWins = {
+                        '小橙': Number(parsed.gomokuWins?.['小橙'] || 0),
+                        '小心': Number(parsed.gomokuWins?.['小心'] || 0)
+                    };
+                } catch (error) {
+                    this.gomokuBoard = this.createEmptyGomokuBoard();
+                }
+            },
+            persistGameState() {
+                try {
+                    localStorage.setItem(this.getGameStateKey(), JSON.stringify({
+                        gameDiceRound: this.gameDiceRound,
+                        gameDiceRoundWinner: this.gameDiceRoundWinner,
+                        gameDiceHistory: this.gameDiceHistory,
+                        gameDiceWins: this.gameDiceWins,
+                        gomokuBoard: this.gomokuBoard,
+                        gomokuMoves: this.gomokuMoves,
+                        gomokuCurrentPlayer: this.gomokuCurrentPlayer,
+                        gomokuWinner: this.gomokuWinner,
+                        gomokuWins: this.gomokuWins
+                    }));
+                } catch (error) {}
+            },
+            getDiceFace(value) {
+                const map = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                return map[Number(value || 0)] || '🎲';
+            },
+            rollDiceForPlayer(player) {
+                if (this.diceRollingPlayer || this.gameDiceRound[player]) return;
+                this.diceRollingPlayer = player;
+                this.vibrate([30, 50, 30]);
+                window.setTimeout(() => {
+                    const value = Math.floor(Math.random() * 6) + 1;
+                    this.gameDiceRound = {
+                        ...this.gameDiceRound,
+                        [player]: value
+                    };
+                    this.diceRollingPlayer = '';
+                    this.finishDiceRoundIfReady();
+                    this.persistGameState();
+                }, 620);
+            },
+            finishDiceRoundIfReady() {
+                const orange = Number(this.gameDiceRound['小橙'] || 0);
+                const xinxin = Number(this.gameDiceRound['小心'] || 0);
+                if (!orange || !xinxin) return;
+                let winner = '平局';
+                if (orange > xinxin) winner = '小橙获胜';
+                else if (xinxin > orange) winner = '小心获胜';
+                this.gameDiceRoundWinner = winner;
+                if (winner === '小橙获胜') this.gameDiceWins = { ...this.gameDiceWins, '小橙': this.gameDiceWins['小橙'] + 1 };
+                if (winner === '小心获胜') this.gameDiceWins = { ...this.gameDiceWins, '小心': this.gameDiceWins['小心'] + 1 };
+                this.gameDiceHistory = [{
+                    id: `dice-${Date.now()}`,
+                    index: this.gameDiceHistory.length + 1,
+                    rolls: { ...this.gameDiceRound },
+                    winner
+                }, ...this.gameDiceHistory].slice(0, 20);
+                this.vibrate(winner === '平局' ? 80 : [80, 60, 120]);
+            },
+            startNewDiceRound() {
+                this.gameDiceRound = { '小橙': 0, '小心': 0 };
+                this.gameDiceRoundWinner = '';
+                this.persistGameState();
+            },
+            clearDiceHistory() {
+                this.startNewDiceRound();
+                this.gameDiceHistory = [];
+                this.gameDiceWins = { '小橙': 0, '小心': 0 };
+                this.persistGameState();
+            },
+            getGomokuStoneForPlayer(player) {
+                return player === '小橙' ? 'black' : 'white';
+            },
+            getPlayerByStone(stone) {
+                return stone === 'black' ? '小橙' : '小心';
+            },
+            placeGomokuStone(row, col) {
+                if (this.gomokuWinner || this.gomokuBoard[row]?.[col]) return;
+                const stone = this.getGomokuStoneForPlayer(this.gomokuCurrentPlayer);
+                const nextBoard = this.gomokuBoard.map(line => line.slice());
+                nextBoard[row][col] = stone;
+                this.gomokuBoard = nextBoard;
+                this.gomokuMoves = [...this.gomokuMoves, { row, col, stone }];
+                if (this.checkGomokuWinner(row, col, stone)) {
+                    this.gomokuWinner = this.gomokuCurrentPlayer;
+                    this.gomokuWins = {
+                        ...this.gomokuWins,
+                        [this.gomokuCurrentPlayer]: this.gomokuWins[this.gomokuCurrentPlayer] + 1
+                    };
+                    this.vibrate([120, 80, 160]);
+                } else {
+                    this.gomokuCurrentPlayer = this.gomokuCurrentPlayer === '小橙' ? '小心' : '小橙';
+                    this.vibrate(30);
+                }
+                this.persistGameState();
+            },
+            checkGomokuWinner(row, col, stone) {
+                const directions = [[1, 0], [0, 1], [1, 1], [1, -1]];
+                return directions.some(([dr, dc]) => {
+                    let count = 1;
+                    let r = row + dr;
+                    let c = col + dc;
+                    while (this.gomokuBoard[r]?.[c] === stone) {
+                        count += 1;
+                        r += dr;
+                        c += dc;
+                    }
+                    r = row - dr;
+                    c = col - dc;
+                    while (this.gomokuBoard[r]?.[c] === stone) {
+                        count += 1;
+                        r -= dr;
+                        c -= dc;
+                    }
+                    return count >= 5;
+                });
+            },
+            undoGomokuMove() {
+                if (this.gomokuMoves.length === 0 || this.gomokuWinner) return;
+                const moves = this.gomokuMoves.slice();
+                const last = moves.pop();
+                const nextBoard = this.gomokuBoard.map(line => line.slice());
+                nextBoard[last.row][last.col] = '';
+                this.gomokuBoard = nextBoard;
+                this.gomokuMoves = moves;
+                this.gomokuCurrentPlayer = this.getPlayerByStone(last.stone);
+                this.persistGameState();
+            },
+            resetGomokuBoard() {
+                this.gomokuBoard = this.createEmptyGomokuBoard();
+                this.gomokuMoves = [];
+                this.gomokuCurrentPlayer = '小橙';
+                this.gomokuWinner = '';
+                this.persistGameState();
             },
             getDisplayCategory(item) {
                 return this.currentTab === 'recycle' ? item.category : this.currentTab;
@@ -5275,6 +5598,7 @@
                 if (this.getTrackedTabs().includes(tab)) this.markTabAsSeen(tab);
                 if (['memory', 'album', 'diary', 'story'].includes(tab)) this.loadComposerDraftForTab(tab);
                 if (tab === 'home') this.fetchAllItemsForStats();
+                else if (tab === 'game') this.restoreScrollPosition(tab);
                 else this.getItems();
                 this.persistUiState();
                 this.$nextTick(() => this.restoreScrollPosition(tab));
@@ -5911,7 +6235,7 @@
                 this.allItemsForStats = this.mergeItemsWithQueuedContent(this.allItemsForStats);
                 if (this.showComposer) this.loadComposerDraftForTab(this.currentTab);
                 if (this.currentTab === 'home') this.fetchAllItemsForStats();
-                else this.getItems();
+                else if (this.currentTab !== 'game') this.getItems();
                 this.processSyncQueue(false);
                 this.ensureContentNotificationSetup(true);
                 this.checkRemoteNotifications();
@@ -5942,6 +6266,7 @@
         mounted() { 
             this.loadUiState();
             this.loadPlayStats();
+            this.loadGameState();
             this.loadIdvState();
             this.loadPrivatePlayState();
             this.loadBingoBoard();
