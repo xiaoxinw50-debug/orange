@@ -999,9 +999,7 @@
 
         <div v-if="currentTab === 'home'" class="home-shell">
             <div class="control-panel home-hero">
-                <div class="home-kicker">ORANGE HOME</div>
-                <h2 class="home-title">先从今天最值得打开的东西开始</h2>
-                <div class="home-text">{{ homeSummary }}</div>
+                <h2 class="home-title">今天</h2>
                 <div class="home-actions">
                     <button class="action-submit" @click="switchTab(homeRecommendedAction.tab)">{{ homeRecommendedAction.label }}</button>
                     <button class="action-submit secondary-btn" @click="switchTab(lastContentTab)">继续浏览 {{ getCategoryLabel(lastContentTab) }}</button>
@@ -1031,7 +1029,6 @@
                 <div class="home-stack">
                     <div class="home-card">
                         <h3 class="home-card-title">最近回忆</h3>
-                        <div class="home-card-text">不用先想去哪一页，直接从最近留下的内容继续。</div>
                         <div class="home-recent-list">
                             <div v-for="item in homeRecentItems" :key="item._id" class="home-recent-item" @click="goToItem(item)">
                                 <div class="home-recent-title">{{ getItemDisplayTitle(item) }}</div>
@@ -1041,7 +1038,6 @@
                             <div v-if="homeRecentItems.length === 0" class="empty-state rich">
                                 <div class="empty-state-icon">📖</div>
                                 <div class="empty-state-title">最近回忆还没有出现</div>
-                            <div class="empty-state-text">等你们写下第一条记事、相册或代餐，这里会自动变成最方便继续的入口。</div>
                             </div>
                         </div>
                     </div>
@@ -1049,9 +1045,7 @@
                     <div class="home-card">
                         <h3 class="home-card-title">今晚推荐</h3>
                         <div class="home-recommend">
-                            <div class="home-recommend-kicker">SUGGESTION</div>
                             <div class="home-recommend-title">{{ homeTonightCard.title }}</div>
-                            <div class="home-recommend-text">{{ homeTonightCard.text }}</div>
                             <div class="home-pill-row">
                                 <div v-for="tag in homeTonightCard.tags" :key="tag" class="home-pill">{{ tag }}</div>
                             </div>
@@ -1065,8 +1059,7 @@
 
                 <div class="home-stack">
                     <div class="home-card">
-                        <h3 class="home-card-title">继续处理</h3>
-                        <div class="home-card-text">把没做完的输入、最近常去的入口和当前内容规模收在一块，不再拆成很多页。</div>
+                        <h3 class="home-card-title">手边这些</h3>
                         <div class="home-pill-row">
                             <div class="home-pill">📝 草稿 {{ composerDraftCount }} 份</div>
                             <div class="home-pill">📸 相册 {{ homeAlbumCount }} 本</div>
@@ -1080,8 +1073,7 @@
                     </div>
 
                     <div class="home-card">
-                        <h3 class="home-card-title">现在最常用的几个入口</h3>
-                        <div class="home-card-text">把高频入口放到首页，不用每次都从头找。</div>
+                        <h3 class="home-card-title">常用入口</h3>
                         <div class="home-actions">
                             <button class="action-submit secondary-btn" @click="switchTab('memory')">写纪事</button>
                             <button class="action-submit secondary-btn" @click="switchTab('album')">看相册</button>
@@ -1091,8 +1083,7 @@
                 </div>
 
                 <div class="home-card" style="grid-column: 1 / -1;">
-                    <h3 class="home-card-title">统计概览</h3>
-                    <div class="home-card-text">原来的统计单独页已经并到首页了。这里直接看内容贡献和时间轨迹，不用再跳出去。</div>
+                    <h3 class="home-card-title">统计</h3>
                     <div class="stats-dashboard" style="margin-top: 18px;">
                         <div class="stats-card">
                             <div class="stats-title">📝 梦境字数贡献度</div>
@@ -1110,7 +1101,6 @@
 
         <div v-if="currentTab === 'game'" class="game-shell">
             <div class="control-panel game-hero">
-                <div class="game-kicker">GAME ROOM</div>
                 <div class="game-metrics">
                     <div class="game-metric" v-for="metric in gameMetrics" :key="metric.label">
                         <div class="game-metric-label">{{ metric.label }}</div>
@@ -1123,7 +1113,6 @@
             <div class="fun-dashboard">
                 <div class="fun-card">
                     <h3 class="fun-title">双人掷骰子</h3>
-                    <div class="fun-text">一局里两个人各掷一次，系统自动判定胜负。适合临时决定谁先来、谁选晚饭，或者单纯玩一玩。</div>
                     <div class="game-dice-grid">
                         <div class="game-dice-card" v-for="player in gamePlayerOrder" :key="player">
                             <div class="game-dice-name">{{ player }}</div>
