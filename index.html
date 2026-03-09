@@ -549,6 +549,8 @@
         .pet-avatar-shell.is-cry { transform: translateY(8px) rotate(-8deg); }
         .pet-model-canvas { width: 174px; height: 174px; display: block; cursor: grab; touch-action: none; }
         .pet-model-canvas:active { cursor: grabbing; }
+        .pet-viewer-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 18px; text-align: center; font-size: 12px; line-height: 1.6; color: var(--ink-light); pointer-events: none; }
+        .pet-viewer-status.error { color: #c0768f; }
         .pet-viewer-tip { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); font-size: 11px; color: var(--ink-light); padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.82); border: 1px solid rgba(111,151,198,0.16); white-space: nowrap; }
         .pet-panel-viewer { border-radius: 18px; border: 1px solid var(--border-fine); background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(242,247,252,0.88)); padding: 10px; }
         .pet-panel-canvas { width: 100%; aspect-ratio: 1 / 1; display: block; cursor: grab; touch-action: none; }
@@ -1084,6 +1086,9 @@
                 <div class="pet-avatar-stage">
                     <div :class="['pet-avatar-shell', petAvatarStateClass, { 'is-active': petAnimating, 'is-sleepy': petEnergy <= 1 }]">
                         <canvas ref="petAvatarCanvas" class="pet-model-canvas" aria-label="小心 3D 兔子"></canvas>
+                        <div v-if="!petModelReady.avatar" :class="['pet-viewer-status', { error: !!petModelError }]">
+                            {{ petModelError || '小心正在慢慢钻出来…' }}
+                        </div>
                         <div class="pet-viewer-tip">拖动可以旋转</div>
                     </div>
                 </div>
@@ -1098,6 +1103,9 @@
                 </div>
                 <div class="pet-panel-viewer">
                     <canvas ref="petPanelCanvas" class="pet-panel-canvas" aria-label="小心 3D 大视图"></canvas>
+                    <div v-if="!petModelReady.panel" :class="['pet-viewer-status', { error: !!petModelError }]">
+                        {{ petModelError || '小心正在整理耳朵…' }}
+                    </div>
                     <div class="pet-panel-viewer-note">拖动查看小心的 3D 角度</div>
                 </div>
                 <div class="pet-meter-grid">
@@ -2772,6 +2780,8 @@
                 petViewerFrame: 0,
                 petViewerResizeBound: null,
                 petModelViewers: { avatar: null, panel: null },
+                petModelReady: { avatar: false, panel: false },
+                petModelError: '',
                 activeAchievement: null,
                 achievementQueue: [],
                 gamePlayerOrder: ['小橙', '小心'],
@@ -4346,6 +4356,7 @@
             },
             ensurePetModelViewers() {
                 if (!this.currentUser || typeof THREE === 'undefined') return;
+                this.petModelError = '';
                 this.ensurePetModelViewer('petAvatarCanvas', 'avatar', { autoRotate: true, autoRotateSpeed: 2.1 });
                 if (this.petPanelOpen) {
                     this.ensurePetModelViewer('petPanelCanvas', 'panel', { autoRotate: false, autoRotateSpeed: 0, allowZoom: true });
@@ -4368,6 +4379,7 @@
                     existing.controls.autoRotateSpeed = options.autoRotateSpeed || 2;
                     existing.controls.enableZoom = Boolean(options.allowZoom);
                     this.resizeSinglePetViewer(existing);
+                    this.petModelReady = { ...this.petModelReady, [kind]: true };
                     return existing;
                 }
                 if (existing) this.disposePetModelViewer(kind);
@@ -4420,9 +4432,13 @@
 
                     this.petModelViewers[kind] = viewer;
                     this.resizeSinglePetViewer(viewer);
+                    viewer.renderer.render(viewer.scene, viewer.camera);
+                    this.petModelReady = { ...this.petModelReady, [kind]: true };
                     return viewer;
                 } catch (error) {
                     console.error('pet-viewer-init-failed', error);
+                    this.petModelReady = { ...this.petModelReady, [kind]: false };
+                    this.petModelError = '小心刚才没钻出来，刷新一下会更稳';
                     this.showNotice('error', '小心刚才没钻出来，再点一下试试');
                     return null;
                 }
@@ -4509,6 +4525,7 @@
                     context?.getExtension?.('WEBGL_lose_context')?.loseContext?.();
                 }
                 this.petModelViewers[kind] = null;
+                this.petModelReady = { ...this.petModelReady, [kind]: false };
                 if (!Object.values(this.petModelViewers).some(Boolean)) {
                     this.stopPetModelLoop();
                     if (this.petViewerResizeBound) {
@@ -4532,6 +4549,7 @@
                 root.position.y = -0.18;
 
                 const outlineColor = 0xc4afb7;
+                const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0xd5c3ca, side: THREE.BackSide });
                 const furMaterial = new THREE.MeshPhysicalMaterial({
                     color: 0xfffbfd,
                     roughness: 0.82,
@@ -4569,6 +4587,13 @@
                     new THREE.Vector3(0, -0.05, 0),
                     new THREE.Vector3(1.38, 1.18, 1.22)
                 );
+                const bodyOutline = createPart(
+                    new THREE.SphereGeometry(1.44, 42, 42),
+                    outlineMaterial,
+                    new THREE.Vector3(0, -0.05, 0),
+                    new THREE.Vector3(1.46, 1.26, 1.3)
+                );
+                root.add(bodyOutline);
                 root.add(body);
 
                 const chest = createPart(
@@ -4577,6 +4602,13 @@
                     new THREE.Vector3(0, -0.82, 0.44),
                     new THREE.Vector3(1.32, 0.76, 0.82)
                 );
+                const chestOutline = createPart(
+                    new THREE.SphereGeometry(0.92, 32, 28),
+                    outlineMaterial,
+                    new THREE.Vector3(0, -0.82, 0.44),
+                    new THREE.Vector3(1.38, 0.82, 0.88)
+                );
+                root.add(chestOutline);
                 root.add(chest);
 
                 const leftEar = createPart(
@@ -4586,11 +4618,25 @@
                     new THREE.Vector3(1.32, 0.4, 0.58),
                     new THREE.Euler(0.08, -0.14, -0.18)
                 );
+                const leftEarOutline = createPart(
+                    new THREE.SphereGeometry(0.64, 26, 22),
+                    outlineMaterial,
+                    new THREE.Vector3(-1.32, 1.18, -0.08),
+                    new THREE.Vector3(1.4, 0.48, 0.66),
+                    new THREE.Euler(0.08, -0.14, -0.18)
+                );
                 const rightEar = createPart(
                     new THREE.SphereGeometry(0.64, 26, 22),
                     furMaterial,
                     new THREE.Vector3(1.3, 1.18, -0.08),
                     new THREE.Vector3(1.3, 0.42, 0.58),
+                    new THREE.Euler(-0.08, 0.16, 0.18)
+                );
+                const rightEarOutline = createPart(
+                    new THREE.SphereGeometry(0.64, 26, 22),
+                    outlineMaterial,
+                    new THREE.Vector3(1.3, 1.18, -0.08),
+                    new THREE.Vector3(1.38, 0.5, 0.66),
                     new THREE.Euler(-0.08, 0.16, 0.18)
                 );
                 const leftEarInner = createPart(
@@ -4607,7 +4653,7 @@
                     new THREE.Vector3(1.04, 0.22, 0.34),
                     new THREE.Euler(-0.08, 0.18, 0.18)
                 );
-                root.add(leftEar, rightEar, leftEarInner, rightEarInner);
+                root.add(leftEarOutline, rightEarOutline, leftEar, rightEar, leftEarInner, rightEarInner);
 
                 const leftCheek = createPart(
                     new THREE.SphereGeometry(0.22, 18, 18),
