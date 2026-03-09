@@ -538,42 +538,150 @@
         .pet-speech-bubble { max-width: 220px; border-radius: 18px; border: 1px solid rgba(111,151,198,0.2); background: rgba(255,255,255,0.96); color: var(--ink-main); padding: 10px 14px; font-size: 13px; line-height: 1.6; box-shadow: 0 18px 30px rgba(44, 79, 114, 0.12); position: relative; }
         .pet-speech-bubble::after { content: ''; position: absolute; right: 18px; bottom: -7px; width: 12px; height: 12px; background: rgba(255,255,255,0.96); border-right: 1px solid rgba(111,151,198,0.2); border-bottom: 1px solid rgba(111,151,198,0.2); transform: rotate(45deg); }
         .pet-avatar-btn { border: none; background: transparent; padding: 0; display: grid; justify-items: end; gap: 8px; cursor: pointer; }
-        .pet-avatar-shell { width: 104px; height: 128px; position: relative; filter: drop-shadow(0 16px 28px rgba(44, 79, 114, 0.18)); }
+        .pet-avatar-stage { position: relative; width: 154px; min-height: 154px; padding: 10px 8px 8px; border-radius: 26px; background:
+            radial-gradient(circle at 1px 1px, rgba(210, 169, 184, 0.18) 0 1px, transparent 1px) 0 0/8px 8px,
+            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,246,250,0.96));
+            border: 1px solid rgba(216, 190, 200, 0.72);
+            box-shadow: 0 18px 30px rgba(44, 79, 114, 0.1), inset 0 0 0 4px rgba(255,255,255,0.55);
+            overflow: hidden;
+        }
+        .pet-avatar-shell { width: 120px; height: 126px; position: relative; margin: 0 auto; filter: drop-shadow(0 8px 12px rgba(210, 169, 184, 0.16)); }
         .pet-avatar-shell.is-active { animation: petBounce 0.48s ease; }
         .pet-avatar-shell.is-sleepy { opacity: 0.92; transform: translateY(2px); }
-        .pet-avatar-head { position: absolute; top: 10px; left: 18px; width: 68px; height: 62px; border-radius: 32px 32px 26px 26px; background: linear-gradient(180deg, #f7f5f8, #e9edf4); border: 2px solid rgba(91,117,150,0.24); z-index: 3; }
-        .pet-ear { position: absolute; top: -10px; width: 22px; height: 30px; background: linear-gradient(180deg, #e7eef8, #d8e1ee); border: 2px solid rgba(91,117,150,0.24); border-bottom: none; border-radius: 18px 18px 4px 4px; z-index: 2; }
-        .pet-ear.left { left: 6px; transform: rotate(-14deg); }
-        .pet-ear.right { right: 6px; transform: rotate(14deg); }
-        .pet-ear::after { content: ''; position: absolute; inset: 6px 5px 2px; border-radius: 14px 14px 4px 4px; background: rgba(239,195,212,0.72); }
-        .pet-hair { position: absolute; top: 4px; left: 10px; right: 10px; height: 26px; border-radius: 20px 20px 10px 10px; background: linear-gradient(180deg, #b8cce3, #9eb5d2); z-index: 4; }
-        .pet-bang { position: absolute; top: 18px; width: 22px; height: 18px; background: linear-gradient(180deg, #aac2df, #8ca9cc); border-radius: 0 0 14px 14px; z-index: 5; }
-        .pet-bang.left { left: 17px; transform: rotate(12deg); }
-        .pet-bang.mid { left: 30px; width: 18px; height: 22px; }
-        .pet-bang.right { right: 15px; transform: rotate(-16deg); }
-        .pet-face { position: absolute; inset: 24px 12px 8px; z-index: 6; }
-        .pet-eye { position: absolute; top: 10px; width: 12px; height: 18px; border-radius: 10px; background: rgba(72, 84, 105, 0.92); }
-        .pet-eye.left { left: 14px; }
-        .pet-eye.right { right: 14px; }
-        .pet-eye::after { content: ''; position: absolute; top: 2px; left: 3px; width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.9); }
-        .pet-mouth { position: absolute; left: 50%; bottom: 7px; width: 18px; height: 11px; border-radius: 0 0 14px 14px; background: rgba(244, 153, 166, 0.84); transform: translateX(-50%); }
-        .pet-blush { position: absolute; top: 26px; width: 13px; height: 8px; border-radius: 999px; background: rgba(244, 195, 209, 0.8); filter: blur(0.3px); }
-        .pet-blush.left { left: 5px; }
-        .pet-blush.right { right: 5px; }
-        .pet-body { position: absolute; left: 22px; top: 68px; width: 60px; height: 50px; border-radius: 22px 22px 20px 20px; background: linear-gradient(180deg, #8aa6c8, #6d8fb8); border: 2px solid rgba(91,117,150,0.2); z-index: 1; }
-        .pet-apron { position: absolute; left: 32px; top: 78px; width: 40px; height: 34px; border-radius: 12px 12px 14px 14px; background: rgba(252,248,250,0.98); border: 2px solid rgba(111,151,198,0.18); z-index: 2; }
-        .pet-apron::before { content: ''; position: absolute; top: -10px; left: 7px; width: 22px; height: 12px; border: 2px solid rgba(111,151,198,0.16); border-bottom: none; border-radius: 12px 12px 0 0; }
-        .pet-ribbon { position: absolute; left: 44px; top: 90px; width: 16px; height: 10px; background: rgba(239,195,212,0.92); clip-path: polygon(50% 0%, 100% 38%, 72% 100%, 50% 72%, 28% 100%, 0 38%); z-index: 3; }
-        .pet-arm { position: absolute; top: 77px; width: 15px; height: 42px; border-radius: 12px; background: linear-gradient(180deg, #eef1f6, #dfe7f1); border: 2px solid rgba(91,117,150,0.18); z-index: 0; }
-        .pet-arm.left { left: 14px; transform: rotate(22deg); transform-origin: top center; }
-        .pet-arm.right { right: 13px; transform: rotate(-16deg); transform-origin: top center; }
-        .pet-leg { position: absolute; top: 112px; width: 16px; height: 24px; border-radius: 10px; background: linear-gradient(180deg, #eef1f6, #dfe7f1); border: 2px solid rgba(91,117,150,0.18); }
-        .pet-leg.left { left: 34px; }
-        .pet-leg.right { right: 34px; }
-        .pet-tail { position: absolute; right: 0; top: 74px; width: 34px; height: 50px; border: 5px solid #86a4ca; border-left: none; border-radius: 0 28px 28px 0; transform: rotate(-8deg); transform-origin: left center; z-index: 0; }
-        .pet-tail::after { content: ''; position: absolute; right: -7px; bottom: -1px; width: 12px; height: 12px; border-radius: 50%; background: #86a4ca; }
-        .pet-avatar-shell.is-active .pet-tail { animation: petTailWag 0.58s ease-in-out 2; }
-        .pet-avatar-shell.is-active .pet-arm.left { animation: petWave 0.42s ease-in-out 2; }
+        .pet-avatar-shell.is-angry { transform: translateY(2px); }
+        .pet-avatar-shell.is-sigh { transform: translateY(6px); }
+        .pet-avatar-shell.is-cry { transform: translateY(8px) rotate(-8deg); }
+        .pet-avatar-head { position: absolute; inset: 0; background: transparent; border: none; z-index: 3; }
+        .pet-ear { position: absolute; top: 4px; width: 36px; height: 20px; background: linear-gradient(180deg, #ffffff, #f8f3f6); border: 2px solid rgba(196, 176, 186, 0.72); z-index: 2; }
+        .pet-ear.left { left: 8px; border-radius: 20px 18px 18px 18px; transform: rotate(28deg); }
+        .pet-ear.right { right: 8px; border-radius: 18px 20px 18px 18px; transform: rotate(-28deg); }
+        .pet-ear::after { content: ''; position: absolute; inset: 4px 8px 6px; border-radius: inherit; background: rgba(245, 216, 226, 0.62); }
+        .pet-face { position: absolute; left: 28px; top: 34px; width: 64px; height: 52px; z-index: 5; }
+        .pet-eye { position: absolute; top: 6px; width: 8px; height: 14px; border-radius: 999px; background: rgba(123, 92, 106, 0.9); }
+        .pet-eye.left { left: 8px; }
+        .pet-eye.right { right: 8px; }
+        .pet-eye::before { content: ''; position: absolute; top: -4px; width: 14px; height: 4px; border-radius: 999px; background: rgba(123, 92, 106, 0.95); }
+        .pet-eye.left::before { left: -1px; transform: rotate(18deg); }
+        .pet-eye.right::before { left: -1px; transform: rotate(-18deg); }
+        .pet-avatar-shell.is-shy .pet-eye,
+        .pet-avatar-shell.is-hug .pet-eye,
+        .pet-avatar-shell.is-sigh .pet-eye,
+        .pet-avatar-shell.is-cry .pet-eye { width: 14px; height: 8px; border-radius: 999px; top: 18px; }
+        .pet-avatar-shell.is-shy .pet-eye::before,
+        .pet-avatar-shell.is-hug .pet-eye::before,
+        .pet-avatar-shell.is-sigh .pet-eye::before,
+        .pet-avatar-shell.is-cry .pet-eye::before { display: none; }
+        .pet-avatar-shell.is-shy .pet-eye.left,
+        .pet-avatar-shell.is-hug .pet-eye.left,
+        .pet-avatar-shell.is-cry .pet-eye.left { transform: rotate(26deg); }
+        .pet-avatar-shell.is-shy .pet-eye.right,
+        .pet-avatar-shell.is-hug .pet-eye.right,
+        .pet-avatar-shell.is-cry .pet-eye.right { transform: rotate(-26deg); }
+        .pet-avatar-shell.is-sigh .pet-eye.left { transform: rotate(-18deg); left: 16px; }
+        .pet-avatar-shell.is-sigh .pet-eye.right { transform: rotate(18deg); right: 16px; width: 10px; }
+        .pet-avatar-shell.is-angry .pet-eye.left { transform: rotate(10deg); }
+        .pet-avatar-shell.is-angry .pet-eye.right { transform: rotate(-10deg); }
+        .pet-avatar-shell.is-angry .pet-eye::before { top: -6px; height: 5px; }
+        .pet-avatar-shell.is-angry .pet-eye.left::before { transform: rotate(28deg); }
+        .pet-avatar-shell.is-angry .pet-eye.right::before { transform: rotate(-28deg); }
+        .pet-nose { position: absolute; left: 50%; top: 22px; width: 10px; height: 8px; clip-path: polygon(50% 0, 0 100%, 100% 100%); background: #f3bccb; transform: translateX(-50%); }
+        .pet-mouth { position: absolute; left: 50%; top: 32px; width: 14px; height: 10px; transform: translateX(-50%); }
+        .pet-mouth::before,
+        .pet-mouth::after { content: ''; position: absolute; top: 0; width: 7px; height: 8px; border-bottom: 2px solid rgba(123, 92, 106, 0.86); }
+        .pet-mouth::before { left: 0; border-right: 2px solid rgba(123, 92, 106, 0.86); border-radius: 0 0 8px 7px; }
+        .pet-mouth::after { right: 0; border-left: 2px solid rgba(123, 92, 106, 0.86); border-radius: 0 0 7px 8px; }
+        .pet-avatar-shell.is-shy .pet-mouth,
+        .pet-avatar-shell.is-sigh .pet-mouth { top: 40px; width: 12px; }
+        .pet-avatar-shell.is-shy .pet-mouth::before,
+        .pet-avatar-shell.is-shy .pet-mouth::after { width: 5px; height: 8px; }
+        .pet-avatar-shell.is-sigh .pet-mouth::before,
+        .pet-avatar-shell.is-sigh .pet-mouth::after { border-bottom: none; }
+        .pet-avatar-shell.is-sigh .pet-mouth::before { left: 2px; width: 10px; height: 10px; border-left: 2px solid rgba(123, 92, 106, 0.9); border-bottom: 2px solid rgba(123, 92, 106, 0.9); border-radius: 0 0 0 12px; transform: rotate(-14deg); }
+        .pet-avatar-shell.is-sigh .pet-mouth::after { display: none; }
+        .pet-avatar-shell.is-angry .pet-mouth { top: 34px; width: 14px; }
+        .pet-avatar-shell.is-angry .pet-mouth::before,
+        .pet-avatar-shell.is-angry .pet-mouth::after { border-bottom: none; }
+        .pet-avatar-shell.is-angry .pet-mouth::before { left: 2px; width: 10px; height: 8px; border-top: 2px solid rgba(241, 153, 171, 0.95); border-left: 2px solid rgba(241, 153, 171, 0.95); border-radius: 10px 0 0 0; transform: rotate(4deg); }
+        .pet-avatar-shell.is-angry .pet-mouth::after { display: none; }
+        .pet-avatar-shell.is-cry .pet-mouth { top: 40px; width: 16px; }
+        .pet-avatar-shell.is-cry .pet-mouth::before,
+        .pet-avatar-shell.is-cry .pet-mouth::after { border-bottom: none; }
+        .pet-avatar-shell.is-cry .pet-mouth::before { left: 2px; width: 12px; height: 12px; border-left: 2px solid rgba(241, 153, 171, 0.95); border-bottom: 2px solid rgba(241, 153, 171, 0.95); border-radius: 0 0 0 14px; transform: rotate(-20deg); }
+        .pet-avatar-shell.is-cry .pet-mouth::after { display: none; }
+        .pet-blush { position: absolute; top: 20px; width: 18px; height: 14px; border-radius: 999px; background: rgba(248, 214, 225, 0.95); filter: blur(0.9px); }
+        .pet-blush.left { left: -6px; }
+        .pet-blush.right { right: -6px; }
+        .pet-avatar-shell.is-shy .pet-blush,
+        .pet-avatar-shell.is-hug .pet-blush { width: 20px; height: 16px; background: rgba(248, 196, 215, 0.98); }
+        .pet-shy-stripes { position: absolute; left: 50%; top: 40px; width: 28px; height: 14px; transform: translateX(-50%); opacity: 0; }
+        .pet-shy-stripes::before { content: '||||'; letter-spacing: 2px; font-size: 14px; color: rgba(241, 153, 171, 0.9); }
+        .pet-avatar-shell.is-shy .pet-shy-stripes,
+        .pet-avatar-shell.is-hug .pet-shy-stripes { opacity: 1; }
+        .pet-body { position: absolute; left: 12px; top: 28px; width: 96px; height: 90px; border-radius: 42px 42px 34px 34px; background: linear-gradient(180deg, #ffffff, #f7f3f5); border: 2px solid rgba(188, 170, 178, 0.62); z-index: 1; }
+        .pet-avatar-shell.is-sigh .pet-body,
+        .pet-avatar-shell.is-cry { width: 124px; }
+        .pet-avatar-shell.is-sigh .pet-body,
+        .pet-avatar-shell.is-cry .pet-body { top: 32px; height: 88px; border-radius: 44px 44px 32px 32px; }
+        .pet-paw { position: absolute; bottom: 6px; width: 12px; height: 12px; border-radius: 999px; border: 2px solid rgba(188, 170, 178, 0.55); background: rgba(255,255,255,0.98); z-index: 4; }
+        .pet-paw.left { left: 50px; transform: translateX(-10px); }
+        .pet-paw.right { right: 50px; transform: translateX(10px); }
+        .pet-avatar-shell.is-hug .pet-paw.left { left: 18px; bottom: 32px; width: 24px; height: 12px; border-radius: 999px; transform: rotate(28deg); }
+        .pet-avatar-shell.is-hug .pet-paw.right { right: 18px; bottom: 32px; width: 24px; height: 12px; border-radius: 999px; transform: rotate(-28deg); }
+        .pet-avatar-shell.is-sigh .pet-paw.left { left: 28px; bottom: 6px; }
+        .pet-avatar-shell.is-sigh .pet-paw.right { right: 26px; bottom: 8px; }
+        .pet-avatar-shell.is-cry .pet-paw.left { left: 18px; bottom: 10px; transform: rotate(56deg); }
+        .pet-avatar-shell.is-cry .pet-paw.right { right: 30px; bottom: 6px; }
+        .pet-tool-arm { position: absolute; top: 74px; width: 12px; height: 30px; border-radius: 999px; background: linear-gradient(180deg, #ffffff, #f4f1f4); border: 2px solid rgba(188, 170, 178, 0.55); z-index: 0; }
+        .pet-tool-arm.left { left: 16px; transform: rotate(14deg); }
+        .pet-tool-arm.right { right: 16px; transform: rotate(-14deg); }
+        .pet-fork { position: absolute; top: 42px; left: -3px; width: 18px; height: 20px; z-index: 1; }
+        .pet-fork::before { content: ''; position: absolute; left: 6px; top: 6px; width: 6px; height: 13px; border-radius: 999px; background: #c49b7f; }
+        .pet-fork::after { content: ''; position: absolute; left: 2px; top: 0; width: 14px; height: 8px; background: #f1d681; clip-path: polygon(0 100%, 0 28%, 18% 0, 34% 28%, 50% 0, 66% 28%, 82% 0, 100% 28%, 100% 100%); }
+        .pet-spoon { position: absolute; top: 40px; right: -4px; width: 18px; height: 24px; z-index: 1; }
+        .pet-spoon::before { content: ''; position: absolute; left: 7px; top: 10px; width: 5px; height: 13px; border-radius: 999px; background: #c49b7f; }
+        .pet-spoon::after { content: ''; position: absolute; left: 2px; top: 0; width: 14px; height: 14px; border-radius: 50%; background: #f1d681; }
+        .pet-plate { position: absolute; left: 18px; bottom: -2px; width: 84px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.96); border: 2px solid rgba(188, 170, 178, 0.55); z-index: -1; }
+        .pet-carrot { position: absolute; left: 48px; bottom: 2px; width: 24px; height: 12px; border-radius: 10px 14px 12px 10px; background: linear-gradient(90deg, #f4b07a, #f19763); transform: rotate(-10deg); z-index: 1; }
+        .pet-carrot::before { content: ''; position: absolute; right: -5px; top: 1px; width: 10px; height: 10px; border-radius: 60% 40% 60% 40%; background: #8fc59f; transform: rotate(18deg); }
+        .pet-boba-cup { position: absolute; left: 24px; bottom: 0; width: 34px; height: 42px; border-radius: 6px 6px 14px 14px; background: #d6c2b8; border: 2px solid rgba(188, 170, 178, 0.55); z-index: 1; }
+        .pet-boba-cup::before { content: ''; position: absolute; left: -2px; top: -4px; width: 36px; height: 10px; border-radius: 999px; background: #f4d5df; border: 2px solid rgba(188, 170, 178, 0.55); }
+        .pet-boba-cup::after { content: ''; position: absolute; left: 10px; top: 14px; width: 18px; height: 22px; background:
+            radial-gradient(circle at 4px 4px, #9f857e 0 4px, transparent 5px),
+            radial-gradient(circle at 14px 6px, #9f857e 0 4px, transparent 5px),
+            radial-gradient(circle at 5px 17px, #9f857e 0 4px, transparent 5px),
+            radial-gradient(circle at 15px 18px, #9f857e 0 4px, transparent 5px);
+        }
+        .pet-boba-straw { position: absolute; left: 47px; bottom: 30px; width: 5px; height: 24px; border-radius: 999px; background: #f4f1f4; border: 1px solid rgba(188, 170, 178, 0.55); transform: rotate(8deg); z-index: 2; }
+        .pet-tear { position: absolute; width: 8px; height: 16px; border-radius: 50% 50% 60% 60%; background: rgba(154, 214, 242, 0.95); opacity: 0; }
+        .pet-tear.left { left: 14px; top: 34px; transform: rotate(-10deg); }
+        .pet-tear.right { right: 18px; top: 44px; transform: rotate(6deg); }
+        .pet-avatar-shell.is-cry .pet-tear { opacity: 1; }
+        .pet-sigh-mark { position: absolute; right: -2px; top: 0; font-size: 22px; color: rgba(123, 92, 106, 0.75); opacity: 0; }
+        .pet-avatar-shell.is-sigh .pet-sigh-mark { opacity: 1; }
+        .pet-anger-mark { position: absolute; left: 8px; top: 0; width: 18px; height: 18px; opacity: 0; }
+        .pet-anger-mark::before,
+        .pet-anger-mark::after { content: ''; position: absolute; background: rgba(123, 92, 106, 0.84); border-radius: 999px; }
+        .pet-anger-mark::before { inset: 0 6px 0 6px; transform: rotate(18deg); }
+        .pet-anger-mark::after { inset: 6px 0 6px 0; transform: rotate(18deg); }
+        .pet-avatar-shell.is-angry .pet-anger-mark { opacity: 1; }
+        .pet-hug-text { position: absolute; left: 50%; top: -14px; transform: translateX(-50%); font-size: 14px; color: rgba(123, 92, 106, 0.85); opacity: 0; white-space: nowrap; }
+        .pet-avatar-shell.is-hug .pet-hug-text { opacity: 1; }
+        .pet-heart-float { position: absolute; top: 4px; font-size: 14px; color: rgba(241, 153, 171, 0.95); opacity: 0; }
+        .pet-heart-float.left { left: -2px; }
+        .pet-heart-float.right { right: -2px; }
+        .pet-avatar-shell.is-hug .pet-heart-float { opacity: 1; }
+        .pet-avatar-shell.is-feeding .pet-mouth { top: 34px; width: 16px; }
+        .pet-avatar-shell.is-feeding .pet-mouth::before,
+        .pet-avatar-shell.is-feeding .pet-mouth::after { border-bottom: none; }
+        .pet-avatar-shell.is-feeding .pet-mouth::before { border-right: none; left: 3px; width: 10px; height: 10px; border-radius: 50%; background: rgba(245, 177, 192, 0.9); }
+        .pet-avatar-shell.is-feeding .pet-mouth::after { display: none; }
+        .pet-avatar-shell.is-milktea .pet-mouth { top: 30px; }
+        .pet-avatar-shell.is-milktea .pet-mouth::before,
+        .pet-avatar-shell.is-milktea .pet-mouth::after { border-bottom: none; }
+        .pet-avatar-shell.is-milktea .pet-mouth::before { left: 5px; width: 6px; height: 16px; border-radius: 999px; background: rgba(241, 153, 171, 0.9); }
+        .pet-avatar-shell.is-milktea .pet-mouth::after { display: none; }
+        .pet-avatar-shell.is-active .pet-ear.left { animation: petEarBounceLeft 0.45s ease 2; }
+        .pet-avatar-shell.is-active .pet-ear.right { animation: petEarBounceRight 0.45s ease 2; }
         .pet-panel { width: min(280px, calc(100vw - 28px)); border-radius: 22px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.98); padding: 18px; box-shadow: 0 24px 48px rgba(44, 79, 114, 0.16); display: grid; gap: 14px; }
         .pet-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
         .pet-panel-title { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); }
@@ -595,13 +703,13 @@
             35% { transform: translateY(-4px) scale(1.02); }
             100% { transform: translateY(0) scale(1); }
         }
-        @keyframes petTailWag {
-            0%, 100% { transform: rotate(-8deg); }
-            50% { transform: rotate(14deg); }
+        @keyframes petEarBounceLeft {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(-18deg) translateY(-2px); }
         }
-        @keyframes petWave {
-            0%, 100% { transform: rotate(22deg); }
-            50% { transform: rotate(42deg); }
+        @keyframes petEarBounceRight {
+            0%, 100% { transform: rotate(10deg); }
+            50% { transform: rotate(18deg) translateY(-2px); }
         }
         .play-shell { display: grid; gap: 22px; }
         .play-hero { position: relative; overflow: hidden; }
@@ -869,6 +977,14 @@
             color: var(--ink-main);
         }
 
+        [data-theme="dark"] .pet-avatar-stage {
+            background:
+                radial-gradient(circle at 1px 1px, rgba(181, 151, 163, 0.18) 0 1px, transparent 1px) 0 0/8px 8px,
+                linear-gradient(180deg, rgba(31, 42, 58, 0.98), rgba(24, 33, 46, 0.98));
+            border-color: rgba(181, 151, 163, 0.42);
+            box-shadow: 0 18px 30px rgba(0,0,0,0.22), inset 0 0 0 4px rgba(255,255,255,0.03);
+        }
+
         @media (max-width: 768px) {
             #app { padding: 16px 14px calc(28px + env(safe-area-inset-bottom, 0px)); }
             .login-box { width: min(100%, 320px); padding: 34px 24px; border-radius: 24px; }
@@ -951,14 +1067,13 @@
             .lightbox-thumb { width: 64px; height: 64px; }
             .companion-pet { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
             .pet-speech-bubble { max-width: min(208px, calc(100vw - 84px)); font-size: 12px; padding: 9px 12px; }
-            .pet-avatar-shell { width: 88px; height: 110px; }
-            .pet-avatar-head { top: 9px; left: 16px; width: 58px; height: 54px; }
-            .pet-body { left: 20px; top: 60px; width: 50px; height: 42px; }
-            .pet-apron { left: 28px; top: 68px; width: 34px; height: 28px; }
-            .pet-ribbon { left: 38px; top: 78px; }
-            .pet-arm { top: 67px; height: 36px; }
-            .pet-leg { top: 96px; height: 20px; }
-            .pet-tail { right: 2px; top: 66px; width: 26px; height: 38px; }
+            .pet-avatar-stage { width: 138px; min-height: 140px; padding: 8px 6px 6px; }
+            .pet-avatar-shell { width: 106px; height: 112px; }
+            .pet-face { left: 24px; top: 30px; width: 58px; height: 48px; }
+            .pet-ear { width: 32px; height: 18px; top: 4px; }
+            .pet-body { left: 10px; top: 26px; width: 86px; height: 78px; }
+            .pet-paw.left { left: 44px; }
+            .pet-paw.right { right: 44px; }
             .pet-panel { width: min(250px, calc(100vw - 26px)); padding: 16px; }
         }
 
@@ -1099,36 +1214,48 @@
         <div v-if="currentUser" class="companion-pet">
             <button class="pet-avatar-btn" type="button" @click="togglePetPanel">
                 <div class="pet-speech-bubble">{{ petSpeech }}</div>
-                <div :class="['pet-avatar-shell', { 'is-active': petAnimating, 'is-sleepy': petEnergy <= 1 }]">
-                    <div class="pet-avatar-head">
-                        <span class="pet-ear left"></span>
-                        <span class="pet-ear right"></span>
-                        <span class="pet-hair"></span>
-                        <span class="pet-bang left"></span>
-                        <span class="pet-bang mid"></span>
-                        <span class="pet-bang right"></span>
-                        <div class="pet-face">
-                            <span class="pet-eye left"></span>
-                            <span class="pet-eye right"></span>
-                            <span class="pet-blush left"></span>
-                            <span class="pet-blush right"></span>
-                            <span class="pet-mouth"></span>
+                <div class="pet-avatar-stage">
+                    <div :class="['pet-avatar-shell', petAvatarStateClass, { 'is-active': petAnimating, 'is-sleepy': petEnergy <= 1 }]">
+                        <div class="pet-avatar-head">
+                            <span class="pet-ear left"></span>
+                            <span class="pet-ear right"></span>
+                            <div class="pet-face">
+                                <span class="pet-eye left"></span>
+                                <span class="pet-eye right"></span>
+                                <span class="pet-blush left"></span>
+                                <span class="pet-blush right"></span>
+                                <span class="pet-shy-stripes"></span>
+                                <span class="pet-tear left"></span>
+                                <span class="pet-tear right"></span>
+                                <span class="pet-nose"></span>
+                                <span class="pet-mouth"></span>
+                            </div>
                         </div>
+                        <span class="pet-body"></span>
+                        <span class="pet-paw left"></span>
+                        <span class="pet-paw right"></span>
+                        <template v-if="petVisualState === 'feed'">
+                            <span class="pet-tool-arm left"><span class="pet-fork"></span></span>
+                            <span class="pet-tool-arm right"><span class="pet-spoon"></span></span>
+                            <span class="pet-plate"></span>
+                            <span class="pet-carrot"></span>
+                        </template>
+                        <template v-else-if="petVisualState === 'milktea'">
+                            <span class="pet-boba-cup"></span>
+                            <span class="pet-boba-straw"></span>
+                        </template>
+                        <span class="pet-sigh-mark">哎</span>
+                        <span class="pet-hug-text">抱抱</span>
+                        <span class="pet-heart-float left">♥</span>
+                        <span class="pet-heart-float right">♥</span>
+                        <span class="pet-anger-mark"></span>
                     </div>
-                    <span class="pet-arm left"></span>
-                    <span class="pet-arm right"></span>
-                    <span class="pet-body"></span>
-                    <span class="pet-apron"></span>
-                    <span class="pet-ribbon"></span>
-                    <span class="pet-leg left"></span>
-                    <span class="pet-leg right"></span>
-                    <span class="pet-tail"></span>
                 </div>
             </button>
             <div v-if="petPanelOpen" class="pet-panel">
                 <div class="pet-panel-head">
                     <div>
-                        <div class="pet-panel-title">QQ 人陪伴</div>
+                        <div class="pet-panel-title">小心</div>
                         <div class="pet-panel-note">{{ petMoodLabel }} · {{ petAffinityTitle }}</div>
                     </div>
                     <button type="button" class="pet-mini-close" @click="petPanelOpen = false">×</button>
@@ -1154,6 +1281,7 @@
                     <button type="button" class="pet-action-btn" @click="interactWithPet('hug')">抱一下</button>
                     <button type="button" class="pet-action-btn" @click="interactWithPet('feed')">投喂</button>
                     <button type="button" class="pet-action-btn" @click="interactWithPet('poke')">戳戳脸</button>
+                    <button type="button" class="pet-action-btn" @click="interactWithPet('milktea')">请喝奶茶</button>
                 </div>
                 <div class="pet-tip">
                     <span class="pet-heartline">♥ ♥ ♥</span>
@@ -2792,8 +2920,9 @@
                 surpriseItem: null, surpriseTask: null, surpriseLoading: false, surpriseRollingText: '回忆扭蛋准备中',
                 particles: [],
                 petPanelOpen: false,
-                petSpeech: '我在这里陪你，点点我也可以。',
+                petSpeech: '小心在这里，想被摸摸头。',
                 petMood: 'calm',
+                petVisualState: 'default',
                 petAffinity: 12,
                 petEnergy: 3,
                 petAnimating: false,
@@ -3701,6 +3830,19 @@
                 if (this.petAffinity >= 42) return '慢慢熟起来了';
                 return '还想再贴近一点';
             },
+            petAvatarStateClass() {
+                const map = {
+                    default: '',
+                    shy: 'is-shy',
+                    hug: 'is-hug',
+                    feed: 'is-feeding',
+                    milktea: 'is-milktea',
+                    sigh: 'is-sigh',
+                    angry: 'is-angry',
+                    cry: 'is-cry'
+                };
+                return map[this.petVisualState] || '';
+            },
             petEnergyLabel() {
                 if (this.petEnergy >= 4) return '满格';
                 if (this.petEnergy >= 3) return '不错';
@@ -4325,6 +4467,7 @@
                     const parsed = JSON.parse(raw);
                     this.petSpeech = parsed.petSpeech || this.petSpeech;
                     this.petMood = parsed.petMood || this.petMood;
+                    this.petVisualState = parsed.petVisualState || this.petVisualState;
                     this.petAffinity = Math.max(0, Number(parsed.petAffinity || this.petAffinity));
                     this.petEnergy = Math.min(4, Math.max(1, Number(parsed.petEnergy || this.petEnergy)));
                     this.petInteractionCount = Math.max(0, Number(parsed.petInteractionCount || 0));
@@ -4336,6 +4479,7 @@
                     localStorage.setItem(this.getPetStateKey(), JSON.stringify({
                         petSpeech: this.petSpeech,
                         petMood: this.petMood,
+                        petVisualState: this.petVisualState,
                         petAffinity: this.petAffinity,
                         petEnergy: this.petEnergy,
                         petInteractionCount: this.petInteractionCount,
@@ -4357,7 +4501,8 @@
                 this.petPanelOpen = !this.petPanelOpen;
                 this.vibrate(24);
                 if (this.petPanelOpen && this.petInteractionCount === 0) {
-                    this.petSpeech = '第一次见面也不用紧张，我会乖乖陪着你。';
+                    this.petSpeech = '第一次见面也没关系，小心会慢慢靠过来。';
+                    this.petVisualState = 'default';
                     this.persistPetState();
                 }
             },
@@ -4367,40 +4512,55 @@
                         affinity: 4,
                         energy: 0,
                         mood: 'happy',
+                        visualState: 'shy',
                         speech: [
-                            '被摸摸头就会马上安静下来。',
-                            '耳朵轻轻抖了一下，看起来很受用。',
-                            '它眯起眼睛，明显在偷着开心。'
+                            '小心被摸到以后，耳朵轻轻晃了一下。',
+                            '它眯起眼睛，像是在认真享受这一小会儿。',
+                            '摸摸头以后，小心明显乖了下来。'
                         ]
                     },
                     hug: {
                         affinity: 5,
                         energy: 1,
                         mood: 'clingy',
+                        visualState: 'hug',
                         speech: [
-                            '它顺势蹭过来，像是抱住就不想松开。',
-                            '被抱一下之后，整只都软乎了。',
-                            '尾巴卷了一下，像是在回抱你。'
+                            '小心贴过来以后，就赖在怀里不想走。',
+                            '被抱一下之后，整只兔都软乎了。',
+                            '小心缩成一团，像是在回抱你。'
                         ]
                     },
                     feed: {
                         affinity: 3,
                         energy: 2,
                         mood: 'calm',
+                        visualState: 'feed',
                         speech: [
-                            '吃到小零食以后，精神一下回来了。',
-                            '它很认真地捧着吃，眼睛都亮了。',
-                            '喂完之后，它乖乖站在旁边陪你。'
+                            '喂完以后，小心的精神一下就回来了。',
+                            '它小口小口吃着，看起来特别认真。',
+                            '吃饱以后，小心又乖乖挨过来了。'
                         ]
                     },
                     poke: {
                         affinity: 2,
                         energy: -1,
                         mood: 'playful',
+                        visualState: this.petEnergy <= 2 ? 'cry' : (this.petInteractionCount > 0 && this.petInteractionCount % 3 === 0 ? 'angry' : 'sigh'),
                         speech: [
-                            '脸颊被戳了一下，立刻开始跟你闹。',
-                            '它鼓了鼓脸，像是在假装生气。',
-                            '被你戳完之后，它追着你要再玩一次。'
+                            '脸颊被戳了一下，小心开始装凶。',
+                            '它鼓起脸，看起来像在说“哼”。',
+                            '戳完以后，小心追着你还想再闹一下。'
+                        ]
+                    },
+                    milktea: {
+                        affinity: 4,
+                        energy: 1,
+                        mood: 'calm',
+                        visualState: 'milktea',
+                        speech: [
+                            '小心捧着奶茶，立刻就安静了下来。',
+                            '吸了一口奶茶之后，它看起来满足多了。',
+                            '请它喝奶茶以后，整只兔都软绵绵的。'
                         ]
                     }
                 };
@@ -4411,6 +4571,7 @@
                 this.petAffinity = Math.min(100, this.petAffinity + detail.affinity);
                 this.petEnergy = Math.min(4, Math.max(1, this.petEnergy + detail.energy));
                 this.petMood = detail.mood;
+                this.petVisualState = detail.visualState || 'default';
                 this.petSpeech = nextSpeech;
                 this.petInteractionCount += 1;
                 this.petLastActionAt = new Date().toISOString();
