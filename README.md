@@ -141,11 +141,14 @@ npm run mobile:build:android:release
 
 说明：
 
-- 当前 `release` 使用系统默认 Android debug keystore 签名
-- 适合测试分发
-- 不适合正式上架应用商店
+- 当前 `release` 已改为固定的本地 release keystore 签名
+- 适合长期测试分发和发给别人直接安装
+- 只要继续使用同一套 keystore，后续新版本可以直接覆盖安装
+- 仍然不等于已满足应用商店上架要求
 
-如果要改成正式签名，可用环境变量覆盖：
+构建脚本会优先读取项目根目录下的 [`.android-signing.env`](/Users/xuyingxin/Desktop/orange/.android-signing.env)。
+
+如果要改成你自己的正式签名，可用环境变量覆盖：
 
 ```bash
 ANDROID_KEYSTORE_PATH=/path/to/your.keystore
@@ -169,7 +172,9 @@ iOS workspace：
 
 注意：
 
-- 需要 Apple 签名身份才能真机安装或导出 `IPA`
+- 当前只按免费 Apple 账号方案支持“装到你自己的 iPhone 上测试”
+- 不面向别人分发，也不保证可直接导出对外安装的 `IPA`
+- 需要 Apple 签名身份才能真机安装
 - 如果 `security find-identity -v -p codesigning` 仍然是 `0 valid identities found`，说明系统里还没有可用签名身份
 - 如果 `xcrun simctl list runtimes` 没有 iOS runtime，说明 Xcode Simulator 组件没有正确安装
 
