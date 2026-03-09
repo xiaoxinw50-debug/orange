@@ -449,6 +449,17 @@
         .interaction-strip { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 10px; }
         .interaction-pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 7px 11px; background: rgba(255,255,255,0.58); border: 1px solid var(--border-fine); color: var(--ink-main); font-size: 12px; }
         .interaction-preview { margin-top: 4px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.32); border: 1px dashed var(--border-fine); color: var(--ink-main); font-size: 13px; line-height: 1.7; cursor: pointer; }
+        .sync-banner { margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .sync-pill { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 12px; background: rgba(255,255,255,0.56); border: 1px solid var(--border-fine); color: var(--ink-main); font-size: 13px; }
+        .sync-pill.warn { background: rgba(255, 236, 214, 0.72); border-color: rgba(255, 170, 97, 0.4); }
+        .sync-pill.pending { background: rgba(255, 240, 245, 0.82); border-color: rgba(255, 111, 143, 0.26); }
+        .pending-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 10px; background: rgba(255, 242, 228, 0.82); border: 1px solid rgba(255, 170, 97, 0.4); color: #9c5a1c; font-size: 12px; margin-bottom: 10px; }
+        .reply-composer { margin-top: 14px; display: grid; gap: 10px; }
+        .reply-mini-list { display: grid; gap: 10px; margin-top: 12px; }
+        .reply-mini-entry { padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.3); border: 1px dashed var(--border-fine); }
+        .reply-mini-meta { font-size: 12px; color: var(--ink-light); margin-bottom: 6px; }
+        .reply-mini-text { font-size: 13px; line-height: 1.7; color: var(--ink-main); white-space: pre-wrap; }
+        .reply-mini-entry.pending { background: rgba(255, 245, 233, 0.78); }
         .bond-chip-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
         .bond-chip { border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.42); color: var(--ink-main); padding: 9px 14px; cursor: pointer; transition: 0.2s; }
         .bond-chip.active { background: linear-gradient(135deg, rgba(255,183,178,0.96), rgba(130,202,255,0.96)); color: white; border-color: transparent; transform: translateY(-2px); }
@@ -810,7 +821,6 @@
                 <div :class="['tab', {active: currentTab === 'album'}]" @click="switchTab('album')"><span>相册</span><span v-if="hasUnreadForTab('album')" class="tab-badge"></span></div>
                 <div :class="['tab', {active: currentTab === 'diary'}]" @click="switchTab('diary')"><span>随笔</span><span v-if="hasUnreadForTab('diary')" class="tab-badge"></span></div>
                 <div :class="['tab', {active: currentTab === 'story'}]" @click="switchTab('story')"><span>浮梦</span><span v-if="hasUnreadForTab('story')" class="tab-badge"></span></div>
-                <div :class="['tab', {active: currentTab === 'play'}]" @click="switchTab('play')"><span>游乐 🎲</span></div>
             </div>
             <div class="header-actions">
                 <button class="theme-toggle" @click="toggleTheme">{{ isDarkMode ? '🌙' : '✨' }}</button>
@@ -819,6 +829,10 @@
         </div>
 
         <div v-if="notice.text" :class="['notice', notice.type]">{{ notice.text }}</div>
+        <div v-if="currentUser && (!isOnline || pendingSyncCount > 0)" class="sync-banner">
+            <div v-if="!isOnline" class="sync-pill warn">离线中，文字内容会先保存在本机</div>
+            <div v-if="pendingSyncCount > 0" class="sync-pill pending">待同步 {{ pendingSyncCount }} 项，联网后会自动发出</div>
+        </div>
         <div v-if="undoAction" class="undo-bar">
             <div class="undo-text">{{ undoAction.label }}</div>
             <button class="action-submit secondary-btn" @click="undoLastAction">撤销</button>
@@ -902,7 +916,7 @@
                         </div>
                         <div class="home-actions">
                             <button class="action-submit" @click="switchTab(homeTonightCard.primaryTab)">{{ homeTonightCard.primaryLabel }}</button>
-                            <button class="action-submit secondary-btn" @click="switchTab('play')">直接去游乐区</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('diary')">直接写一段随笔</button>
                         </div>
                     </div>
                 </div>
@@ -914,12 +928,12 @@
                         <div class="home-pill-row">
                             <div class="home-pill">📝 草稿 {{ composerDraftCount }} 份</div>
                             <div class="home-pill">📸 相册 {{ homeAlbumCount }} 本</div>
-                            <div class="home-pill">🎲 游乐 {{ totalPlayCount }} 次</div>
+                            <div class="home-pill">🔄 待同步 {{ pendingSyncCount }} 项</div>
                         </div>
                         <div class="home-actions">
                             <button class="action-submit secondary-btn" @click="switchTab('diary')">打开随笔</button>
                             <button class="action-submit secondary-btn" @click="switchTab('memory')">继续纪事</button>
-                            <button class="action-submit secondary-btn" @click="switchTab('play')">去游乐区</button>
+                            <button class="action-submit secondary-btn" @click="switchTab('story')">续写浮梦</button>
                         </div>
                     </div>
 
@@ -951,10 +965,10 @@
 
                 <div class="home-card install-card" style="grid-column: 1 / -1;">
                     <h3 class="home-card-title">安装到手机</h3>
-                    <div class="home-card-text">现在可以把它当成手机主屏上的小客户端来用。安装后会用独立窗口打开，图标和启动页都走本地资源。</div>
+                    <div class="home-card-text">现在可以把它当成手机主屏上的小客户端来用。安装后会用独立窗口打开，文字内容支持离线暂存，重新联网后会自动同步。</div>
                     <div class="install-row">
                         <div class="install-badge">📱 {{ isStandaloneApp ? '已作为客户端打开' : '可添加到主屏幕' }}</div>
-                        <div class="install-badge">🛰️ 支持基础离线缓存</div>
+                        <div class="install-badge">🛰️ 支持离线写作与自动同步</div>
                         <div class="install-badge">🎨 本地图标已就位</div>
                     </div>
                     <div class="home-actions">
@@ -2257,6 +2271,7 @@
                     <div class="card-info">
                         <span class="date">✦ {{ formatDate(item.date) }} ✦</span>
                         <div v-if="editingId !== item._id">
+                            <div v-if="item.pendingSync" class="pending-badge">⏳ 待同步</div>
                             <div v-if="item.mood" class="mood-badge">{{ getMoodLabel(item.mood) }}</div>
                             <div v-if="getDisplayCategory(item) === 'album'" style="text-align: center; font-family: var(--font-serif); font-size: 20px; font-weight: bold; color: var(--ink-main); cursor:pointer;" @click="openAlbum(item)">《 {{ item.title || '无名相册' }} 》</div>
                             <div v-else-if="getDisplayCategory(item) === 'story'" class="story-title">《 {{ item.title }} 》</div>
@@ -2274,6 +2289,30 @@
                                 <span :class="['note', {'wish-completed': item.completed}]">{{ getVisibleNote(item) }}</span>
                             </div>
                             <div v-else class="note">{{ getVisibleNote(item) }}</div>
+                            <template v-if="canReplyToItem(item)">
+                                <div class="interaction-strip">
+                                    <div class="interaction-pill">💌 回信 {{ getReplyCount(item) }}</div>
+                                    <button type="button" class="interaction-pill action" @click="toggleInlineReplyComposer(item)">
+                                        {{ isInlineReplyOpen(item) ? '收起回复' : '写回复' }}
+                                    </button>
+                                </div>
+                                <div v-if="getLatestReply(item)" class="interaction-preview" @click="toggleInlineReplyComposer(item)">
+                                    最新回信 · {{ getLatestReply(item).author }}：{{ getLatestReply(item).text }}
+                                </div>
+                                <div v-if="isInlineReplyOpen(item)" class="reply-composer">
+                                    <textarea class="bond-textarea" v-model.trim="replyDraftsByItem[item._id]" placeholder="写一句回应，联网后会自动贴到这条随笔上。"></textarea>
+                                    <div class="home-actions" style="margin-top: 0;">
+                                        <button class="action-submit" @click="submitInlineReply(item)">发送回信</button>
+                                        <button class="action-submit secondary-btn" @click="closeInlineReplyComposer">取消</button>
+                                    </div>
+                                    <div v-if="getReplyEntries(item).length > 0" class="reply-mini-list">
+                                        <div v-for="entry in getReplyEntries(item)" :key="entry._id || entry.pendingKey || `${entry.author}-${entry.time}`" :class="['reply-mini-entry', { pending: entry.pendingSync }]">
+                                            <div class="reply-mini-meta">{{ entry.author }} · {{ formatDate(entry.date) }}<span v-if="entry.pendingSync"> · 待同步</span></div>
+                                            <div class="reply-mini-text">{{ entry.text }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
                             <button v-if="canExpandCard(item)" type="button" class="card-section-toggle" @click="toggleCardExpanded(item._id)">
                                 {{ isCardExpanded(item) ? '收起细节' : '展开内容' }}
                             </button>
@@ -2369,6 +2408,10 @@
                 notificationState: { lastNotifiedTime: 0 },
                 notificationCheckInFlight: false,
                 reminderPollTimer: null,
+                isOnline: navigator.onLine !== false,
+                syncQueue: [],
+                syncInFlight: false,
+                onlineRefreshTimer: null,
                 fallbackImage: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='640' viewBox='0 0 640 640'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23ffe4ec'/><stop offset='100%' stop-color='%23f6d4ff'/></linearGradient></defs><rect width='640' height='640' rx='48' fill='url(%23g)'/><text x='50%' y='46%' dominant-baseline='middle' text-anchor='middle' font-size='120'>📸</text><text x='50%' y='60%' dominant-baseline='middle' text-anchor='middle' font-size='34' fill='%237b5c6a'>照片暂时没加载出来</text></svg>",
                 filterQuery: '', filterAuthor: '', filterMood: '', filterFrom: '', filterTo: '',
                 reviewData: null, reviewDate: '', reviewLoading: false, relationshipBaseDate: '',
@@ -2376,6 +2419,8 @@
                 composerDraftMetaByTab: {},
                 relationshipEntries: { praise: [], repair: [], ritual: [], temperature: [], companion: [], comfort: [] },
                 dailyQuestion: null,
+                inlineReplyItemId: '',
+                replyDraftsByItem: {},
                 bondSectionOpen: { pulse: true, response: true, care: false, action: false },
                 responseComposerMode: 'reply',
                 selectedReplyItemId: '', replyDraft: '',
@@ -2772,6 +2817,9 @@
             activeItems() {
                 return (this.allItemsForStats || []).filter(item => !item.deletedAt);
             },
+            pendingSyncCount() {
+                return (this.syncQueue || []).length;
+            },
             homeRecentItems() {
                 return this.activeItems
                     .filter(item => ['memory', 'album', 'diary', 'story'].includes(item.category))
@@ -2799,13 +2847,13 @@
                     { label: '已留下内容', value: `${this.activeItems.length}`, note: '现在所有还在主宇宙里的记录。' },
                     { label: '本地草稿', value: `${this.composerDraftCount}`, note: '随手写了一半的内容都还在。' },
                     { label: '相册数量', value: `${this.homeAlbumCount}`, note: '照片还在持续变多。' },
-                    { label: '游乐次数', value: `${this.totalPlayCount}`, note: '最近互动更偏向记录还是偏向玩，能一眼看出来。' }
+                    { label: '待同步', value: `${this.pendingSyncCount}`, note: this.pendingSyncCount > 0 ? '有内容正在等网络恢复后发出。' : '当前没有积压，线上线下已经一致。' }
                 ];
             },
             homeRecommendedAction() {
                 if (this.composerDraftCount > 0) return { tab: this.latestDraftTab, label: '继续写草稿' };
                 if (this.homeRecentItems.length > 0) return { tab: this.homeRecentItems[0]?.category || 'memory', label: '回到最近内容' };
-                return { tab: 'play', label: '打开今晚推荐' };
+                return { tab: 'diary', label: '写第一篇随笔' };
             },
             lastContentTab() {
                 const candidates = ['memory', 'album', 'diary', 'story'];
@@ -2837,11 +2885,11 @@
                 const hour = new Date().getHours();
                 if (hour >= 21 || hour < 4) {
                     return {
-                        title: '今晚适合从“夜色玩法”开始',
-                        text: '你们现在更适合用一个轻量的夜间玩法起头，比如一张氛围卡、一个靠近骰子，或者一句能把节奏放慢的话。',
-                        tags: ['🌙 夜间', '🫶 轻起步', '💌 可写进随笔'],
-                        primaryTab: 'play',
-                        primaryLabel: '去夜色玩法'
+                        title: '今晚适合先写一段日常回应',
+                        text: '夜里更适合留一点真实状态。先写一小段随笔，再给对方回一句，会比额外开玩法更容易留下真正想回看的东西。',
+                        tags: ['🌙 夜间', '💌 可回复', '📝 轻起步'],
+                        primaryTab: 'diary',
+                        primaryLabel: '去写随笔'
                     };
                 }
                 return {
@@ -3363,6 +3411,201 @@
             getNotificationStateKey() {
                 return this.currentUser ? `orange_notification_state_${this.currentUser}` : 'orange_notification_state_guest';
             },
+            getSyncQueueKey() {
+                return 'orange_sync_queue_v1';
+            },
+            loadSyncQueue() {
+                try {
+                    const raw = localStorage.getItem(this.getSyncQueueKey());
+                    this.syncQueue = raw ? JSON.parse(raw) : [];
+                } catch (error) {
+                    this.syncQueue = [];
+                }
+            },
+            persistSyncQueue() {
+                try {
+                    localStorage.setItem(this.getSyncQueueKey(), JSON.stringify(this.syncQueue || []));
+                } catch (error) {}
+            },
+            createOfflineItem(payload, localId) {
+                const time = Number(payload.time || Date.now());
+                return {
+                    _id: localId,
+                    category: payload.category,
+                    title: payload.title || '',
+                    note: payload.note || '',
+                    date: payload.date || this.getLocalDateString(),
+                    author: payload.author || this.currentUser,
+                    mood: payload.mood || '',
+                    segments: payload.segments || [],
+                    images: [],
+                    replies: [],
+                    perspectives: [],
+                    time,
+                    createdAt: new Date(time).toISOString(),
+                    updatedAt: new Date(time).toISOString(),
+                    pendingSync: true
+                };
+            },
+            queueOfflineCreate(payload) {
+                const localId = `local-item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+                const localItem = this.createOfflineItem(payload, localId);
+                this.syncQueue = [{
+                    id: `queue-create-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                    kind: 'create_item',
+                    localId,
+                    payload,
+                    localItem
+                }, ...this.syncQueue];
+                this.persistSyncQueue();
+                this.injectPendingItem(localItem);
+                return localItem;
+            },
+            queueOfflineReply(item, text) {
+                const localReply = {
+                    pendingKey: `pending-reply-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                    author: this.currentUser,
+                    text,
+                    date: this.getLocalDateString(),
+                    time: Date.now(),
+                    pendingSync: true
+                };
+                this.syncQueue = [{
+                    id: `queue-reply-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                    kind: 'reply_item',
+                    itemId: item._id,
+                    payload: {
+                        author: this.currentUser,
+                        text,
+                        date: localReply.date
+                    },
+                    localReply
+                }, ...this.syncQueue];
+                this.persistSyncQueue();
+                this.injectPendingReply(item._id, localReply);
+            },
+            getQueuedCreateItems(tab = '') {
+                return (this.syncQueue || [])
+                    .filter(entry => entry.kind === 'create_item' && entry.localItem)
+                    .map(entry => entry.localItem)
+                    .filter(item => !tab || item.category === tab)
+                    .sort((a, b) => this.getItemActivityTimestamp(b) - this.getItemActivityTimestamp(a));
+            },
+            mergeItemsWithQueuedContent(remoteItems, tab = '') {
+                const merged = [...(Array.isArray(remoteItems) ? remoteItems : [])];
+                const existingIds = new Set(merged.map(item => item._id));
+                this.getQueuedCreateItems(tab).forEach(item => {
+                    if (!existingIds.has(item._id)) merged.unshift(item);
+                });
+                return this.applyQueuedReplyOverlays(merged);
+            },
+            applyQueuedReplyOverlays(sourceItems) {
+                const items = (sourceItems || []).map(item => ({ ...item, replies: Array.isArray(item.replies) ? [...item.replies] : [] }));
+                const itemMap = new Map(items.map(item => [item._id, item]));
+                (this.syncQueue || [])
+                    .filter(entry => entry.kind === 'reply_item' && entry.localReply)
+                    .forEach(entry => {
+                        const target = itemMap.get(entry.itemId);
+                        if (!target) return;
+                        if (target.replies.some(reply => reply.pendingKey === entry.localReply.pendingKey)) return;
+                        target.replies = [entry.localReply, ...(target.replies || [])];
+                    });
+                return items;
+            },
+            injectPendingItem(localItem) {
+                if (this.currentTab === localItem.category) {
+                    this.items = this.mergeItemsWithQueuedContent(this.items, this.currentTab);
+                }
+                this.allItemsForStats = this.mergeItemsWithQueuedContent(this.allItemsForStats);
+            },
+            injectPendingReply(itemId, localReply) {
+                const appendReply = item => {
+                    if (!item || item._id !== itemId) return item;
+                    const replies = [localReply, ...(item.replies || [])];
+                    return { ...item, replies };
+                };
+                this.items = this.items.map(appendReply);
+                this.allItemsForStats = this.allItemsForStats.map(appendReply);
+            },
+            replaceLocalItemWithServer(localId, updatedItem) {
+                this.items = this.items.map(item => item._id === localId ? updatedItem : item);
+                this.allItemsForStats = this.allItemsForStats.map(item => item._id === localId ? updatedItem : item);
+            },
+            async processSyncQueue(showSuccessNotice = false) {
+                if (!this.currentUser || !this.isOnline || this.syncInFlight || (this.syncQueue || []).length === 0) return;
+                this.syncInFlight = true;
+                let syncedCount = 0;
+                try {
+                    for (let index = 0; index < this.syncQueue.length;) {
+                        const entry = this.syncQueue[index];
+                        try {
+                            if (entry.kind === 'create_item') {
+                                const payload = entry.payload || {};
+                                const fd = new FormData();
+                                fd.append('category', payload.category || 'diary');
+                                fd.append('title', payload.title || '');
+                                fd.append('author', payload.author || this.currentUser);
+                                fd.append('mood', payload.mood || '');
+                                fd.append('date', payload.date || this.getLocalDateString());
+                                if (payload.category === 'story') {
+                                    fd.append('segments', JSON.stringify(payload.segments || []));
+                                } else {
+                                    fd.append('note', payload.note || '');
+                                }
+                                const res = await axios.post('/api/items', fd);
+                                this.replaceLocalItemWithServer(entry.localId, res.data);
+                                this.syncQueue = this.syncQueue.map(queueEntry => {
+                                    if (queueEntry.kind === 'reply_item' && queueEntry.itemId === entry.localId) {
+                                        return { ...queueEntry, itemId: res.data._id };
+                                    }
+                                    return queueEntry;
+                                });
+                            } else if (entry.kind === 'reply_item') {
+                                const targetId = entry.itemId || '';
+                                if (!targetId || String(targetId).startsWith('local-item-')) {
+                                    index += 1;
+                                    continue;
+                                }
+                                const res = await axios.post(`/api/items/${targetId}/replies`, entry.payload || {});
+                                this.replaceItemInCollections(res.data);
+                            }
+                            this.syncQueue.splice(index, 1);
+                            this.persistSyncQueue();
+                            syncedCount += 1;
+                        } catch (error) {
+                            if (!this.isLikelyOfflineError(error)) {
+                                this.showNotice('error', this.getErrorMessage(error, '有一条离线内容同步失败'));
+                                break;
+                            }
+                            break;
+                        }
+                    }
+                } finally {
+                    this.syncInFlight = false;
+                    if (syncedCount > 0) {
+                        if (this.showListView) this.getItems();
+                        this.refreshAllItemsSnapshot(false);
+                        if (showSuccessNotice) this.showNotice('success', `已自动同步 ${syncedCount} 项内容`);
+                    }
+                }
+            },
+            isLikelyOfflineError(error) {
+                return !navigator.onLine || !error?.response;
+            },
+            handleOnline() {
+                this.isOnline = true;
+                this.showNotice('success', '网络已恢复，开始自动同步');
+                window.clearTimeout(this.onlineRefreshTimer);
+                this.onlineRefreshTimer = window.setTimeout(() => {
+                    this.processSyncQueue(true);
+                    if (this.currentTab === 'home') this.fetchAllItemsForStats();
+                    else if (this.showListView) this.getItems();
+                }, 160);
+            },
+            handleOffline() {
+                this.isOnline = false;
+                this.showNotice('info', '已切到离线状态，文字内容会先存在本机');
+            },
             getCapacitorPlugin(name) {
                 return window.Capacitor?.Plugins?.[name] || null;
             },
@@ -3543,13 +3786,15 @@
             async refreshAllItemsSnapshot(showError = false) {
                 try {
                     const res = await axios.get('/api/items');
-                    this.allItemsForStats = res.data;
+                    this.allItemsForStats = this.mergeItemsWithQueuedContent(res.data);
                     if (this.currentTab === 'home') this.renderCharts();
                     this.checkAchievementUnlocks();
                     if (this.getTrackedTabs().includes(this.currentTab)) {
-                        this.markTabAsSeen(this.currentTab, this.getLatestActivityForTab(this.currentTab, res.data));
+                        this.markTabAsSeen(this.currentTab, this.getLatestActivityForTab(this.currentTab, this.allItemsForStats));
                     }
                 } catch (error) {
+                    this.allItemsForStats = this.mergeItemsWithQueuedContent(this.allItemsForStats);
+                    if (this.currentTab === 'home') this.renderCharts();
                     if (showError) {
                         this.showNotice('error', this.getErrorMessage(error, '统计数据加载失败'));
                     }
@@ -3571,7 +3816,6 @@
                     const contentTabs = ['memory', 'album', 'diary', 'story'];
                     const payload = {
                         currentTab: this.currentTab,
-                        playMode: this.playMode,
                         listDensityMode: this.listDensityMode,
                         filterQuery: this.filterQuery,
                         filterAuthor: this.filterAuthor,
@@ -3589,9 +3833,8 @@
                     const raw = localStorage.getItem(this.getUiStateKey());
                     if (!raw) return;
                     const parsed = JSON.parse(raw);
-                    const allowedTabs = ['home', 'memory', 'album', 'diary', 'story', 'play'];
+                    const allowedTabs = ['home', 'memory', 'album', 'diary', 'story'];
                     this.currentTab = allowedTabs.includes(parsed.currentTab) ? parsed.currentTab : this.currentTab;
-                    this.playMode = parsed.playMode || this.playMode;
                     this.listDensityMode = parsed.listDensityMode || this.listDensityMode;
                     this.filterQuery = parsed.filterQuery || '';
                     this.filterAuthor = parsed.filterAuthor || '';
@@ -3896,6 +4139,31 @@
             getItemInteractionCount(item) {
                 return (item?.replies?.length || 0) + (item?.perspectives?.length || 0);
             },
+            canReplyToItem(item) {
+                return ['memory', 'diary'].includes(this.getDisplayCategory(item));
+            },
+            getReplyEntries(item) {
+                return (item?.replies || []).slice().sort((a, b) => (b.time || 0) - (a.time || 0));
+            },
+            getReplyCount(item) {
+                return this.getReplyEntries(item).length;
+            },
+            getLatestReply(item) {
+                return this.getReplyEntries(item)[0] || null;
+            },
+            isInlineReplyOpen(item) {
+                return this.inlineReplyItemId === item?._id;
+            },
+            toggleInlineReplyComposer(item) {
+                if (!item?._id) return;
+                this.inlineReplyItemId = this.inlineReplyItemId === item._id ? '' : item._id;
+                if (!this.replyDraftsByItem[item._id]) {
+                    this.replyDraftsByItem = { ...this.replyDraftsByItem, [item._id]: '' };
+                }
+            },
+            closeInlineReplyComposer() {
+                this.inlineReplyItemId = '';
+            },
             getLatestInteractionPreview(item) {
                 const reply = (item?.replies || []).slice().sort((a, b) => (b.time || 0) - (a.time || 0))[0];
                 const perspective = (item?.perspectives || []).slice().sort((a, b) => (b.time || 0) - (a.time || 0))[0];
@@ -3910,7 +4178,7 @@
                 };
             },
             openReplyFromList(item) {
-                this.showNotice('info', '关系页入口已收起，先专注在记录和游乐里。');
+                this.toggleInlineReplyComposer(item);
             },
             openPerspectiveFromList(item) {
                 this.showNotice('info', '关系页入口已收起，先专注在记录和游乐里。');
@@ -4040,22 +4308,51 @@
                     this.showNotice('error', this.getErrorMessage(error, '状态更新失败'));
                 }
             },
-            async saveItemReply() {
-                if (!this.selectedReplyItemId) {
+            async saveItemReply(itemId = this.selectedReplyItemId, draftText = this.replyDraft) {
+                const text = String(draftText || '').trim();
+                if (!itemId) {
                     this.showNotice('info', '先选择一条回忆');
-                    return;
+                    return false;
+                }
+                if (!text) {
+                    this.showNotice('info', '先写点内容再发送');
+                    return false;
+                }
+                if (!this.isOnline) {
+                    const targetItem = this.relationshipItems.find(item => item._id === itemId) || this.items.find(item => item._id === itemId);
+                    if (!targetItem) {
+                        this.showNotice('error', '这条回忆暂时没找到，稍后再试');
+                        return false;
+                    }
+                    this.queueOfflineReply(targetItem, text);
+                    if (itemId === this.selectedReplyItemId) this.replyDraft = '';
+                    this.showNotice('info', '回信已离线保存，联网后会自动贴上去');
+                    return true;
                 }
                 try {
-                    const res = await axios.post(`/api/items/${this.selectedReplyItemId}/replies`, {
+                    const res = await axios.post(`/api/items/${itemId}/replies`, {
                         author: this.currentUser,
-                        text: this.replyDraft,
+                        text,
                         date: this.getLocalDateString()
                     });
-                    this.replyDraft = '';
+                    if (itemId === this.selectedReplyItemId) this.replyDraft = '';
                     this.replaceItemInCollections(res.data);
                     this.showNotice('success', '回信已经贴到这条回忆上');
+                    return true;
                 } catch (error) {
                     this.showNotice('error', this.getErrorMessage(error, '发送回信失败'));
+                    return false;
+                }
+            },
+            async submitInlineReply(item) {
+                const draft = this.replyDraftsByItem[item?._id] || '';
+                const saved = await this.saveItemReply(item?._id, draft);
+                if (saved) {
+                    this.replyDraftsByItem = {
+                        ...this.replyDraftsByItem,
+                        [item._id]: ''
+                    };
+                    this.inlineReplyItemId = '';
                 }
             },
             async saveItemPerspective() {
@@ -4965,6 +5262,7 @@
                 if(this.currentTab === 'home') this.renderCharts(); 
             },
             switchTab(tab) {
+                if (tab === 'play') tab = 'diary';
                 this.vibrate(30);
                 this.saveScrollPosition(this.currentTab);
                 if (this.currentAlbum) this.closeAlbum(false);
@@ -4976,9 +5274,8 @@
                 this.newDate = this.getLocalDateString();
                 if (this.getTrackedTabs().includes(tab)) this.markTabAsSeen(tab);
                 if (['memory', 'album', 'diary', 'story'].includes(tab)) this.loadComposerDraftForTab(tab);
-                if (tab === 'home' || tab === 'play') this.fetchAllItemsForStats();
+                if (tab === 'home') this.fetchAllItemsForStats();
                 else this.getItems();
-                if (tab === 'play' && !this.surpriseTask) this.drawSurpriseTask();
                 this.persistUiState();
                 this.$nextTick(() => this.restoreScrollPosition(tab));
             },
@@ -5406,7 +5703,41 @@
             async uploadItem(optionsOrEvent) {
                 const options = optionsOrEvent && typeof optionsOrEvent.preventDefault === 'function' ? {} : (optionsOrEvent || {});
                 if (!this.newNote && this.selectedFiles.length === 0 && this.newTitle === '') return alert("总得留下点魔法痕迹吧？");
-                this.vibrate(50); this.isUploading = true; const fd = new FormData();
+                this.vibrate(50); this.isUploading = true;
+                if (!this.isOnline) {
+                    if (this.currentTab === 'album' || this.selectedFiles.length > 0) {
+                        this.isUploading = false;
+                        this.showNotice('info', '离线时暂不支持相册和图片上传，先联网再传照片');
+                        return;
+                    }
+                    const payload = {
+                        category: this.currentTab,
+                        title: this.newTitle,
+                        note: this.currentTab === 'story' ? '' : this.newNote,
+                        segments: this.currentTab === 'story' ? [{ id: Date.now().toString(), author: this.currentUser, text: this.newNote }] : [],
+                        author: this.currentUser,
+                        mood: this.selectedMood,
+                        date: this.newDate || this.getLocalDateString(),
+                        time: Date.now()
+                    };
+                    this.queueOfflineCreate(payload);
+                    this.revokePreviewUrls(this.selectedFilePreviews);
+                    this.newNote = '';
+                    this.newTitle = '';
+                    this.newDate = this.getLocalDateString();
+                    this.selectedFiles = [];
+                    this.selectedMood = '';
+                    this.selectedFilePreviews = [];
+                    localStorage.removeItem(this.getComposerDraftKey());
+                    this.refreshComposerDraftMeta();
+                    const fileInput = document.querySelector('.control-panel input[type="file"]');
+                    if (fileInput) fileInput.value = '';
+                    this.markTabAsSeen(this.currentTab);
+                    this.showNotice('info', '已离线保存，恢复网络后会自动同步');
+                    this.isUploading = false;
+                    return;
+                }
+                const fd = new FormData();
                 for (let i = 0; i < this.selectedFiles.length; i++) { const compressed = await this.compressImage(this.selectedFiles[i]); fd.append('files', compressed, compressed.name); }
                 fd.append('category', this.currentTab); fd.append('title', this.newTitle); fd.append('author', this.currentUser); 
                 fd.append('mood', this.selectedMood);
@@ -5423,7 +5754,7 @@
                     const fileInput = document.querySelector('.control-panel input[type="file"]'); if(fileInput) fileInput.value = '';
                     this.markTabAsSeen(this.currentTab);
                     this.getItems();
-                    if (this.currentTab === 'play' || this.currentTab === 'home') this.fetchAllItemsForStats();
+                    if (this.currentTab === 'home') this.fetchAllItemsForStats();
                     if (options.resetTarot) this.resetTarot();
                     this.showNotice('success', options.successMessage || '内容已保存');
                     this.vibrate([50,50,50]); 
@@ -5474,14 +5805,14 @@
                     if (this.filterFrom) params.from = this.filterFrom;
                     if (this.filterTo) params.to = this.filterTo;
                     const res = await axios.get('/api/items', { params });
-                    this.items = res.data;
+                    this.items = this.mergeItemsWithQueuedContent(res.data, this.currentTab);
                     if (this.getTrackedTabs().includes(this.currentTab)) {
-                        this.markTabAsSeen(this.currentTab, this.getLatestActivityForTab(this.currentTab, res.data));
+                        this.markTabAsSeen(this.currentTab, this.getLatestActivityForTab(this.currentTab, this.items));
                     }
                     this.refreshAllItemsSnapshot(false);
                 } catch (error) {
-                    this.items = [];
-                    this.showNotice('error', this.getErrorMessage(error, '内容加载失败'));
+                    this.items = this.mergeItemsWithQueuedContent([], this.currentTab);
+                    this.showNotice(this.isOnline ? 'error' : 'info', this.isOnline ? this.getErrorMessage(error, '内容加载失败') : '当前离线，仅展示本地待同步内容');
                 } finally {
                     this.itemsLoading = false;
                     this.$nextTick(() => this.restoreScrollPosition(this.currentTab));
@@ -5573,11 +5904,15 @@
             initApp() {
                 this.newDate = this.getLocalDateString();
                 this.reviewDate = this.getLocalDateString();
+                this.isOnline = navigator.onLine !== false;
                 this.loadSeenTabState();
                 this.loadNotificationState();
+                this.loadSyncQueue();
+                this.allItemsForStats = this.mergeItemsWithQueuedContent(this.allItemsForStats);
                 if (this.showComposer) this.loadComposerDraftForTab(this.currentTab);
-                if (this.currentTab === 'home' || this.currentTab === 'play') this.fetchAllItemsForStats();
+                if (this.currentTab === 'home') this.fetchAllItemsForStats();
                 else this.getItems();
+                this.processSyncQueue(false);
                 this.ensureContentNotificationSetup(true);
                 this.checkRemoteNotifications();
                 this.startReminderPolling();
@@ -5610,6 +5945,7 @@
             this.loadIdvState();
             this.loadPrivatePlayState();
             this.loadBingoBoard();
+            this.loadSyncQueue();
             this.refreshComposerDraftMeta();
             this.refreshInstallState();
             const savedBaseDate = localStorage.getItem('orange_relationship_base'); if (savedBaseDate) this.relationshipBaseDate = savedBaseDate;
@@ -5623,6 +5959,8 @@
             window.addEventListener('appinstalled', this.handleAppInstalled);
             window.addEventListener('beforeunload', this.handleBeforeUnload);
             window.addEventListener('focus', this.handleWindowFocus);
+            window.addEventListener('online', this.handleOnline);
+            window.addEventListener('offline', this.handleOffline);
         },
         beforeUnmount() {
             window.clearTimeout(this.draftSaveTimer);
@@ -5635,6 +5973,7 @@
             window.clearInterval(this.scenarioRollTimer);
             window.clearTimeout(this.scenarioRevealTimer);
             window.clearTimeout(this.privateAutoLockTimer);
+            window.clearTimeout(this.onlineRefreshTimer);
             this.stopReminderPolling();
             document.removeEventListener('click', this.closeCardMenu);
             document.removeEventListener('click', this.handleGlobalActivity, true);
@@ -5644,6 +5983,8 @@
             window.removeEventListener('appinstalled', this.handleAppInstalled);
             window.removeEventListener('beforeunload', this.handleBeforeUnload);
             window.removeEventListener('focus', this.handleWindowFocus);
+            window.removeEventListener('online', this.handleOnline);
+            window.removeEventListener('offline', this.handleOffline);
         }
     }).mount('#app');
 </script>
