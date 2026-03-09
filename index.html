@@ -679,7 +679,107 @@
         .wish-checkbox { width: 22px; height: 22px; accent-color: var(--accent-bronze); cursor: pointer;}
         .wish-completed { text-decoration: line-through; color: var(--ink-light); opacity: 0.7;}
         .note { font-family: var(--font-serif); font-size: 16px; line-height: 2.2; color: var(--ink-main); white-space: pre-wrap; }
-        
+
+        [data-theme="dark"] .theme-toggle,
+        [data-theme="dark"] .undo-bar,
+        [data-theme="dark"] .mood-chip,
+        [data-theme="dark"] .mood-badge,
+        [data-theme="dark"] .review-item,
+        [data-theme="dark"] .empty-state,
+        [data-theme="dark"] .home-metric,
+        [data-theme="dark"] .install-badge,
+        [data-theme="dark"] .home-recent-item,
+        [data-theme="dark"] .home-recommend,
+        [data-theme="dark"] .home-pill,
+        [data-theme="dark"] .game-metric,
+        [data-theme="dark"] .game-dice-card,
+        [data-theme="dark"] .game-result-pill,
+        [data-theme="dark"] .game-history-item,
+        [data-theme="dark"] .gomoku-legend-pill,
+        [data-theme="dark"] .density-chip,
+        [data-theme="dark"] .card-section-toggle,
+        [data-theme="dark"] .bond-section-toggle,
+        [data-theme="dark"] .append-area,
+        [data-theme="dark"] .upload-preview-card,
+        [data-theme="dark"] .wish-item {
+            background: rgba(24, 36, 50, 0.92);
+            color: var(--ink-main);
+        }
+
+        [data-theme="dark"] .home-hero {
+            background:
+                radial-gradient(circle at top right, rgba(239,195,212,0.12), transparent 28%),
+                linear-gradient(180deg, rgba(24,37,52,0.98), rgba(17,28,40,0.98));
+        }
+
+        [data-theme="dark"] .game-hero {
+            background:
+                radial-gradient(circle at top left, rgba(140,180,224,0.12), transparent 26%),
+                radial-gradient(circle at top right, rgba(239,195,212,0.12), transparent 24%),
+                linear-gradient(180deg, rgba(24,37,52,0.98), rgba(16,26,38,0.98));
+        }
+
+        [data-theme="dark"] .install-card {
+            background: linear-gradient(180deg, rgba(24,37,52,0.98), rgba(19,30,43,0.98));
+        }
+
+        [data-theme="dark"] .game-dice-face,
+        [data-theme="dark"] .gomoku-cell,
+        [data-theme="dark"] .edit-title,
+        [data-theme="dark"] .seg-textarea,
+        [data-theme="dark"] .edit-area {
+            background: rgba(31, 45, 61, 0.95);
+            color: var(--ink-main);
+        }
+
+        [data-theme="dark"] .gomoku-board {
+            background: #35506f;
+            border-color: rgba(140, 180, 224, 0.26);
+        }
+
+        [data-theme="dark"] .skeleton-card {
+            background: rgba(24, 36, 50, 0.9);
+        }
+
+        [data-theme="dark"] .skeleton-media {
+            background: rgba(39, 54, 72, 0.9);
+        }
+
+        [data-theme="dark"] .skeleton-line {
+            background: rgba(120, 142, 169, 0.42);
+        }
+
+        [data-theme="dark"] .card-menu-item {
+            background: rgba(255,255,255,0.04);
+            color: var(--ink-main);
+        }
+
+        [data-theme="dark"] .card-menu-item:hover {
+            background: rgba(140, 180, 224, 0.14);
+        }
+
+        [data-theme="dark"] .album-cover,
+        [data-theme="dark"] .album-badge,
+        [data-theme="dark"] .deleted-stamp {
+            background: rgba(24, 36, 50, 0.94);
+            color: var(--ink-main);
+        }
+
+        [data-theme="dark"] .deleted-stamp {
+            border-color: rgba(239, 195, 212, 0.28);
+        }
+
+        [data-theme="dark"] .home-card,
+        [data-theme="dark"] .fun-card,
+        [data-theme="dark"] .stats-card,
+        [data-theme="dark"] .review-card,
+        [data-theme="dark"] .card,
+        [data-theme="dark"] .timeline-header,
+        [data-theme="dark"] .album-modal-header,
+        [data-theme="dark"] .close-btn {
+            background: rgba(20, 31, 43, 0.96);
+        }
+
         @media (max-width: 768px) {
             #app { padding: 16px 14px calc(28px + env(safe-area-inset-bottom, 0px)); }
             .login-box { width: min(100%, 320px); padding: 34px 24px; border-radius: 24px; }
