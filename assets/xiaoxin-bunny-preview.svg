@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="860" viewBox="0 0 1200 860" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fffdfd"/>
+      <stop offset="100%" stop-color="#fff5f7"/>
+    </linearGradient>
+    <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#eadfe5"/>
+    </pattern>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#d9c6cf" flood-opacity="0.4"/>
+    </filter>
+    <filter id="lineSoft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.45"/>
+    </filter>
+    <filter id="blushSoft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.1"/>
+    </filter>
+    <style>
+      .title{font:600 28px -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;fill:#8f757d}
+      .sub{font:500 18px -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;fill:#b1979f}
+      .label{font:600 22px -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;fill:#8d737b}
+      .line{stroke:#ceb8c0;stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round;filter:url(#lineSoft)}
+      .face{stroke:#9d868e;stroke-width:4.3;stroke-linecap:round;stroke-linejoin:round;fill:none;filter:url(#lineSoft)}
+      .white{fill:#fffdfd}
+      .cheek{fill:#f7dbe6;opacity:0.92;filter:url(#blushSoft)}
+      .nose{fill:#f3bccb;filter:url(#lineSoft)}
+      .tear{fill:#a9dff1}
+      .heart{fill:#f6bfd1}
+      .carrot{fill:#f6b27f}
+      .leaf{fill:#9ac7a6}
+      .tea{fill:#d4bfb4}
+      .boba{fill:#8a756c}
+    </style>
+
+    <g id="bun-body">
+      <path class="white line" d="M70 74
+        C50 75 37 88 37 110
+        C37 139 53 160 78 168
+        C88 175 99 178 112 178
+        C115 184 118 187 120 187
+        C122 187 125 184 128 180
+        C141 178 152 175 162 168
+        C187 160 203 139 203 111
+        C203 88 190 75 170 74
+        C176 65 181 55 191 48
+        C204 39 207 25 198 17
+        C189 10 175 11 164 21
+        C162 29 157 40 156 51
+        C147 42 135 36 120 36
+        C104 36 92 42 83 51
+        C82 39 77 28 67 20
+        C56 11 42 10 34 17
+        C25 24 28 39 40 47
+        C50 55 61 64 70 74Z"/>
+      <path class="white line" d="M79 169 C88 173 97 176 108 177"/>
+      <path class="white line" d="M161 169 C152 173 143 176 132 177"/>
+      <path class="white line" d="M113 180 C115 174 118 171 120 171 C122 171 125 174 127 180"/>
+      <path class="line" d="M59 58 C50 54 43 49 38 41"/>
+      <path class="line" d="M180 58 C189 54 196 49 201 41"/>
+    </g>
+
+    <g id="bun-face-default">
+      <ellipse class="cheek" cx="76" cy="113" rx="16" ry="12"/>
+      <ellipse class="cheek" cx="164" cy="113" rx="16" ry="12"/>
+      <ellipse fill="#9d868e" cx="92" cy="98" rx="4.4" ry="7.2" filter="url(#lineSoft)"/>
+      <ellipse fill="#9d868e" cx="148" cy="98" rx="4.4" ry="7.2" filter="url(#lineSoft)"/>
+      <path class="nose" d="M114 113 L120 107 L126 113 Q120 118 114 113Z"/>
+      <path class="face" d="M120 116 L120 122"/>
+      <path class="face" d="M120 122 Q115 127 110 124"/>
+      <path class="face" d="M120 122 Q125 127 130 124"/>
+    </g>
+
+    <g id="bun-face-shy">
+      <ellipse class="cheek" cx="76" cy="113" rx="17" ry="13"/>
+      <ellipse class="cheek" cx="164" cy="113" rx="17" ry="13"/>
+      <path class="face" d="M84 99 Q92 106 100 99"/>
+      <path class="face" d="M140 99 Q148 106 156 99"/>
+      <path class="nose" d="M114 113 L120 107 L126 113 Q120 118 114 113Z"/>
+      <path class="face" d="M120 117 L120 126"/>
+      <g stroke="#efadc2" stroke-width="3.6" stroke-linecap="round" filter="url(#lineSoft)">
+        <path d="M103 114 L106 121"/>
+        <path d="M111 113 L113 121"/>
+        <path d="M119 113 L120 121"/>
+        <path d="M128 113 L126 121"/>
+      </g>
+    </g>
+
+    <g id="bun-face-angry">
+      <ellipse class="cheek" cx="76" cy="113" rx="16" ry="12"/>
+      <ellipse class="cheek" cx="164" cy="113" rx="16" ry="12"/>
+      <path class="face" d="M83 96 L100 88"/>
+      <path class="face" d="M140 88 L157 96"/>
+      <ellipse fill="#9d868e" cx="92" cy="100" rx="4.4" ry="7.2" filter="url(#lineSoft)"/>
+      <ellipse fill="#9d868e" cx="148" cy="100" rx="4.4" ry="7.2" filter="url(#lineSoft)"/>
+      <path class="nose" d="M114 114 L120 108 L126 114 Q120 119 114 114Z"/>
+      <path class="face" d="M112 129 Q120 124 128 129"/>
+      <path class="face" d="M56 71 L64 58"/>
+      <path class="face" d="M56 58 L64 71"/>
+      <path class="face" d="M176 71 L184 58"/>
+      <path class="face" d="M176 58 L184 71"/>
+    </g>
+
+    <g id="bun-face-cry">
+      <ellipse class="cheek" cx="76" cy="114" rx="16" ry="12"/>
+      <ellipse class="cheek" cx="164" cy="114" rx="16" ry="12"/>
+      <path class="face" d="M84 101 Q91 107 99 103"/>
+      <path class="face" d="M141 103 Q149 107 156 101"/>
+      <path class="nose" d="M114 115 L120 109 L126 115 Q120 120 114 115Z"/>
+      <path class="face" d="M113 130 Q120 137 127 130"/>
+      <path class="tear" d="M70 118 C64 129 65 141 72 148 C80 140 79 128 70 118Z"/>
+      <path class="tear" d="M171 121 C165 132 166 144 173 151 C181 143 180 131 171 121Z"/>
+    </g>
+
+    <g id="bun-face-hug">
+      <ellipse class="cheek" cx="76" cy="113" rx="17" ry="13"/>
+      <ellipse class="cheek" cx="164" cy="113" rx="17" ry="13"/>
+      <path class="face" d="M84 100 Q92 107 100 100"/>
+      <path class="face" d="M140 100 Q148 107 156 100"/>
+      <path class="nose" d="M114 113 L120 107 L126 113 Q120 118 114 113Z"/>
+      <path class="face" d="M112 125 Q120 132 128 125"/>
+      <path class="face" d="M62 141 Q79 125 100 134"/>
+      <path class="face" d="M178 141 Q161 125 140 134"/>
+      <path class="heart" d="M55 76 C55 67 62 63 68 68 C73 61 82 66 82 76 C82 84 73 91 68 95 C63 91 55 84 55 76Z"/>
+      <path class="heart" d="M159 76 C159 67 166 63 172 68 C177 61 186 66 186 76 C186 84 177 91 172 95 C167 91 159 84 159 76Z"/>
+    </g>
+
+    <g id="bun-face-milk">
+      <ellipse class="cheek" cx="76" cy="114" rx="16" ry="12"/>
+      <ellipse class="cheek" cx="164" cy="114" rx="16" ry="12"/>
+      <ellipse fill="#9d868e" cx="94" cy="101" rx="4.4" ry="6.6" filter="url(#lineSoft)"/>
+      <ellipse fill="#9d868e" cx="146" cy="101" rx="4.4" ry="6.6" filter="url(#lineSoft)"/>
+      <path class="nose" d="M114 115 L120 109 L126 115 Q120 120 114 115Z"/>
+      <rect x="118" y="119" width="4" height="20" rx="2" fill="#efadc2"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="860" fill="#fff9fb"/>
+  <text x="64" y="84" class="title">小心兔兔外观预览</text>
+  <text x="64" y="118" class="sub">方向先改成白团子兔：一高一低的垂耳、圆圆的身子、短小的五官、很淡的粉腮红。</text>
+
+  <g transform="translate(60 160)">
+    <g transform="translate(0 0)">
+      <rect x="0" y="0" width="330" height="280" rx="30" fill="url(#bg)" stroke="#ecdbe1" stroke-width="4"/>
+      <rect x="18" y="18" width="294" height="208" rx="22" fill="url(#dots)" opacity="0.78"/>
+      <g transform="translate(38 18)" filter="url(#shadow)">
+        <use href="#bun-body"/>
+        <use href="#bun-face-default"/>
+      </g>
+      <text x="28" y="256" class="label">默认</text>
+    </g>
+
+    <g transform="translate(370 0)">
+      <rect x="0" y="0" width="330" height="280" rx="30" fill="url(#bg)" stroke="#ecdbe1" stroke-width="4"/>
+      <rect x="18" y="18" width="294" height="208" rx="22" fill="url(#dots)" opacity="0.78"/>
+      <g transform="translate(38 18)" filter="url(#shadow)">
+        <use href="#bun-body"/>
+        <use href="#bun-face-shy"/>
+      </g>
+      <text x="28" y="256" class="label">摸摸头 / 害羞</text>
+    </g>
+
+    <g transform="translate(740 0)">
+      <rect x="0" y="0" width="330" height="280" rx="30" fill="url(#bg)" stroke="#ecdbe1" stroke-width="4"/>
+      <rect x="18" y="18" width="294" height="208" rx="22" fill="url(#dots)" opacity="0.78"/>
+      <g transform="translate(38 18)" filter="url(#shadow)">
+        <use href="#bun-body"/>
+        <use href="#bun-face-angry"/>
+      </g>
+      <text x="28" y="256" class="label">生气</text>
+    </g>
+
+    <g transform="translate(0 320)">
+      <rect x="0" y="0" width="330" height="280" rx="30" fill="url(#bg)" stroke="#ecdbe1" stroke-width="4"/>
+      <rect x="18" y="18" width="294" height="208" rx="22" fill="url(#dots)" opacity="0.78"/>
+      <g transform="translate(38 18)" filter="url(#shadow)">
+        <use href="#bun-body"/>
+        <use href="#bun-face-hug"/>
+      </g>
+      <text x="28" y="256" class="label">抱一下</text>
+    </g>
+
+    <g transform="translate(370 320)">
+      <rect x="0" y="0" width="330" height="280" rx="30" fill="url(#bg)" stroke="#ecdbe1" stroke-width="4"/>
+      <rect x="18" y="18" width="294" height="208" rx="22" fill="url(#dots)" opacity="0.78"/>
+      <g transform="translate(38 18)" filter="url(#shadow)">
+        <use href="#bun-body"/>
+        <use href="#bun-face-default"/>
+        <ellipse cx="120" cy="176" rx="76" ry="15" fill="#f6eef2"/>
+        <path class="carrot" d="M113 164 C120 154 136 150 154 156 C150 168 138 176 121 178 C115 174 111 169 113 164Z"/>
+        <path class="leaf" d="M154 151 C162 143 171 144 176 152 C170 156 162 158 154 151Z"/>
+        <path class="face" d="M52 143 Q63 122 77 117"/>
+        <path class="face" d="M188 143 Q177 122 163 117"/>
+      </g>
+      <text x="28" y="256" class="label">投喂</text>
+    </g>
+
+    <g transform="translate(740 320)">
+      <rect x="0" y="0" width="330" height="280" rx="30" fill="url(#bg)" stroke="#ecdbe1" stroke-width="4"/>
+      <rect x="18" y="18" width="294" height="208" rx="22" fill="url(#dots)" opacity="0.78"/>
+      <g transform="translate(38 18)" filter="url(#shadow)">
+        <use href="#bun-body"/>
+        <use href="#bun-face-milk"/>
+        <path class="tea line" d="M70 138 H118 L112 185 Q110 192 102 192 H86 Q78 192 76 185Z"/>
+        <rect x="68" y="131" width="52" height="12" rx="6" fill="#f5d2dd" stroke="#c7aeb7" stroke-width="4"/>
+        <rect x="107" y="109" width="6" height="32" rx="3" fill="#f4e9ee" stroke="#c7aeb7" stroke-width="2"/>
+        <circle cx="85" cy="161" r="5" class="boba"/>
+        <circle cx="101" cy="161" r="5" class="boba"/>
+        <circle cx="93" cy="176" r="5" class="boba"/>
+      </g>
+      <text x="28" y="256" class="label">请喝奶茶</text>
+    </g>
+  </g>
+
+  <g transform="translate(60 785)">
+    <text class="sub">如果这个方向对，我下一步会把它接回 app，并补上：难过流泪、委屈叹气、要抱抱这几种固定姿态。</text>
+  </g>
+</svg>
