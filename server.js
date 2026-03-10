@@ -3,8 +3,12 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
@@ -12,6 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DEEPSEEK_API_BASE = String(process.env.DEEPSEEK_API_BASE || 'https://api.deepseek.com').trim().replace(/\/+$/, '');
 const DEEPSEEK_MODEL = String(process.env.DEEPSEEK_MODEL || 'deepseek-chat').trim() || 'deepseek-chat';
+const execFileAsync = promisify(execFile);
 const ALLOWED_CATEGORIES = new Set(['memory', 'album', 'diary', 'wish', 'story']);
 const ALLOWED_AUTHORS = new Set(['小心', '小橙']);
 const ALLOWED_MOODS = new Set(['', 'spark', 'hug', 'sweet', 'chaos', 'dream', 'brave', 'calm']);
@@ -133,6 +138,17 @@ const upload = multer({
         fileSize: 10 * 1024 * 1024
     }
 });
+const assistantUploadDir = path.join(__dirname, '.tmp-assistant');
+const assistantDataDir = path.join(__dirname, 'data');
+const assistantStyleStore = path.join(assistantDataDir, 'assistant-style-profiles.json');
+fs.mkdirSync(assistantUploadDir, { recursive: true });
+fs.mkdirSync(assistantDataDir, { recursive: true });
+const assistantUpload = multer({
+    dest: assistantUploadDir,
+    limits: {
+        fileSize: 300 * 1024 * 1024
+    }
+});
 
 function createHttpError(status, message) {
     const error = new Error(message);
@@ -152,6 +168,115 @@ function normalizeAssistantMessages(messages) {
             if (!content) return null;
             return { role, content: content.slice(0, 1200) };
         })
+        .filter(Boolean);
+}
+
+function readAssistantStyleProfiles() {
+    try {
+        return JSON.parse(fs.readFileSync(assistantStyleStore, 'utf8'));
+    } catch (error) {
+        return {};
+    }
+}
+
+function writeAssistantStyleProfiles(profiles) {
+    fs.writeFileSync(assistantStyleStore, JSON.stringify(profiles, null, 2), 'utf8');
+}
+
+function getAssistantStyleProfile(author) {
+    const profiles = readAssistantStyleProfiles();
+    return profiles[author] || null;
+}
+
+function normalizeImportedMessage(text) {
+    return String(text || '')
+        .replace(/\(cid:\d+\)/g, '')
+        .replace(/(?<=[\u4e00-\u9fa5A-Za-z0-9])F$/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function pickTopEntries(counts, limit = 3) {
+    return [...counts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit)
+        .map(([value]) => value);
+}
+
+function buildAssistantStyleProfile(messages, author, sourceName = '') {
+    const cleaned = messages
+        .map(normalizeImportedMessage)
+        .filter(Boolean)
+        .filter(text => !/^(信息|短信|\d{1,2}:\d{2}|周[一二三四五六日天]|[\d年月日/:\- ]+)$/.test(text));
+    if (!cleaned.length) {
+        throw createHttpError(400, '没有提取到可用的聊天内容');
+    }
+
+    const fillerLexicon = ['哈哈', '哈哈哈', '呜呜', '好耶', '乐', '好哒', '好嘞', '乖乖', '可恶', 'qwq', 'QWQ', '呀', '啦', '呢', '嘛', '哼'];
+    const endingLexicon = ['呀', '啦', '呢', '嘛', '哦', '啊', '耶', '～', '~', '！', '…'];
+    const fillerCounts = new Map();
+    const endingCounts = new Map();
+    const phraseCounts = new Map();
+
+    cleaned.forEach(text => {
+        fillerLexicon.forEach(token => {
+            if (text.includes(token)) fillerCounts.set(token, (fillerCounts.get(token) || 0) + 1);
+        });
+        endingLexicon.forEach(token => {
+            if (text.endsWith(token)) endingCounts.set(token, (endingCounts.get(token) || 0) + 1);
+        });
+        if (text.length >= 2 && text.length <= 14) {
+            phraseCounts.set(text, (phraseCounts.get(text) || 0) + 1);
+        }
+    });
+
+    const averageLength = Math.round(cleaned.reduce((sum, text) => sum + text.length, 0) / cleaned.length);
+    const favoriteFillers = pickTopEntries(fillerCounts, 4);
+    const favoriteEndings = pickTopEntries(endingCounts, 4);
+    const favoritePhrases = [...phraseCounts.entries()]
+        .filter(([, count]) => count >= 2)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([value]) => value);
+
+    const summaryParts = [];
+    summaryParts.push(averageLength <= 8 ? '短句偏多' : averageLength <= 16 ? '句子偏短，节奏快' : '会写完整一点的句子');
+    if (favoriteFillers.length) summaryParts.push(`常带 ${favoriteFillers.slice(0, 2).join('、')} 这类口头习惯`);
+    if (favoriteEndings.length) summaryParts.push(`结尾会落在 ${favoriteEndings.slice(0, 2).join('、')} 这种语气上`);
+    if (!favoriteFillers.length && !favoriteEndings.length) summaryParts.push('整体语气比较直接自然');
+
+    return {
+        author,
+        sourceName,
+        importedAt: new Date().toISOString(),
+        messageCount: cleaned.length,
+        averageLength,
+        favoriteFillers,
+        favoriteEndings,
+        favoritePhrases,
+        summary: summaryParts.join('，'),
+        samples: cleaned.slice(0, 8)
+    };
+}
+
+async function extractMessagesFromPdf(filePath, side = 'right', limit = 4000) {
+    const scriptPath = path.join(__dirname, 'scripts', 'extract_chat_style.py');
+    const { stdout } = await execFileAsync('/opt/homebrew/bin/python3', [scriptPath, filePath, side, String(limit)], {
+        maxBuffer: 20 * 1024 * 1024
+    });
+    const parsed = JSON.parse(stdout || '[]');
+    return Array.isArray(parsed) ? parsed.map(item => normalizeImportedMessage(item)).filter(Boolean) : [];
+}
+
+async function extractMessagesFromUpload(file) {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    if (ext === '.pdf') {
+        return extractMessagesFromPdf(file.path, 'right', 4000);
+    }
+    const raw = fs.readFileSync(file.path, 'utf8');
+    return raw
+        .split(/\r?\n/)
+        .map(normalizeImportedMessage)
         .filter(Boolean);
 }
 
@@ -804,10 +929,15 @@ app.post('/api/assistant/chat', async (req, res) => {
         if (!process.env.DEEPSEEK_API_KEY) {
             throw createHttpError(503, 'DEEPSEEK_API_KEY 未配置');
         }
+        const author = normalizeAuthor(req.body?.author || '小心');
         const messages = normalizeAssistantMessages(req.body?.messages);
         if (!messages.length) {
             throw createHttpError(400, '没有可发送的聊天内容');
         }
+        const styleProfile = getAssistantStyleProfile(author);
+        const stylePrompt = styleProfile
+            ? `你要轻微模仿 ${author} 的说话习惯，但不要机械复读。风格摘要：${styleProfile.summary}。常用词：${styleProfile.favoriteFillers.join('、') || '无'}。常见结尾：${styleProfile.favoriteEndings.join('、') || '无'}。示例：${(styleProfile.samples || []).slice(0, 4).join(' / ')}。`
+            : '';
 
         const response = await fetch(`${DEEPSEEK_API_BASE}/chat/completions`, {
             method: 'POST',
@@ -821,7 +951,7 @@ app.post('/api/assistant/chat', async (req, res) => {
                 messages: [
                     {
                         role: 'system',
-                        content: '你叫小心，是一个温柔、自然、口语化的陪伴型聊天助手。回答要简短真诚，少一点官方表达，多一点陪在身边的感觉。不要自称是宠物，不要长篇说教。'
+                        content: `你叫小心，是一个温柔、自然、口语化的陪伴型聊天助手。回答要简短真诚，少一点官方表达，多一点陪在身边的感觉。不要长篇说教。${stylePrompt}`
                     },
                     ...messages
                 ]
@@ -844,6 +974,48 @@ app.post('/api/assistant/chat', async (req, res) => {
             model: payload?.model || DEEPSEEK_MODEL,
             provider: 'deepseek'
         });
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+app.get('/api/assistant/style', async (req, res) => {
+    try {
+        const author = normalizeAuthor(req.query.author || '小心');
+        res.json(getAssistantStyleProfile(author));
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+app.post('/api/assistant/style/import', assistantUpload.single('file'), async (req, res) => {
+    try {
+        const author = normalizeAuthor(req.body?.author || '小心');
+        if (!req.file) {
+            throw createHttpError(400, '缺少聊天记录文件');
+        }
+        const messages = await extractMessagesFromUpload(req.file);
+        const profile = buildAssistantStyleProfile(messages, author, req.file.originalname || '');
+        const profiles = readAssistantStyleProfiles();
+        profiles[author] = profile;
+        writeAssistantStyleProfiles(profiles);
+        res.json(profile);
+    } catch (err) {
+        handleError(res, err);
+    } finally {
+        if (req.file?.path) {
+            fs.promises.unlink(req.file.path).catch(() => {});
+        }
+    }
+});
+
+app.delete('/api/assistant/style', async (req, res) => {
+    try {
+        const author = normalizeAuthor(req.query.author || '小心');
+        const profiles = readAssistantStyleProfiles();
+        delete profiles[author];
+        writeAssistantStyleProfiles(profiles);
+        res.json({ ok: true });
     } catch (err) {
         handleError(res, err);
     }

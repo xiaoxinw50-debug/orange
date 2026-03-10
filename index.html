@@ -535,9 +535,10 @@
         .achievement-modal-text { font-size: 14px; line-height: 1.8; color: var(--ink-light); margin-bottom: 20px; }
         @keyframes modalRise { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .assistant-fab-wrap { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 1250; display: grid; justify-items: end; gap: 12px; }
-        .assistant-fab-btn { width: 76px; height: 76px; border-radius: 26px; border: 1px solid rgba(111,151,198,0.24); background: rgba(255,255,255,0.96); box-shadow: 0 18px 34px rgba(44, 79, 114, 0.14); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+        .assistant-fab-btn { width: 78px; height: 78px; border-radius: 28px; border: 1px solid rgba(111,151,198,0.16); background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(246,250,255,0.72)); backdrop-filter: blur(14px); box-shadow: 0 18px 34px rgba(44, 79, 114, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
         .assistant-fab-btn:hover { transform: translateY(-2px); }
-        .assistant-fab-icon { width: 58px; height: 58px; object-fit: contain; display: block; }
+        .assistant-fab-btn::after { content: ''; position: absolute; inset: 12px; border-radius: 20px; background: radial-gradient(circle at top, rgba(255,255,255,0.42), rgba(255,255,255,0)); pointer-events: none; }
+        .assistant-fab-icon { width: 62px; height: 62px; object-fit: contain; display: block; filter: drop-shadow(0 6px 12px rgba(188, 151, 164, 0.16)); position: relative; z-index: 1; }
         .assistant-fab-dot { position: absolute; top: 12px; right: 12px; width: 12px; height: 12px; border-radius: 999px; background: #e8a6be; box-shadow: 0 0 0 5px rgba(232, 166, 190, 0.22); }
         .assistant-chat-panel { width: min(360px, calc(100vw - 26px)); border-radius: 28px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.98); box-shadow: 0 24px 48px rgba(44, 79, 114, 0.18); display: grid; overflow: hidden; }
         .assistant-chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 18px 14px; border-bottom: 1px solid rgba(111,151,198,0.12); background: linear-gradient(135deg, rgba(111,151,198,0.08), rgba(239,195,212,0.12)); }
@@ -558,6 +559,17 @@
         .assistant-chip-btn { border-radius: 999px; border: 1px solid rgba(111,151,198,0.22); background: rgba(111,151,198,0.08); color: var(--ink-main); padding: 8px 12px; cursor: pointer; }
         .assistant-send-btn { margin-left: auto; border-radius: 14px; border: none; background: linear-gradient(135deg, #7aa6d8, #5d88be); color: white; padding: 10px 18px; font-weight: bold; cursor: pointer; }
         .assistant-send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .assistant-style-card { margin: 0 16px; padding: 12px 14px; border-radius: 18px; border: 1px solid rgba(111,151,198,0.14); background: linear-gradient(135deg, rgba(111,151,198,0.08), rgba(239,195,212,0.12)); display: grid; gap: 8px; }
+        .assistant-style-card.is-empty { background: rgba(111,151,198,0.05); }
+        .assistant-style-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .assistant-style-title { font-size: 13px; color: var(--ink-light); }
+        .assistant-style-summary { font-size: 13px; line-height: 1.7; color: var(--ink-main); }
+        .assistant-style-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .assistant-style-tag { padding: 5px 10px; border-radius: 999px; font-size: 12px; background: rgba(255,255,255,0.72); border: 1px solid rgba(111,151,198,0.12); color: var(--ink-main); }
+        .assistant-style-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .assistant-file-label { position: relative; overflow: hidden; }
+        .assistant-file-label input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .assistant-style-note { font-size: 11px; color: var(--ink-light); line-height: 1.6; }
         .assistant-typing { display: inline-flex; align-items: center; gap: 6px; }
         .assistant-typing span { width: 7px; height: 7px; border-radius: 999px; background: rgba(111,151,198,0.55); animation: assistantTyping 1s infinite ease-in-out; }
         .assistant-typing span:nth-child(2) { animation-delay: 0.12s; }
@@ -565,10 +577,15 @@
         [data-theme="dark"] .assistant-fab-btn,
         [data-theme="dark"] .assistant-chat-panel,
         [data-theme="dark"] .assistant-chat-foot { background: rgba(18, 27, 39, 0.98); }
+        [data-theme="dark"] .assistant-fab-btn { border-color: rgba(189, 214, 240, 0.12); background: linear-gradient(180deg, rgba(25, 36, 50, 0.92), rgba(17, 24, 35, 0.84)); box-shadow: 0 16px 28px rgba(0, 0, 0, 0.28); }
+        [data-theme="dark"] .assistant-fab-btn::after { background: radial-gradient(circle at top, rgba(255,255,255,0.08), rgba(255,255,255,0)); }
+        [data-theme="dark"] .assistant-fab-icon { filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.22)); }
         [data-theme="dark"] .assistant-chat-log { background: linear-gradient(180deg, rgba(19,28,39,0.92), rgba(16,23,34,0.98)); }
         [data-theme="dark"] .assistant-bubble.is-assistant,
         [data-theme="dark"] .assistant-input,
         [data-theme="dark"] .assistant-close-btn { background: rgba(28, 40, 55, 0.96); color: var(--ink-main); }
+        [data-theme="dark"] .assistant-style-card { background: linear-gradient(135deg, rgba(140,180,224,0.1), rgba(239,195,212,0.08)); }
+        [data-theme="dark"] .assistant-style-tag { background: rgba(28, 40, 55, 0.96); }
         [data-theme="dark"] .assistant-chip-btn { background: rgba(140, 180, 224, 0.1); }
         @keyframes assistantTyping {
             0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
@@ -923,8 +940,8 @@
             .lightbox-thumbs { padding: 0 16px 16px; }
             .lightbox-thumb { width: 64px; height: 64px; }
             .assistant-fab-wrap { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
-            .assistant-fab-btn { width: 68px; height: 68px; border-radius: 22px; }
-            .assistant-fab-icon { width: 52px; height: 52px; }
+            .assistant-fab-btn { width: 68px; height: 68px; border-radius: 24px; }
+            .assistant-fab-icon { width: 54px; height: 54px; }
             .assistant-chat-panel { width: min(330px, calc(100vw - 24px)); border-radius: 24px; }
             .assistant-chat-log { max-height: min(48vh, 380px); }
         }
@@ -1075,6 +1092,27 @@
                         <div class="assistant-chat-note">{{ assistantStatusLabel }}</div>
                     </div>
                     <button type="button" class="assistant-close-btn" @click="toggleAssistantPanel">×</button>
+                </div>
+                <div :class="['assistant-style-card', { 'is-empty': !assistantStyleProfile }]">
+                    <div class="assistant-style-head">
+                        <div class="assistant-style-title">{{ assistantStyleProfile ? `正在学 ${currentUser} 的说话方式` : '还没学会你的语气' }}</div>
+                        <div class="assistant-style-title" v-if="assistantStyleProfile">{{ assistantStyleProfile.messageCount }} 条</div>
+                    </div>
+                    <div class="assistant-style-summary">
+                        {{ assistantStyleProfile ? assistantStyleProfile.summary : '可以上传聊天记录 txt / pdf。PDF 会优先抽右侧消息，先学你的说话习惯。' }}
+                    </div>
+                    <div v-if="assistantStyleProfile && assistantStyleProfile.favoriteFillers?.length" class="assistant-style-tags">
+                        <span v-for="tag in assistantStyleProfile.favoriteFillers.slice(0, 4)" :key="tag" class="assistant-style-tag">{{ tag }}</span>
+                        <span v-for="tag in assistantStyleProfile.favoritePhrases.slice(0, 3)" :key="`phrase-${tag}`" class="assistant-style-tag">{{ tag }}</span>
+                    </div>
+                    <div class="assistant-style-actions">
+                        <label class="assistant-chip-btn assistant-file-label">
+                            {{ assistantStyleImporting ? '导入中…' : '导入聊天记录' }}
+                            <input type="file" accept=".txt,.md,.pdf" @change="handleAssistantStyleFile" :disabled="assistantStyleImporting">
+                        </label>
+                        <button type="button" class="assistant-chip-btn" v-if="assistantStyleProfile" @click="clearAssistantStyleProfile">清空语气</button>
+                    </div>
+                    <div class="assistant-style-note">DeepSeek 在线时会按这份风格卡回话；离线时会用本地陪聊兜底。</div>
                 </div>
                 <div class="assistant-chat-log" ref="assistantLog">
                     <div v-for="message in assistantMessages" :key="message.id" :class="['assistant-bubble', `is-${message.role}`]">
@@ -2746,6 +2784,8 @@
                 assistantError: '',
                 assistantMode: 'offline',
                 assistantUnreadHint: false,
+                assistantStyleProfile: null,
+                assistantStyleImporting: false,
                 petPanelOpen: false,
                 petSpeech: '小心在这里，想被摸摸头。',
                 petMood: 'calm',
@@ -4346,6 +4386,66 @@
                     }));
                 } catch (error) {}
             },
+            async loadAssistantStyleProfile() {
+                if (!this.currentUser) {
+                    this.assistantStyleProfile = null;
+                    return;
+                }
+                try {
+                    const { data } = await axios.get('/api/assistant/style', {
+                        params: { author: this.currentUser }
+                    });
+                    this.assistantStyleProfile = data || null;
+                } catch (error) {
+                    this.assistantStyleProfile = null;
+                }
+            },
+            async handleAssistantStyleFile(event) {
+                const file = event?.target?.files?.[0];
+                if (!file || this.assistantStyleImporting || !this.currentUser) return;
+                this.assistantStyleImporting = true;
+                this.assistantError = '';
+                const formData = new FormData();
+                formData.append('file', file, file.name);
+                formData.append('author', this.currentUser);
+                try {
+                    const { data } = await axios.post('/api/assistant/style/import', formData);
+                    this.assistantStyleProfile = data || null;
+                    this.showNotice('success', '小心已经记住你说话的大致感觉了');
+                } catch (error) {
+                    this.assistantError = this.getErrorMessage(error, '聊天记录导入失败');
+                } finally {
+                    this.assistantStyleImporting = false;
+                    if (event?.target) event.target.value = '';
+                }
+            },
+            async clearAssistantStyleProfile() {
+                if (!this.currentUser) return;
+                try {
+                    await axios.delete('/api/assistant/style', {
+                        params: { author: this.currentUser }
+                    });
+                    this.assistantStyleProfile = null;
+                    this.showNotice('success', '小心先把这份语气放下了');
+                } catch (error) {
+                    this.assistantError = this.getErrorMessage(error, '清空语气失败');
+                }
+            },
+            decorateAssistantReply(text) {
+                let next = String(text || '').trim();
+                if (!next) return '我在。';
+                const profile = this.assistantStyleProfile;
+                if (!profile) return next;
+                const ending = profile.favoriteEndings?.[0];
+                if (ending && !next.endsWith(ending) && !/[。！？!?~～…]$/.test(next)) {
+                    next += ending;
+                }
+                const filler = profile.favoriteFillers?.[0];
+                if (filler && next.length < 22 && !next.includes(filler) && !['！', '～', '~', '…'].includes(filler)) {
+                    next = `${next}${filler}`;
+                }
+                return next;
+            },
             toggleAssistantPanel() {
                 this.assistantOpen = !this.assistantOpen;
                 this.vibrate(20);
@@ -4378,14 +4478,14 @@
             },
             buildOfflineAssistantReply(userText) {
                 const text = String(userText || '').trim();
-                if (!text) return '我在听。';
-                if (/难过|委屈|哭|不开心|烦|累/.test(text)) return '先靠近一点。我先陪你把这阵情绪放下来，不急着马上变好。';
-                if (/生气|火大|气死|烦死/.test(text)) return '我知道你现在不舒服。先把火气说出来，我陪你站这一边。';
-                if (/想你|想念|抱抱|贴贴/.test(text)) return '那就先抱一下。你想靠近的时候，我就在这边。';
-                if (/开心|高兴|顺利|好耶|幸福/.test(text)) return '那就把这一点开心留久一点。你继续说，我想听完整。';
-                if (/晚安|睡觉|困/.test(text)) return '那就收一收情绪，慢慢去睡。我在这儿陪你到最后一句。';
-                if (/吃|奶茶|饭|饿/.test(text)) return '先去吃点东西也可以。吃饱了再回来聊，我还在。';
-                return '我在认真听。你可以继续往下说，我不会打断你。';
+                if (!text) return this.decorateAssistantReply('我在听');
+                if (/难过|委屈|哭|不开心|烦|累/.test(text)) return this.decorateAssistantReply('先靠近一点，我先陪你把这阵情绪放下来');
+                if (/生气|火大|气死|烦死/.test(text)) return this.decorateAssistantReply('我知道你现在不舒服，先把火气说出来');
+                if (/想你|想念|抱抱|贴贴/.test(text)) return this.decorateAssistantReply('那就先抱一下，你想靠近的时候我就在这边');
+                if (/开心|高兴|顺利|好耶|幸福/.test(text)) return this.decorateAssistantReply('那就把这一点开心留久一点，我还想听后面');
+                if (/晚安|睡觉|困/.test(text)) return this.decorateAssistantReply('那就慢慢去睡，我陪你到最后一句');
+                if (/吃|奶茶|饭|饿/.test(text)) return this.decorateAssistantReply('先去吃点东西也可以，吃饱了再回来聊');
+                return this.decorateAssistantReply('我在认真听，你继续往下说');
             },
             async sendAssistantMessage() {
                 const text = String(this.assistantDraft || '').trim();
@@ -4410,6 +4510,7 @@
                 if (this.isOnline) {
                     try {
                         const payload = {
+                            author: this.currentUser,
                             messages: this.assistantMessages.slice(-12).map(message => ({
                                 role: message.role,
                                 content: message.text
@@ -7165,6 +7266,8 @@
                 this.assistantError = '';
                 this.assistantMode = 'offline';
                 this.assistantUnreadHint = false;
+                this.assistantStyleProfile = null;
+                this.assistantStyleImporting = false;
                 window.clearTimeout(this.privateAutoLockTimer);
                 this.stopReminderPolling();
                 this.syncBackgroundNotificationConfig();
@@ -7829,6 +7932,7 @@
                 this.reviewDate = this.getLocalDateString();
                 this.isOnline = navigator.onLine !== false;
                 this.loadAssistantState();
+                this.loadAssistantStyleProfile();
                 this.loadSeenTabState();
                 this.loadNotificationState();
                 this.loadSyncQueue();
@@ -7855,6 +7959,7 @@
             currentUser(newValue) {
                 if (newValue) {
                     this.loadAssistantState();
+                    this.loadAssistantStyleProfile();
                 } else {
                     this.assistantOpen = false;
                     this.assistantMessages = [];
@@ -7863,6 +7968,8 @@
                     this.assistantError = '';
                     this.assistantMode = 'offline';
                     this.assistantUnreadHint = false;
+                    this.assistantStyleProfile = null;
+                    this.assistantStyleImporting = false;
                 }
             },
             playMode() { this.persistUiState(); },
