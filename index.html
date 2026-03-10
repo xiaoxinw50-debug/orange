@@ -17,62 +17,6 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
-    <script src="vendor/three.min.js"></script>
-    <script src="vendor/OrbitControls.js"></script>
-    <script src="vendor/GLTFLoader.js"></script>
-    <script>
-        (function ensureThreeFallback() {
-            const loadScript = src => new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-            window.__orangeThreeReady = (async () => {
-                if (window.THREE) return true;
-                const candidates = [
-                    './vendor/three.min.js',
-                    'vendor/three.min.js',
-                    '/vendor/three.min.js'
-                ];
-                for (const src of candidates) {
-                    try {
-                        await loadScript(src);
-                        break;
-                    } catch (error) {}
-                }
-                if (!window.THREE) return false;
-                if (!window.THREE.OrbitControls) {
-                    const controlCandidates = [
-                        './vendor/OrbitControls.js',
-                        'vendor/OrbitControls.js',
-                        '/vendor/OrbitControls.js'
-                    ];
-                    for (const src of controlCandidates) {
-                        try {
-                            await loadScript(src);
-                            break;
-                        } catch (error) {}
-                    }
-                }
-                if (!window.THREE.GLTFLoader) {
-                    const loaderCandidates = [
-                        './vendor/GLTFLoader.js',
-                        'vendor/GLTFLoader.js',
-                        '/vendor/GLTFLoader.js'
-                    ];
-                    for (const src of loaderCandidates) {
-                        try {
-                            await loadScript(src);
-                            break;
-                        } catch (error) {}
-                    }
-                }
-                return Boolean(window.THREE);
-            })();
-        })();
-    </script>
     <style>
         :root {
             --paper-bg: #eef3f9; --card-bg: rgba(255, 255, 255, 0.97); --ink-main: #304458; --ink-light: #66788d;
@@ -590,58 +534,45 @@
         .achievement-modal-title { font-family: var(--font-serif); font-size: 28px; color: var(--ink-main); margin-bottom: 10px; }
         .achievement-modal-text { font-size: 14px; line-height: 1.8; color: var(--ink-light); margin-bottom: 20px; }
         @keyframes modalRise { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .companion-pet { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 1250; display: grid; justify-items: end; gap: 10px; }
-        .pet-speech-bubble { max-width: 220px; border-radius: 18px; border: 1px solid rgba(111,151,198,0.2); background: rgba(255,255,255,0.96); color: var(--ink-main); padding: 10px 14px; font-size: 13px; line-height: 1.6; box-shadow: 0 18px 30px rgba(44, 79, 114, 0.12); position: relative; }
-        .pet-speech-bubble::after { content: ''; position: absolute; right: 18px; bottom: -7px; width: 12px; height: 12px; background: rgba(255,255,255,0.96); border-right: 1px solid rgba(111,151,198,0.2); border-bottom: 1px solid rgba(111,151,198,0.2); transform: rotate(45deg); }
-        .pet-avatar-btn { border: none; background: transparent; padding: 0; display: grid; justify-items: end; gap: 8px; cursor: pointer; }
-        .pet-avatar-stage { position: relative; width: 174px; min-height: 174px; padding: 0; background: transparent; border: none; box-shadow: none; overflow: visible; }
-        .pet-avatar-shell { width: 174px; height: 174px; position: relative; margin: 0 auto; filter: drop-shadow(0 12px 20px rgba(210, 169, 184, 0.18)); }
-        .pet-avatar-shell.is-active { animation: petBounce 0.48s ease; }
-        .pet-avatar-shell.is-sleepy { opacity: 0.92; transform: translateY(2px); }
-        .pet-avatar-shell.is-angry { transform: translateY(2px); }
-        .pet-avatar-shell.is-sigh { transform: translateY(6px); }
-        .pet-avatar-shell.is-cry { transform: translateY(8px) rotate(-8deg); }
-        .pet-model-canvas { width: 174px; height: 174px; display: block; cursor: grab; touch-action: none; }
-        .pet-model-canvas:active { cursor: grabbing; }
-        .pet-viewer-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 18px; text-align: center; font-size: 12px; line-height: 1.6; color: var(--ink-light); pointer-events: none; }
-        .pet-viewer-status.error { color: #c0768f; }
-        .pet-viewer-tip { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); font-size: 11px; color: var(--ink-light); padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.82); border: 1px solid rgba(111,151,198,0.16); white-space: nowrap; }
-        .pet-panel-viewer { border-radius: 18px; border: 1px solid var(--border-fine); background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(242,247,252,0.88)); padding: 10px; }
-        .pet-panel-canvas { width: 100%; aspect-ratio: 1 / 1; display: block; cursor: grab; touch-action: none; }
-        .pet-panel-canvas:active { cursor: grabbing; }
-        .pet-panel-viewer-note { margin-top: 8px; font-size: 12px; color: var(--ink-light); text-align: center; }
-        .pet-panel { width: min(280px, calc(100vw - 28px)); border-radius: 22px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.98); padding: 18px; box-shadow: 0 24px 48px rgba(44, 79, 114, 0.16); display: grid; gap: 14px; }
-        .pet-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .pet-panel-title { font-family: var(--font-serif); font-size: 20px; color: var(--ink-main); }
-        .pet-panel-note { font-size: 12px; color: var(--ink-light); }
-        .pet-mini-close { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border-fine); background: rgba(111,151,198,0.08); color: var(--ink-main); cursor: pointer; }
-        .pet-meter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-        .pet-meter-card { border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(111,151,198,0.08); padding: 12px 13px; }
-        .pet-meter-label { font-size: 12px; color: var(--ink-light); margin-bottom: 8px; }
-        .pet-meter-value { font-family: var(--font-serif); font-size: 18px; color: var(--ink-main); }
-        .pet-meter-track { height: 8px; border-radius: 999px; background: rgba(111,151,198,0.16); overflow: hidden; }
-        .pet-meter-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7fa6d6, #f3c3d4); transition: width 0.25s ease; }
-        .pet-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-        .pet-action-btn { border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.92); color: var(--ink-main); padding: 12px 10px; cursor: pointer; font-family: var(--font-ui); transition: 0.2s; }
-        .pet-action-btn:hover { transform: translateY(-2px); border-color: rgba(111,151,198,0.45); background: rgba(111,151,198,0.08); }
-        .pet-tip { border-radius: 16px; background: linear-gradient(135deg, rgba(127,166,214,0.12), rgba(243,195,212,0.12)); border: 1px solid var(--border-fine); padding: 12px 14px; color: var(--ink-main); font-size: 13px; line-height: 1.7; }
-        .pet-heartline { color: #e7a8c1; letter-spacing: 2px; }
-        @keyframes petBounce {
-            0% { transform: translateY(0) scale(1); }
-            35% { transform: translateY(-4px) scale(1.02); }
-            100% { transform: translateY(0) scale(1); }
-        }
-        @keyframes petEarBounceLeft {
-            0%, 100% { transform: rotate(-10deg); }
-            50% { transform: rotate(-18deg) translateY(-2px); }
-        }
-        @keyframes petEarBounceRight {
-            0%, 100% { transform: rotate(10deg); }
-            50% { transform: rotate(18deg) translateY(-2px); }
-        }
-        @keyframes petPixelJitter {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-2px); }
+        .assistant-fab-wrap { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 1250; display: grid; justify-items: end; gap: 12px; }
+        .assistant-fab-btn { width: 76px; height: 76px; border-radius: 26px; border: 1px solid rgba(111,151,198,0.24); background: rgba(255,255,255,0.96); box-shadow: 0 18px 34px rgba(44, 79, 114, 0.14); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+        .assistant-fab-btn:hover { transform: translateY(-2px); }
+        .assistant-fab-icon { width: 58px; height: 58px; object-fit: contain; display: block; }
+        .assistant-fab-dot { position: absolute; top: 12px; right: 12px; width: 12px; height: 12px; border-radius: 999px; background: #e8a6be; box-shadow: 0 0 0 5px rgba(232, 166, 190, 0.22); }
+        .assistant-chat-panel { width: min(360px, calc(100vw - 26px)); border-radius: 28px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.98); box-shadow: 0 24px 48px rgba(44, 79, 114, 0.18); display: grid; overflow: hidden; }
+        .assistant-chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 18px 14px; border-bottom: 1px solid rgba(111,151,198,0.12); background: linear-gradient(135deg, rgba(111,151,198,0.08), rgba(239,195,212,0.12)); }
+        .assistant-chat-title { font-family: var(--font-serif); font-size: 22px; color: var(--ink-main); }
+        .assistant-chat-note { margin-top: 4px; font-size: 12px; color: var(--ink-light); }
+        .assistant-close-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.88); color: var(--ink-main); font-size: 20px; cursor: pointer; }
+        .assistant-chat-log { max-height: min(52vh, 440px); overflow-y: auto; padding: 16px; display: grid; gap: 12px; background: linear-gradient(180deg, rgba(244,248,252,0.9), rgba(255,255,255,0.92)); }
+        .assistant-bubble { max-width: 86%; padding: 12px 14px; border-radius: 18px; box-shadow: 0 10px 20px rgba(44, 79, 114, 0.08); display: grid; gap: 6px; }
+        .assistant-bubble.is-assistant { justify-self: start; background: rgba(255,255,255,0.96); border: 1px solid rgba(111,151,198,0.14); }
+        .assistant-bubble.is-user { justify-self: end; background: linear-gradient(135deg, rgba(111,151,198,0.92), rgba(97,137,181,0.92)); color: white; }
+        .assistant-bubble.is-loading { padding: 14px 16px; }
+        .assistant-bubble-text { font-size: 14px; line-height: 1.75; white-space: pre-wrap; word-break: break-word; }
+        .assistant-bubble-meta { font-size: 11px; color: inherit; opacity: 0.68; }
+        .assistant-chat-foot { padding: 14px 16px 16px; border-top: 1px solid rgba(111,151,198,0.12); display: grid; gap: 10px; background: rgba(255,255,255,0.98); }
+        .assistant-error { font-size: 12px; line-height: 1.6; color: #b65d76; border-radius: 14px; background: rgba(239, 195, 212, 0.16); border: 1px solid rgba(232, 166, 190, 0.28); padding: 9px 12px; }
+        .assistant-input { width: 100%; box-sizing: border-box; border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(248,251,255,0.92); color: var(--ink-main); padding: 13px 14px; font-family: var(--font-ui); resize: none; min-height: 82px; }
+        .assistant-foot-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .assistant-chip-btn { border-radius: 999px; border: 1px solid rgba(111,151,198,0.22); background: rgba(111,151,198,0.08); color: var(--ink-main); padding: 8px 12px; cursor: pointer; }
+        .assistant-send-btn { margin-left: auto; border-radius: 14px; border: none; background: linear-gradient(135deg, #7aa6d8, #5d88be); color: white; padding: 10px 18px; font-weight: bold; cursor: pointer; }
+        .assistant-send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .assistant-typing { display: inline-flex; align-items: center; gap: 6px; }
+        .assistant-typing span { width: 7px; height: 7px; border-radius: 999px; background: rgba(111,151,198,0.55); animation: assistantTyping 1s infinite ease-in-out; }
+        .assistant-typing span:nth-child(2) { animation-delay: 0.12s; }
+        .assistant-typing span:nth-child(3) { animation-delay: 0.24s; }
+        [data-theme="dark"] .assistant-fab-btn,
+        [data-theme="dark"] .assistant-chat-panel,
+        [data-theme="dark"] .assistant-chat-foot { background: rgba(18, 27, 39, 0.98); }
+        [data-theme="dark"] .assistant-chat-log { background: linear-gradient(180deg, rgba(19,28,39,0.92), rgba(16,23,34,0.98)); }
+        [data-theme="dark"] .assistant-bubble.is-assistant,
+        [data-theme="dark"] .assistant-input,
+        [data-theme="dark"] .assistant-close-btn { background: rgba(28, 40, 55, 0.96); color: var(--ink-main); }
+        [data-theme="dark"] .assistant-chip-btn { background: rgba(140, 180, 224, 0.1); }
+        @keyframes assistantTyping {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+            40% { transform: translateY(-3px); opacity: 1; }
         }
         .play-shell { display: grid; gap: 22px; }
         .play-hero { position: relative; overflow: hidden; }
@@ -991,13 +922,11 @@
             .lightbox-figure img { max-height: calc(100vh - 190px); border-radius: 18px; }
             .lightbox-thumbs { padding: 0 16px 16px; }
             .lightbox-thumb { width: 64px; height: 64px; }
-            .companion-pet { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
-            .pet-speech-bubble { max-width: min(208px, calc(100vw - 84px)); font-size: 12px; padding: 9px 12px; }
-            .pet-avatar-stage { width: 140px; min-height: 144px; }
-            .pet-avatar-shell { width: 140px; height: 140px; }
-            .pet-model-canvas { width: 140px; height: 140px; }
-            .pet-viewer-tip { bottom: -4px; font-size: 10px; padding: 3px 8px; }
-            .pet-panel { width: min(250px, calc(100vw - 26px)); padding: 16px; }
+            .assistant-fab-wrap { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
+            .assistant-fab-btn { width: 68px; height: 68px; border-radius: 22px; }
+            .assistant-fab-icon { width: 52px; height: 52px; }
+            .assistant-chat-panel { width: min(330px, calc(100vw - 24px)); border-radius: 24px; }
+            .assistant-chat-log { max-height: min(48vh, 380px); }
         }
 
         @media (max-width: 520px) {
@@ -1134,60 +1063,49 @@
                 <button class="action-submit" @click="dismissAchievementModal">收下这枚徽章</button>
             </div>
         </div>
-        <div v-if="currentUser" class="companion-pet">
-            <button class="pet-avatar-btn" type="button" @click="togglePetPanel">
-                <div class="pet-speech-bubble">{{ petSpeech }}</div>
-                <div class="pet-avatar-stage">
-                    <div :class="['pet-avatar-shell', petAvatarStateClass, { 'is-active': petAnimating, 'is-sleepy': petEnergy <= 1 }]">
-                        <canvas ref="petAvatarCanvas" class="pet-model-canvas" aria-label="小心 3D 兔子"></canvas>
-                        <div v-if="!petModelReady.avatar" :class="['pet-viewer-status', { error: !!petModelError }]">
-                            {{ petModelError || '小心正在慢慢钻出来…' }}
-                        </div>
-                        <div class="pet-viewer-tip">拖动可以旋转</div>
-                    </div>
-                </div>
+        <div v-if="currentUser" class="assistant-fab-wrap">
+            <button type="button" class="assistant-fab-btn" @click="toggleAssistantPanel" :aria-expanded="assistantOpen ? 'true' : 'false'" aria-label="打开小心聊天">
+                <img src="/assets/xiaoxin-chat-icon.png" alt="小心聊天入口" class="assistant-fab-icon">
+                <span v-if="assistantUnreadHint" class="assistant-fab-dot"></span>
             </button>
-            <div v-if="petPanelOpen" class="pet-panel">
-                <div class="pet-panel-head">
+            <div v-if="assistantOpen" class="assistant-chat-panel">
+                <div class="assistant-chat-head">
                     <div>
-                        <div class="pet-panel-title">小心</div>
-                        <div class="pet-panel-note">{{ petMoodLabel }} · {{ petAffinityTitle }}</div>
+                        <div class="assistant-chat-title">小心</div>
+                        <div class="assistant-chat-note">{{ assistantStatusLabel }}</div>
                     </div>
-                    <button type="button" class="pet-mini-close" @click="closePetPanel">×</button>
+                    <button type="button" class="assistant-close-btn" @click="toggleAssistantPanel">×</button>
                 </div>
-                <div class="pet-panel-viewer">
-                    <canvas ref="petPanelCanvas" class="pet-panel-canvas" aria-label="小心 3D 大视图"></canvas>
-                    <div v-if="!petModelReady.panel" :class="['pet-viewer-status', { error: !!petModelError }]">
-                        {{ petModelError || '小心正在整理耳朵…' }}
+                <div class="assistant-chat-log" ref="assistantLog">
+                    <div v-for="message in assistantMessages" :key="message.id" :class="['assistant-bubble', `is-${message.role}`]">
+                        <div class="assistant-bubble-text">{{ message.text }}</div>
+                        <div class="assistant-bubble-meta">{{ formatAssistantTime(message.time) }}</div>
                     </div>
-                    <div class="pet-panel-viewer-note">拖动查看小心的 3D 角度</div>
-                </div>
-                <div class="pet-meter-grid">
-                    <div class="pet-meter-card">
-                        <div class="pet-meter-label">亲密度</div>
-                        <div class="pet-meter-value">{{ petAffinity }}</div>
-                        <div class="pet-meter-track">
-                            <div class="pet-meter-fill" :style="{ width: `${petAffinityPercent}%` }"></div>
-                        </div>
-                    </div>
-                    <div class="pet-meter-card">
-                        <div class="pet-meter-label">精神头</div>
-                        <div class="pet-meter-value">{{ petEnergyLabel }}</div>
-                        <div class="pet-meter-track">
-                            <div class="pet-meter-fill" :style="{ width: `${petEnergyPercent}%` }"></div>
+                    <div v-if="assistantLoading" class="assistant-bubble is-assistant is-loading">
+                        <div class="assistant-typing">
+                            <span></span>
+                            <span></span>
+                            <span></span>
                         </div>
                     </div>
                 </div>
-                <div class="pet-actions">
-                    <button type="button" class="pet-action-btn" @click="interactWithPet('pat')">摸摸头</button>
-                    <button type="button" class="pet-action-btn" @click="interactWithPet('hug')">抱一下</button>
-                    <button type="button" class="pet-action-btn" @click="interactWithPet('feed')">投喂</button>
-                    <button type="button" class="pet-action-btn" @click="interactWithPet('poke')">戳戳脸</button>
-                    <button type="button" class="pet-action-btn" @click="interactWithPet('milktea')">请喝奶茶</button>
-                </div>
-                <div class="pet-tip">
-                    <span class="pet-heartline">♥ ♥ ♥</span>
-                    {{ petCompanionNote }}
+                <div class="assistant-chat-foot">
+                    <div v-if="assistantError" class="assistant-error">{{ assistantError }}</div>
+                    <textarea
+                        v-model="assistantDraft"
+                        ref="assistantInput"
+                        class="assistant-input"
+                        rows="2"
+                        placeholder="和小心说点什么…"
+                        @keydown.enter.exact.prevent="sendAssistantMessage"
+                    ></textarea>
+                    <div class="assistant-foot-row">
+                        <button type="button" class="assistant-chip-btn" @click="seedAssistantPrompt('今天想被怎么安慰？')">安慰一下</button>
+                        <button type="button" class="assistant-chip-btn" @click="seedAssistantPrompt('陪我聊聊今天的心情')">聊聊心情</button>
+                        <button type="button" class="assistant-send-btn" @click="sendAssistantMessage" :disabled="assistantLoading || !assistantDraft.trim()">
+                            {{ assistantLoading ? '发送中…' : '发送' }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2821,6 +2739,13 @@
                 selectedMood: '',
                 surpriseItem: null, surpriseTask: null, surpriseLoading: false, surpriseRollingText: '回忆扭蛋准备中',
                 particles: [],
+                assistantOpen: false,
+                assistantMessages: [],
+                assistantDraft: '',
+                assistantLoading: false,
+                assistantError: '',
+                assistantMode: 'offline',
+                assistantUnreadHint: false,
                 petPanelOpen: false,
                 petSpeech: '小心在这里，想被摸摸头。',
                 petMood: 'calm',
@@ -3719,6 +3644,12 @@
                 }
                 return { icon: '🌸', title: '这里还没有内容', text: '先写下一点新的回忆吧。哪怕只是一句今天的状态，首页和回顾页都会很快变得更有东西。', action: '开始记录' };
             },
+            assistantStatusLabel() {
+                if (this.assistantLoading) return '小心正在回你…';
+                if (!this.isOnline) return '离线陪聊中';
+                if (this.assistantMode === 'fallback') return '本地陪聊中';
+                return 'DeepSeek 在线中';
+            },
             petAffinityPercent() {
                 return Math.max(12, Math.min(100, this.petAffinity));
             },
@@ -4092,6 +4023,8 @@
             },
             handleOnline() {
                 this.isOnline = true;
+                this.assistantMode = 'online';
+                this.persistAssistantState();
                 this.showNotice('success', '网络已恢复，开始自动同步');
                 window.clearTimeout(this.onlineRefreshTimer);
                 this.onlineRefreshTimer = window.setTimeout(() => {
@@ -4102,6 +4035,8 @@
             },
             handleOffline() {
                 this.isOnline = false;
+                this.assistantMode = 'offline';
+                this.persistAssistantState();
                 this.showNotice('info', '已切到离线状态，文字内容会先存在本机');
             },
             getCapacitorPlugin(name) {
@@ -4367,6 +4302,148 @@
                     window.scrollTo({ top, behavior: 'auto' });
                 });
             },
+            getAssistantStateKey() {
+                return `orange_assistant_state_${this.currentUser || 'guest'}`;
+            },
+            getDefaultAssistantMessages() {
+                return [{
+                    id: `assistant-${Date.now()}`,
+                    role: 'assistant',
+                    text: '我在。想说什么就慢慢说。',
+                    time: Date.now()
+                }];
+            },
+            loadAssistantState() {
+                this.assistantOpen = false;
+                this.assistantDraft = '';
+                this.assistantError = '';
+                this.assistantLoading = false;
+                this.assistantMode = this.isOnline ? 'online' : 'offline';
+                this.assistantUnreadHint = false;
+                try {
+                    const raw = localStorage.getItem(this.getAssistantStateKey());
+                    if (!raw) {
+                        this.assistantMessages = this.getDefaultAssistantMessages();
+                        return;
+                    }
+                    const parsed = JSON.parse(raw);
+                    this.assistantMessages = Array.isArray(parsed.messages) && parsed.messages.length
+                        ? parsed.messages.slice(-40)
+                        : this.getDefaultAssistantMessages();
+                    this.assistantUnreadHint = Boolean(parsed.unreadHint);
+                    this.assistantMode = parsed.mode || this.assistantMode;
+                } catch (error) {
+                    this.assistantMessages = this.getDefaultAssistantMessages();
+                }
+            },
+            persistAssistantState() {
+                if (!this.currentUser) return;
+                try {
+                    localStorage.setItem(this.getAssistantStateKey(), JSON.stringify({
+                        messages: (this.assistantMessages || []).slice(-40),
+                        unreadHint: Boolean(this.assistantUnreadHint),
+                        mode: this.assistantMode || 'offline'
+                    }));
+                } catch (error) {}
+            },
+            toggleAssistantPanel() {
+                this.assistantOpen = !this.assistantOpen;
+                this.vibrate(20);
+                if (this.assistantOpen) {
+                    this.assistantUnreadHint = false;
+                    this.persistAssistantState();
+                    this.$nextTick(() => this.scrollAssistantLog());
+                }
+            },
+            seedAssistantPrompt(text) {
+                this.assistantOpen = true;
+                this.assistantDraft = text;
+                this.assistantUnreadHint = false;
+                this.persistAssistantState();
+                this.$nextTick(() => {
+                    this.scrollAssistantLog();
+                    this.$refs.assistantInput?.focus?.();
+                });
+            },
+            scrollAssistantLog() {
+                this.$nextTick(() => {
+                    const el = this.$refs.assistantLog;
+                    if (!el) return;
+                    el.scrollTop = el.scrollHeight;
+                });
+            },
+            formatAssistantTime(time) {
+                const date = new Date(time || Date.now());
+                return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            },
+            buildOfflineAssistantReply(userText) {
+                const text = String(userText || '').trim();
+                if (!text) return '我在听。';
+                if (/难过|委屈|哭|不开心|烦|累/.test(text)) return '先靠近一点。我先陪你把这阵情绪放下来，不急着马上变好。';
+                if (/生气|火大|气死|烦死/.test(text)) return '我知道你现在不舒服。先把火气说出来，我陪你站这一边。';
+                if (/想你|想念|抱抱|贴贴/.test(text)) return '那就先抱一下。你想靠近的时候，我就在这边。';
+                if (/开心|高兴|顺利|好耶|幸福/.test(text)) return '那就把这一点开心留久一点。你继续说，我想听完整。';
+                if (/晚安|睡觉|困/.test(text)) return '那就收一收情绪，慢慢去睡。我在这儿陪你到最后一句。';
+                if (/吃|奶茶|饭|饿/.test(text)) return '先去吃点东西也可以。吃饱了再回来聊，我还在。';
+                return '我在认真听。你可以继续往下说，我不会打断你。';
+            },
+            async sendAssistantMessage() {
+                const text = String(this.assistantDraft || '').trim();
+                if (!text || this.assistantLoading) return;
+                const userMessage = {
+                    id: `user-${Date.now()}`,
+                    role: 'user',
+                    text,
+                    time: Date.now()
+                };
+                this.assistantMessages = [...this.assistantMessages, userMessage].slice(-40);
+                this.assistantDraft = '';
+                this.assistantLoading = true;
+                this.assistantError = '';
+                this.assistantUnreadHint = false;
+                this.persistAssistantState();
+                this.scrollAssistantLog();
+
+                let replyText = '';
+                let replyMode = this.isOnline ? 'online' : 'offline';
+
+                if (this.isOnline) {
+                    try {
+                        const payload = {
+                            messages: this.assistantMessages.slice(-12).map(message => ({
+                                role: message.role,
+                                content: message.text
+                            }))
+                        };
+                        const { data } = await axios.post('/api/assistant/chat', payload);
+                        replyText = String(data?.reply || '').trim();
+                        if (!replyText) throw new Error('empty-assistant-reply');
+                        replyMode = 'online';
+                    } catch (error) {
+                        replyText = this.buildOfflineAssistantReply(text);
+                        replyMode = 'fallback';
+                        this.assistantError = '当前没连上 DeepSeek，先切到离线陪聊。';
+                    }
+                } else {
+                    replyText = this.buildOfflineAssistantReply(text);
+                    replyMode = 'offline';
+                }
+
+                this.assistantMessages = [
+                    ...this.assistantMessages,
+                    {
+                        id: `assistant-${Date.now()}`,
+                        role: 'assistant',
+                        text: replyText,
+                        time: Date.now()
+                    }
+                ].slice(-40);
+                this.assistantLoading = false;
+                this.assistantMode = replyMode;
+                if (!this.assistantOpen) this.assistantUnreadHint = true;
+                this.persistAssistantState();
+                this.scrollAssistantLog();
+            },
             getPetStateKey() {
                 return 'orange_companion_pet_v1';
             },
@@ -4492,21 +4569,25 @@
                     }
 
                     const scene = new THREE.Scene();
-                    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-                    camera.position.set(0, 1.15, 5.4);
+                    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+                    camera.position.set(2.15, 1.38, 4.92);
 
-                    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xf1d7dd, 1.32);
+                    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe7c8d4, 0.92);
                     scene.add(hemiLight);
 
-                    const keyLight = new THREE.DirectionalLight(0xffffff, 1.18);
-                    keyLight.position.set(4.2, 6.5, 5.2);
+                    const keyLight = new THREE.DirectionalLight(0xffffff, 1.54);
+                    keyLight.position.set(5.6, 7.2, 6.4);
                     scene.add(keyLight);
 
-                    const fillLight = new THREE.PointLight(0xffd4df, 0.84, 18);
-                    fillLight.position.set(-3.2, 2.8, 4.2);
+                    const fillLight = new THREE.PointLight(0xffd4df, 0.52, 16);
+                    fillLight.position.set(-2.8, 1.8, 3.1);
                     scene.add(fillLight);
 
-                    const ambientLight = new THREE.AmbientLight(0xffffff, 0.44);
+                    const rimLight = new THREE.DirectionalLight(0xbfd5ff, 0.65);
+                    rimLight.position.set(-4.8, 3.5, -3.6);
+                    scene.add(rimLight);
+
+                    const ambientLight = new THREE.AmbientLight(0xffffff, 0.18);
                     scene.add(ambientLight);
 
                     const controls = this.createPetOrbitControls(camera, canvas, options);
@@ -4540,28 +4621,103 @@
                 }
             },
             createPetOrbitControls(camera, canvas, options = {}) {
-                if (THREE.OrbitControls) {
-                    const controls = new THREE.OrbitControls(camera, canvas);
-                    controls.enablePan = false;
-                    controls.enableZoom = Boolean(options.allowZoom);
-                    controls.enableDamping = true;
-                    controls.dampingFactor = 0.08;
-                    controls.autoRotate = Boolean(options.autoRotate);
-                    controls.autoRotateSpeed = options.autoRotateSpeed || 2;
-                    controls.minPolarAngle = Math.PI * 0.36;
-                    controls.maxPolarAngle = Math.PI * 0.68;
-                    controls.minDistance = 4.1;
-                    controls.maxDistance = 7.2;
-                    controls.target.set(0, 0.58, 0);
-                    return controls;
-                }
+                const target = new THREE.Vector3(0, 0.58, 0);
+                const offset = camera.position.clone().sub(target);
+                const spherical = new THREE.Spherical().setFromVector3(offset);
+                let azimuth = spherical.theta;
+                let polar = spherical.phi;
+                let radius = offset.length();
+                let desiredAzimuth = azimuth + 0.42;
+                let desiredPolar = polar;
+                let desiredRadius = radius;
+                let pointerId = null;
+                let startX = 0;
+                let startY = 0;
+                let dragged = false;
+
+                const clampPolar = value => Math.min(Math.PI * 0.68, Math.max(Math.PI * 0.36, value));
+                const clampRadius = value => Math.min(7.2, Math.max(4.1, value));
+
+                const syncCamera = () => {
+                    azimuth += (desiredAzimuth - azimuth) * 0.18;
+                    polar += (desiredPolar - polar) * 0.18;
+                    radius += (desiredRadius - radius) * 0.16;
+                    const next = new THREE.Vector3().setFromSpherical(new THREE.Spherical(radius, polar, azimuth)).add(target);
+                    camera.position.copy(next);
+                    camera.lookAt(target);
+                };
+
+                const stopEvent = event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                };
+
+                const onPointerDown = event => {
+                    pointerId = event.pointerId;
+                    startX = event.clientX;
+                    startY = event.clientY;
+                    dragged = false;
+                    canvas.setPointerCapture?.(pointerId);
+                    stopEvent(event);
+                };
+
+                const onPointerMove = event => {
+                    if (pointerId !== event.pointerId) return;
+                    const dx = event.clientX - startX;
+                    const dy = event.clientY - startY;
+                    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragged = true;
+                    desiredAzimuth -= dx * 0.012;
+                    desiredPolar = clampPolar(desiredPolar + dy * 0.012);
+                    startX = event.clientX;
+                    startY = event.clientY;
+                    stopEvent(event);
+                };
+
+                const onPointerUp = event => {
+                    if (pointerId !== event.pointerId) return;
+                    canvas.releasePointerCapture?.(pointerId);
+                    pointerId = null;
+                    stopEvent(event);
+                };
+
+                const onWheel = event => {
+                    if (!options.allowZoom) return;
+                    desiredRadius = clampRadius(desiredRadius + event.deltaY * 0.003);
+                    stopEvent(event);
+                };
+
+                const onClick = event => {
+                    if (!dragged) return;
+                    stopEvent(event);
+                    dragged = false;
+                };
+
+                canvas.addEventListener('pointerdown', onPointerDown);
+                canvas.addEventListener('pointermove', onPointerMove);
+                canvas.addEventListener('pointerup', onPointerUp);
+                canvas.addEventListener('pointercancel', onPointerUp);
+                canvas.addEventListener('wheel', onWheel, { passive: false });
+                canvas.addEventListener('click', onClick, true);
+
                 return {
                     autoRotate: Boolean(options.autoRotate),
                     autoRotateSpeed: options.autoRotateSpeed || 2,
                     enableZoom: Boolean(options.allowZoom),
-                    target: new THREE.Vector3(0, 0.58, 0),
-                    update() {},
-                    dispose() {}
+                    target,
+                    update() {
+                        if (pointerId == null && this.autoRotate) {
+                            desiredAzimuth += 0.0038 * this.autoRotateSpeed;
+                        }
+                        syncCamera();
+                    },
+                    dispose() {
+                        canvas.removeEventListener('pointerdown', onPointerDown);
+                        canvas.removeEventListener('pointermove', onPointerMove);
+                        canvas.removeEventListener('pointerup', onPointerUp);
+                        canvas.removeEventListener('pointercancel', onPointerUp);
+                        canvas.removeEventListener('wheel', onWheel);
+                        canvas.removeEventListener('click', onClick, true);
+                    }
                 };
             },
             async loadPetGlbScene() {
@@ -4607,11 +4763,19 @@
                 const wrapper = new THREE.Group();
                 wrapper.add(importedScene);
                 root.add(wrapper);
+                const baseRotation = { x: -0.06, y: 0.58, z: 0 };
+                const outlineGroup = new THREE.Group();
+                const edgeGroup = new THREE.Group();
+                wrapper.add(outlineGroup);
+                wrapper.add(edgeGroup);
 
                 importedScene.traverse(node => {
                     if (!node.isMesh) return;
                     node.castShadow = false;
                     node.receiveShadow = false;
+                    if (!node.geometry.getAttribute('normal')) {
+                        node.geometry.computeVertexNormals();
+                    }
                     if (node.material) {
                         if (Array.isArray(node.material)) {
                             node.material = node.material.map(material => material.clone());
@@ -4619,6 +4783,50 @@
                             node.material = node.material.clone();
                         }
                     }
+                    const materials = Array.isArray(node.material) ? node.material : [node.material];
+                    const hasVertexColors = Boolean(node.geometry.getAttribute('color'));
+                    const upgradedMaterials = materials.map(material => {
+                        const nextMaterial = new THREE.MeshToonMaterial({
+                            color: material?.color ? material.color.clone() : new THREE.Color(0xffffff),
+                            map: material?.map || null,
+                            gradientMap: null,
+                            transparent: material?.transparent || false,
+                            opacity: material?.opacity ?? 1,
+                            side: material?.side ?? THREE.FrontSide,
+                            vertexColors: hasVertexColors
+                        });
+                        if (material?.emissive) nextMaterial.emissive = material.emissive.clone();
+                        if ('emissiveIntensity' in nextMaterial) nextMaterial.emissiveIntensity = 0.08;
+                        return nextMaterial;
+                    });
+                    node.material = Array.isArray(node.material) ? upgradedMaterials : upgradedMaterials[0];
+
+                    const outlineMesh = new THREE.Mesh(
+                        node.geometry.clone(),
+                        new THREE.MeshBasicMaterial({
+                            color: 0xd6c2cb,
+                            side: THREE.BackSide,
+                            transparent: true,
+                            opacity: 0.95
+                        })
+                    );
+                    outlineMesh.position.copy(node.position);
+                    outlineMesh.rotation.copy(node.rotation);
+                    outlineMesh.scale.copy(node.scale).multiplyScalar(1.035);
+                    outlineGroup.add(outlineMesh);
+
+                    const edges = new THREE.LineSegments(
+                        new THREE.EdgesGeometry(node.geometry, 28),
+                        new THREE.LineBasicMaterial({
+                            color: 0xc4b0b9,
+                            transparent: true,
+                            opacity: 0.38
+                        })
+                    );
+                    edges.position.copy(node.position);
+                    edges.rotation.copy(node.rotation);
+                    edges.scale.copy(node.scale).multiplyScalar(1.002);
+                    edgeGroup.add(edges);
                 });
 
                 const box = new THREE.Box3().setFromObject(importedScene);
@@ -4630,6 +4838,7 @@
                 const scale = 2.7 / maxSize;
                 wrapper.scale.setScalar(scale);
                 wrapper.position.set(-center.x * scale, -center.y * scale + 0.12, -center.z * scale);
+                wrapper.rotation.set(baseRotation.x, baseRotation.y, baseRotation.z);
 
                 const shadow = new THREE.Mesh(
                     new THREE.CircleGeometry(1.34, 48),
@@ -4644,6 +4853,9 @@
                     root,
                     importedScene,
                     wrapper,
+                    baseRotation,
+                    outlineGroup,
+                    edgeGroup,
                     shadow
                 };
             },
@@ -5106,29 +5318,32 @@
                     if (!imported || !wrapper) return;
                     imported.rotation.set(0, 0, 0);
                     imported.position.set(0, 0, 0);
-                    wrapper.rotation.set(0, 0, 0);
+                    const baseRotation = model.baseRotation || { x: 0, y: 0, z: 0 };
+                    wrapper.rotation.set(baseRotation.x, baseRotation.y, baseRotation.z);
                     wrapper.position.y = 0;
                     wrapper.scale.setScalar(wrapper.scale.x || 1);
+                    if (model.outlineGroup) model.outlineGroup.visible = true;
+                    if (model.edgeGroup) model.edgeGroup.visible = true;
                     if (state === 'hug') {
-                        wrapper.rotation.z = -0.08;
-                        wrapper.rotation.x = 0.05;
+                        wrapper.rotation.z = baseRotation.z - 0.08;
+                        wrapper.rotation.x = baseRotation.x + 0.08;
                     } else if (state === 'shy') {
-                        wrapper.rotation.z = 0.05;
-                        wrapper.rotation.y = -0.22;
+                        wrapper.rotation.z = baseRotation.z + 0.05;
+                        wrapper.rotation.y = baseRotation.y - 0.22;
                     } else if (state === 'feed') {
-                        wrapper.rotation.z = 0.04;
-                        wrapper.rotation.y = 0.18;
+                        wrapper.rotation.z = baseRotation.z + 0.04;
+                        wrapper.rotation.y = baseRotation.y + 0.18;
                     } else if (state === 'angry') {
-                        wrapper.rotation.z = -0.03;
-                        wrapper.rotation.y = 0.08;
+                        wrapper.rotation.z = baseRotation.z - 0.03;
+                        wrapper.rotation.y = baseRotation.y + 0.08;
                     } else if (state === 'cry') {
-                        wrapper.rotation.z = -0.12;
+                        wrapper.rotation.z = baseRotation.z - 0.12;
                         wrapper.position.y = -0.06;
                     } else if (state === 'sigh') {
-                        wrapper.rotation.z = -0.06;
-                        wrapper.rotation.y = -0.14;
+                        wrapper.rotation.z = baseRotation.z - 0.06;
+                        wrapper.rotation.y = baseRotation.y - 0.14;
                     } else if (state === 'milktea') {
-                        wrapper.rotation.y = 0.08;
+                        wrapper.rotation.y = baseRotation.y + 0.08;
                     }
                     return;
                 }
@@ -6943,6 +7158,13 @@
                 this.remoteLatestByCategory = {};
                 this.notificationPermissionState = 'prompt';
                 this.notificationState = { lastNotifiedTime: 0 };
+                this.assistantOpen = false;
+                this.assistantMessages = [];
+                this.assistantDraft = '';
+                this.assistantLoading = false;
+                this.assistantError = '';
+                this.assistantMode = 'offline';
+                this.assistantUnreadHint = false;
                 window.clearTimeout(this.privateAutoLockTimer);
                 this.stopReminderPolling();
                 this.syncBackgroundNotificationConfig();
@@ -7606,6 +7828,7 @@
                 this.newDate = this.getLocalDateString();
                 this.reviewDate = this.getLocalDateString();
                 this.isOnline = navigator.onLine !== false;
+                this.loadAssistantState();
                 this.loadSeenTabState();
                 this.loadNotificationState();
                 this.loadSyncQueue();
@@ -7631,20 +7854,16 @@
             selectedMood() { this.scheduleComposerDraftSave(); },
             currentUser(newValue) {
                 if (newValue) {
-                    this.$nextTick(() => this.queuePetModelBootstrap());
+                    this.loadAssistantState();
                 } else {
-                    this.disposeAllPetModelViewers();
+                    this.assistantOpen = false;
+                    this.assistantMessages = [];
+                    this.assistantDraft = '';
+                    this.assistantLoading = false;
+                    this.assistantError = '';
+                    this.assistantMode = 'offline';
+                    this.assistantUnreadHint = false;
                 }
-            },
-            petPanelOpen(isOpen) {
-                if (isOpen) {
-                    this.$nextTick(() => this.queuePetModelBootstrap());
-                } else {
-                    this.disposePetModelViewer('panel');
-                }
-            },
-            petVisualState() {
-                this.syncPetModelViewers();
             },
             playMode() { this.persistUiState(); },
             listDensityMode() { this.persistUiState(); },
@@ -7663,7 +7882,6 @@
             this.loadGameState();
             this.loadIdvState();
             this.loadPrivatePlayState();
-            this.loadPetState();
             this.loadBingoBoard();
             this.loadSyncQueue();
             this.refreshComposerDraftMeta();

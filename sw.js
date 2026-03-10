@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orange-pwa-v3';
+const CACHE_NAME = 'orange-pwa-v4';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -6,10 +6,7 @@ const APP_SHELL = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/apple-touch-icon.png',
-  '/vendor/three.min.js',
-  '/vendor/OrbitControls.js',
-  '/vendor/GLTFLoader.js',
-  '/assets/models/xiaoxin.glb'
+  '/assets/xiaoxin-chat-icon.png'
 ];
 
 self.addEventListener('install', event => {

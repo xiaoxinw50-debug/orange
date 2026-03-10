@@ -10,6 +10,8 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const DEEPSEEK_API_BASE = String(process.env.DEEPSEEK_API_BASE || 'https://api.deepseek.com').trim().replace(/\/+$/, '');
+const DEEPSEEK_MODEL = String(process.env.DEEPSEEK_MODEL || 'deepseek-chat').trim() || 'deepseek-chat';
 const ALLOWED_CATEGORIES = new Set(['memory', 'album', 'diary', 'wish', 'story']);
 const ALLOWED_AUTHORS = new Set(['小心', '小橙']);
 const ALLOWED_MOODS = new Set(['', 'spark', 'hug', 'sweet', 'chaos', 'dream', 'brave', 'calm']);
@@ -136,6 +138,21 @@ function createHttpError(status, message) {
     const error = new Error(message);
     error.status = status;
     return error;
+}
+
+function normalizeAssistantMessages(messages) {
+    if (!Array.isArray(messages) || messages.length === 0) {
+        throw createHttpError(400, '缺少聊天内容');
+    }
+    return messages
+        .slice(-12)
+        .map(item => {
+            const role = item?.role === 'assistant' ? 'assistant' : 'user';
+            const content = typeof item?.content === 'string' ? item.content.trim() : '';
+            if (!content) return null;
+            return { role, content: content.slice(0, 1200) };
+        })
+        .filter(Boolean);
 }
 
 function handleError(res, err) {
@@ -777,6 +794,56 @@ app.get('/api/media/proxy', async (req, res) => {
             throw createHttpError(400, '缺少图片地址');
         }
         proxyRemoteImage(src, res);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+app.post('/api/assistant/chat', async (req, res) => {
+    try {
+        if (!process.env.DEEPSEEK_API_KEY) {
+            throw createHttpError(503, 'DEEPSEEK_API_KEY 未配置');
+        }
+        const messages = normalizeAssistantMessages(req.body?.messages);
+        if (!messages.length) {
+            throw createHttpError(400, '没有可发送的聊天内容');
+        }
+
+        const response = await fetch(`${DEEPSEEK_API_BASE}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: DEEPSEEK_MODEL,
+                temperature: 0.85,
+                messages: [
+                    {
+                        role: 'system',
+                        content: '你叫小心，是一个温柔、自然、口语化的陪伴型聊天助手。回答要简短真诚，少一点官方表达，多一点陪在身边的感觉。不要自称是宠物，不要长篇说教。'
+                    },
+                    ...messages
+                ]
+            })
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            const message = payload?.error?.message || payload?.message || 'DeepSeek 请求失败';
+            throw createHttpError(response.status, message);
+        }
+
+        const reply = String(payload?.choices?.[0]?.message?.content || '').trim();
+        if (!reply) {
+            throw createHttpError(502, 'DeepSeek 没有返回内容');
+        }
+
+        res.json({
+            reply,
+            model: payload?.model || DEEPSEEK_MODEL,
+            provider: 'deepseek'
+        });
     } catch (err) {
         handleError(res, err);
     }
