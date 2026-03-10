@@ -545,6 +545,11 @@
         .assistant-chat-title { font-family: var(--font-serif); font-size: 22px; color: var(--ink-main); }
         .assistant-chat-note { margin-top: 4px; font-size: 12px; color: var(--ink-light); }
         .assistant-close-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.88); color: var(--ink-main); font-size: 20px; cursor: pointer; }
+        .assistant-toolbar { padding: 12px 16px 10px; display: grid; gap: 10px; border-bottom: 1px solid rgba(111,151,198,0.1); background: rgba(255,255,255,0.92); }
+        .assistant-thread-row, .assistant-mode-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .assistant-thread-chip, .assistant-mode-chip { border-radius: 999px; border: 1px solid rgba(111,151,198,0.18); background: rgba(111,151,198,0.06); color: var(--ink-main); padding: 7px 12px; cursor: pointer; font-size: 12px; max-width: 142px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .assistant-thread-chip.active, .assistant-mode-chip.active { background: linear-gradient(135deg, rgba(122,166,216,0.95), rgba(93,136,190,0.92)); color: white; border-color: transparent; }
+        .assistant-thread-add { margin-left: auto; }
         .assistant-chat-log { max-height: min(52vh, 440px); overflow-y: auto; padding: 16px; display: grid; gap: 12px; background: linear-gradient(180deg, rgba(244,248,252,0.9), rgba(255,255,255,0.92)); }
         .assistant-bubble { max-width: 86%; padding: 12px 14px; border-radius: 18px; box-shadow: 0 10px 20px rgba(44, 79, 114, 0.08); display: grid; gap: 6px; }
         .assistant-bubble.is-assistant { justify-self: start; background: rgba(255,255,255,0.96); border: 1px solid rgba(111,151,198,0.14); }
@@ -552,6 +557,9 @@
         .assistant-bubble.is-loading { padding: 14px 16px; }
         .assistant-bubble-text { font-size: 14px; line-height: 1.75; white-space: pre-wrap; word-break: break-word; }
         .assistant-bubble-meta { font-size: 11px; color: inherit; opacity: 0.68; }
+        .assistant-bubble-images { display: grid; gap: 8px; }
+        .assistant-bubble-image { width: 100%; max-width: 180px; border-radius: 14px; display: block; object-fit: cover; border: 1px solid rgba(111,151,198,0.16); background: rgba(255,255,255,0.5); }
+        .assistant-bubble-file { font-size: 11px; opacity: 0.78; }
         .assistant-chat-foot { padding: 14px 16px 16px; border-top: 1px solid rgba(111,151,198,0.12); display: grid; gap: 10px; background: rgba(255,255,255,0.98); }
         .assistant-error { font-size: 12px; line-height: 1.6; color: #b65d76; border-radius: 14px; background: rgba(239, 195, 212, 0.16); border: 1px solid rgba(232, 166, 190, 0.28); padding: 9px 12px; }
         .assistant-input { width: 100%; box-sizing: border-box; border-radius: 16px; border: 1px solid var(--border-fine); background: rgba(248,251,255,0.92); color: var(--ink-main); padding: 13px 14px; font-family: var(--font-ui); resize: none; min-height: 82px; }
@@ -559,6 +567,15 @@
         .assistant-chip-btn { border-radius: 999px; border: 1px solid rgba(111,151,198,0.22); background: rgba(111,151,198,0.08); color: var(--ink-main); padding: 8px 12px; cursor: pointer; }
         .assistant-send-btn { margin-left: auto; border-radius: 14px; border: none; background: linear-gradient(135deg, #7aa6d8, #5d88be); color: white; padding: 10px 18px; font-weight: bold; cursor: pointer; }
         .assistant-send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .assistant-attach-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .assistant-attach-label { position: relative; overflow: hidden; }
+        .assistant-attach-label input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .assistant-attach-preview { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 14px; border: 1px solid rgba(111,151,198,0.16); background: rgba(111,151,198,0.06); }
+        .assistant-attach-thumb { width: 46px; height: 46px; border-radius: 12px; object-fit: cover; display: block; background: rgba(255,255,255,0.6); }
+        .assistant-attach-meta { display: grid; gap: 2px; min-width: 0; }
+        .assistant-attach-name { font-size: 12px; color: var(--ink-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .assistant-attach-size { font-size: 11px; color: var(--ink-light); }
+        .assistant-attach-remove { margin-left: auto; width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(111,151,198,0.2); background: rgba(255,255,255,0.7); color: var(--ink-main); cursor: pointer; }
         .assistant-style-card { margin: 0 16px; padding: 12px 14px; border-radius: 18px; border: 1px solid rgba(111,151,198,0.14); background: linear-gradient(135deg, rgba(111,151,198,0.08), rgba(239,195,212,0.12)); display: grid; gap: 8px; }
         .assistant-style-card.is-empty { background: rgba(111,151,198,0.05); }
         .assistant-style-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -584,9 +601,14 @@
         [data-theme="dark"] .assistant-bubble.is-assistant,
         [data-theme="dark"] .assistant-input,
         [data-theme="dark"] .assistant-close-btn { background: rgba(28, 40, 55, 0.96); color: var(--ink-main); }
+        [data-theme="dark"] .assistant-toolbar { background: rgba(20, 30, 43, 0.94); }
         [data-theme="dark"] .assistant-style-card { background: linear-gradient(135deg, rgba(140,180,224,0.1), rgba(239,195,212,0.08)); }
         [data-theme="dark"] .assistant-style-tag { background: rgba(28, 40, 55, 0.96); }
-        [data-theme="dark"] .assistant-chip-btn { background: rgba(140, 180, 224, 0.1); }
+        [data-theme="dark"] .assistant-attach-preview,
+        [data-theme="dark"] .assistant-attach-remove { background: rgba(140, 180, 224, 0.08); }
+        [data-theme="dark"] .assistant-chip-btn,
+        [data-theme="dark"] .assistant-thread-chip,
+        [data-theme="dark"] .assistant-mode-chip { background: rgba(140, 180, 224, 0.1); }
         @keyframes assistantTyping {
             0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
             40% { transform: translateY(-3px); opacity: 1; }
@@ -1093,6 +1115,22 @@
                     </div>
                     <button type="button" class="assistant-close-btn" @click="toggleAssistantPanel">×</button>
                 </div>
+                <div class="assistant-toolbar">
+                    <div class="assistant-thread-row">
+                        <button
+                            v-for="thread in assistantThreads"
+                            :key="thread.id"
+                            type="button"
+                            :class="['assistant-thread-chip', { active: thread.id === assistantActiveThreadId }]"
+                            @click="setActiveAssistantThread(thread.id)"
+                        >{{ thread.title || '新聊天' }}</button>
+                        <button type="button" class="assistant-thread-chip assistant-thread-add" @click="createAssistantThread">+ 新聊天</button>
+                    </div>
+                    <div class="assistant-mode-row">
+                        <button type="button" :class="['assistant-mode-chip', { active: assistantModelMode === 'chat' }]" @click="assistantModelMode = 'chat'">普通陪聊</button>
+                        <button type="button" :class="['assistant-mode-chip', { active: assistantModelMode === 'reasoner' }]" @click="assistantModelMode = 'reasoner'">深想一下</button>
+                    </div>
+                </div>
                 <div :class="['assistant-style-card', { 'is-empty': !assistantStyleProfile }]">
                     <div class="assistant-style-head">
                         <div class="assistant-style-title">{{ assistantStyleProfile ? `正在学 ${currentUser} 的说话方式` : '还没学会你的语气' }}</div>
@@ -1118,6 +1156,18 @@
                 <div class="assistant-chat-log" ref="assistantLog">
                     <div v-for="message in assistantMessages" :key="message.id" :class="['assistant-bubble', `is-${message.role}`]">
                         <div class="assistant-bubble-text">{{ message.text }}</div>
+                        <div v-if="message.attachments && message.attachments.length" class="assistant-bubble-images">
+                            <template v-for="attachment in message.attachments" :key="attachment.id || attachment.name">
+                                <img
+                                    v-if="attachment.preview"
+                                    :src="attachment.preview"
+                                    :alt="attachment.name || '聊天图片'"
+                                    class="assistant-bubble-image"
+                                    @click="viewFull(attachment.preview)"
+                                >
+                                <div v-else class="assistant-bubble-file">{{ attachment.name || '图片附件' }}</div>
+                            </template>
+                        </div>
                         <div class="assistant-bubble-meta">{{ formatAssistantTime(message.time) }}</div>
                     </div>
                     <div v-if="assistantLoading" class="assistant-bubble is-assistant is-loading">
@@ -1130,6 +1180,20 @@
                 </div>
                 <div class="assistant-chat-foot">
                     <div v-if="assistantError" class="assistant-error">{{ assistantError }}</div>
+                    <div class="assistant-attach-row">
+                        <label class="assistant-chip-btn assistant-attach-label">
+                            {{ assistantPendingImage ? '换一张图片' : '发图片' }}
+                            <input type="file" accept="image/*" @change="handleAssistantImage">
+                        </label>
+                        <div v-if="assistantPendingImage" class="assistant-attach-preview">
+                            <img :src="assistantPendingImage.preview" alt="待发送图片" class="assistant-attach-thumb">
+                            <div class="assistant-attach-meta">
+                                <div class="assistant-attach-name">{{ assistantPendingImage.name }}</div>
+                                <div class="assistant-attach-size">{{ formatAttachmentSize(assistantPendingImage.size) }}</div>
+                            </div>
+                            <button type="button" class="assistant-attach-remove" @click="clearAssistantImage">×</button>
+                        </div>
+                    </div>
                     <textarea
                         v-model="assistantDraft"
                         ref="assistantInput"
@@ -1141,7 +1205,7 @@
                     <div class="assistant-foot-row">
                         <button type="button" class="assistant-chip-btn" @click="seedAssistantPrompt('今天想被怎么安慰？')">安慰一下</button>
                         <button type="button" class="assistant-chip-btn" @click="seedAssistantPrompt('陪我聊聊今天的心情')">聊聊心情</button>
-                        <button type="button" class="assistant-send-btn" @click="sendAssistantMessage" :disabled="assistantLoading || !assistantDraft.trim()">
+                        <button type="button" class="assistant-send-btn" @click="sendAssistantMessage" :disabled="assistantLoading || (!assistantDraft.trim() && !assistantPendingImage)">
                             {{ assistantLoading ? '发送中…' : '发送' }}
                         </button>
                     </div>
@@ -2779,11 +2843,15 @@
                 surpriseItem: null, surpriseTask: null, surpriseLoading: false, surpriseRollingText: '回忆扭蛋准备中',
                 particles: [],
                 assistantOpen: false,
+                assistantThreads: [],
+                assistantActiveThreadId: '',
                 assistantMessages: [],
                 assistantDraft: '',
                 assistantLoading: false,
                 assistantError: '',
                 assistantMode: 'offline',
+                assistantModelMode: 'chat',
+                assistantPendingImage: null,
                 assistantUnreadHint: false,
                 assistantStyleProfile: null,
                 assistantStyleImporting: false,
@@ -3690,7 +3758,7 @@
                 if (this.assistantLoading) return '小心正在回你…';
                 if (!this.isOnline) return '离线陪聊中';
                 if (this.assistantMode === 'fallback') return '本地陪聊中';
-                return 'DeepSeek 在线中';
+                return this.assistantModelMode === 'reasoner' ? 'DeepSeek 深想模式' : 'DeepSeek 在线中';
             },
             petAffinityPercent() {
                 return Math.max(12, Math.min(100, this.petAffinity));
@@ -4355,38 +4423,121 @@
                     time: Date.now()
                 }];
             },
+            createAssistantThreadPayload(title = '新聊天') {
+                return {
+                    id: `thread-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                    title,
+                    updatedAt: Date.now(),
+                    messages: this.getDefaultAssistantMessages()
+                };
+            },
+            syncAssistantThreadsWithCurrentMessages() {
+                if (!this.assistantActiveThreadId || !Array.isArray(this.assistantThreads)) return this.assistantThreads || [];
+                return (this.assistantThreads || []).map(thread => {
+                    if (thread.id !== this.assistantActiveThreadId) return thread;
+                    return {
+                        ...thread,
+                        updatedAt: Date.now(),
+                        messages: (this.assistantMessages || []).slice(-40)
+                    };
+                });
+            },
             loadAssistantState() {
                 this.assistantOpen = false;
                 this.assistantDraft = '';
                 this.assistantError = '';
                 this.assistantLoading = false;
                 this.assistantMode = this.isOnline ? 'online' : 'offline';
+                this.assistantModelMode = 'chat';
+                this.assistantPendingImage = null;
                 this.assistantUnreadHint = false;
                 try {
                     const raw = localStorage.getItem(this.getAssistantStateKey());
                     if (!raw) {
-                        this.assistantMessages = this.getDefaultAssistantMessages();
+                        const defaultThread = this.createAssistantThreadPayload();
+                        this.assistantThreads = [defaultThread];
+                        this.assistantActiveThreadId = defaultThread.id;
+                        this.assistantMessages = defaultThread.messages.slice();
                         return;
                     }
                     const parsed = JSON.parse(raw);
-                    this.assistantMessages = Array.isArray(parsed.messages) && parsed.messages.length
-                        ? parsed.messages.slice(-40)
-                        : this.getDefaultAssistantMessages();
+                    if (Array.isArray(parsed.threads) && parsed.threads.length) {
+                        this.assistantThreads = parsed.threads.map(thread => ({
+                            id: thread.id || `thread-${Date.now()}`,
+                            title: thread.title || '新聊天',
+                            updatedAt: Number(thread.updatedAt || Date.now()),
+                            messages: Array.isArray(thread.messages) && thread.messages.length
+                                ? thread.messages.slice(-40).map(message => ({
+                                    ...message,
+                                    attachments: Array.isArray(message.attachments)
+                                        ? message.attachments.map(attachment => ({
+                                            id: attachment.id || `attachment-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                                            name: attachment.name || '图片',
+                                            type: attachment.type || 'image/jpeg',
+                                            size: Number(attachment.size || 0),
+                                            preview: attachment.preview || ''
+                                        }))
+                                        : []
+                                }))
+                                : this.getDefaultAssistantMessages()
+                        }));
+                    } else {
+                        const migratedThread = this.createAssistantThreadPayload();
+                        migratedThread.messages = Array.isArray(parsed.messages) && parsed.messages.length ? parsed.messages.slice(-40) : this.getDefaultAssistantMessages();
+                        this.assistantThreads = [migratedThread];
+                    }
+                    this.assistantActiveThreadId = this.assistantThreads.some(thread => thread.id === parsed.activeThreadId)
+                        ? parsed.activeThreadId
+                        : this.assistantThreads[0]?.id || '';
+                    this.assistantMessages = this.assistantThreads.find(thread => thread.id === this.assistantActiveThreadId)?.messages?.slice(-40) || this.getDefaultAssistantMessages();
                     this.assistantUnreadHint = Boolean(parsed.unreadHint);
                     this.assistantMode = parsed.mode || this.assistantMode;
+                    this.assistantModelMode = parsed.modelMode || this.assistantModelMode;
                 } catch (error) {
-                    this.assistantMessages = this.getDefaultAssistantMessages();
+                    const defaultThread = this.createAssistantThreadPayload();
+                    this.assistantThreads = [defaultThread];
+                    this.assistantActiveThreadId = defaultThread.id;
+                    this.assistantMessages = defaultThread.messages.slice();
                 }
             },
             persistAssistantState() {
                 if (!this.currentUser) return;
                 try {
+                    const threads = this.syncAssistantThreadsWithCurrentMessages().slice(-12);
+                    this.assistantThreads = threads;
                     localStorage.setItem(this.getAssistantStateKey(), JSON.stringify({
-                        messages: (this.assistantMessages || []).slice(-40),
+                        threads,
+                        activeThreadId: this.assistantActiveThreadId,
                         unreadHint: Boolean(this.assistantUnreadHint),
-                        mode: this.assistantMode || 'offline'
+                        mode: this.assistantMode || 'offline',
+                        modelMode: this.assistantModelMode || 'chat'
                     }));
                 } catch (error) {}
+            },
+            createAssistantThread() {
+                const thread = this.createAssistantThreadPayload();
+                this.assistantThreads = [thread, ...(this.syncAssistantThreadsWithCurrentMessages() || [])].slice(0, 12);
+                this.assistantActiveThreadId = thread.id;
+                this.assistantMessages = thread.messages.slice();
+                this.assistantDraft = '';
+                this.assistantError = '';
+                this.assistantPendingImage = null;
+                this.assistantUnreadHint = false;
+                this.persistAssistantState();
+                this.$nextTick(() => this.$refs.assistantInput?.focus?.());
+            },
+            setActiveAssistantThread(threadId) {
+                const nextThreads = this.syncAssistantThreadsWithCurrentMessages();
+                const thread = nextThreads.find(item => item.id === threadId);
+                if (!thread) return;
+                this.assistantThreads = nextThreads.sort((a, b) => b.updatedAt - a.updatedAt);
+                this.assistantActiveThreadId = threadId;
+                this.assistantMessages = (thread.messages || []).slice(-40);
+                this.assistantDraft = '';
+                this.assistantPendingImage = null;
+                this.assistantUnreadHint = false;
+                this.persistAssistantState();
+                this.$nextTick(() => this.scrollAssistantLog());
             },
             async loadAssistantStyleProfile() {
                 if (!this.currentUser) {
@@ -4479,9 +4630,61 @@
                     this.$nextTick(() => this.scrollAssistantLog());
                 }
             },
+            formatAttachmentSize(size) {
+                const bytes = Number(size || 0);
+                if (!Number.isFinite(bytes) || bytes <= 0) return '';
+                if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+                return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+            },
+            readFileAsDataUrl(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(String(reader.result || ''));
+                    reader.onerror = () => reject(reader.error || new Error('read-file-failed'));
+                    reader.readAsDataURL(file);
+                });
+            },
+            async handleAssistantImage(event) {
+                const file = event?.target?.files?.[0];
+                if (!file) return;
+                try {
+                    const compressed = typeof imageCompression === 'function'
+                        ? await imageCompression(file, {
+                            maxSizeMB: 0.35,
+                            maxWidthOrHeight: 768,
+                            useWebWorker: true,
+                            initialQuality: 0.75,
+                            fileType: 'image/jpeg'
+                        })
+                        : file;
+                    const preview = await this.readFileAsDataUrl(compressed);
+                    this.assistantPendingImage = {
+                        id: `attachment-${Date.now()}`,
+                        name: file.name || '图片',
+                        type: compressed.type || file.type || 'image/jpeg',
+                        size: Number(compressed.size || file.size || 0),
+                        preview
+                    };
+                    this.assistantError = '';
+                } catch (error) {
+                    this.assistantError = '这张图片暂时处理失败了，换一张试试。';
+                } finally {
+                    if (event?.target) event.target.value = '';
+                }
+            },
+            clearAssistantImage() {
+                this.assistantPendingImage = null;
+            },
             seedAssistantPrompt(text) {
                 this.assistantOpen = true;
+                if (!this.assistantActiveThreadId) {
+                    const thread = this.createAssistantThreadPayload();
+                    this.assistantThreads = [thread];
+                    this.assistantActiveThreadId = thread.id;
+                    this.assistantMessages = thread.messages.slice();
+                }
                 this.assistantDraft = text;
+                this.assistantPendingImage = null;
                 this.assistantUnreadHint = false;
                 this.persistAssistantState();
                 this.$nextTick(() => {
@@ -4513,15 +4716,24 @@
             },
             async sendAssistantMessage() {
                 const text = String(this.assistantDraft || '').trim();
-                if (!text || this.assistantLoading) return;
+                if ((!text && !this.assistantPendingImage) || this.assistantLoading) return;
                 const userMessage = {
                     id: `user-${Date.now()}`,
                     role: 'user',
-                    text,
-                    time: Date.now()
+                    text: text || '想给你看这张图',
+                    time: Date.now(),
+                    attachments: this.assistantPendingImage ? [{ ...this.assistantPendingImage }] : []
                 };
                 this.assistantMessages = [...this.assistantMessages, userMessage].slice(-40);
+                this.assistantThreads = this.syncAssistantThreadsWithCurrentMessages().map(thread => {
+                    if (thread.id !== this.assistantActiveThreadId) return thread;
+                    const nextTitle = (!thread.title || thread.title === '新聊天')
+                        ? (text ? text.slice(0, 12) : '图片聊聊')
+                        : thread.title;
+                    return { ...thread, title: nextTitle };
+                });
                 this.assistantDraft = '';
+                this.assistantPendingImage = null;
                 this.assistantLoading = true;
                 this.assistantError = '';
                 this.assistantUnreadHint = false;
@@ -4535,9 +4747,17 @@
                     try {
                         const payload = {
                             author: this.currentUser,
+                            mode: this.assistantModelMode,
                             messages: this.assistantMessages.slice(-12).map(message => ({
                                 role: message.role,
-                                content: message.text
+                                content: message.text,
+                                attachments: Array.isArray(message.attachments)
+                                    ? message.attachments.map(attachment => ({
+                                        name: attachment.name,
+                                        type: attachment.type,
+                                        size: attachment.size
+                                    }))
+                                    : []
                             }))
                         };
                         const { data } = await axios.post('/api/assistant/chat', payload);
@@ -7986,15 +8206,22 @@
                     this.loadAssistantStyleProfile();
                 } else {
                     this.assistantOpen = false;
+                    this.assistantThreads = [];
+                    this.assistantActiveThreadId = '';
                     this.assistantMessages = [];
                     this.assistantDraft = '';
                     this.assistantLoading = false;
                     this.assistantError = '';
                     this.assistantMode = 'offline';
+                    this.assistantModelMode = 'chat';
+                    this.assistantPendingImage = null;
                     this.assistantUnreadHint = false;
                     this.assistantStyleProfile = null;
                     this.assistantStyleImporting = false;
                 }
+            },
+            assistantModelMode() {
+                this.persistAssistantState();
             },
             playMode() { this.persistUiState(); },
             listDensityMode() { this.persistUiState(); },

@@ -182,8 +182,33 @@ function normalizeAssistantMessages(messages) {
         .map(item => {
             const role = item?.role === 'assistant' ? 'assistant' : 'user';
             const content = typeof item?.content === 'string' ? item.content.trim() : '';
-            if (!content) return null;
-            return { role, content: content.slice(0, 1200) };
+            const attachments = normalizeAssistantAttachments(item?.attachments);
+            if (!content && attachments.length === 0) return null;
+            return {
+                role,
+                content: content.slice(0, 1200),
+                attachments
+            };
+        })
+        .filter(Boolean);
+}
+
+function normalizeAssistantAttachments(attachments) {
+    if (!Array.isArray(attachments)) {
+        return [];
+    }
+    return attachments
+        .slice(0, 3)
+        .map(item => {
+            const name = typeof item?.name === 'string' ? item.name.trim().slice(0, 80) : '';
+            const type = typeof item?.type === 'string' ? item.type.trim().slice(0, 60) : '';
+            const size = Number(item?.size || 0);
+            if (!name) return null;
+            return {
+                name,
+                type,
+                size: Number.isFinite(size) && size > 0 ? size : 0
+            };
         })
         .filter(Boolean);
 }
@@ -699,6 +724,83 @@ function buildItemsQuery(queryParams) {
     return query;
 }
 
+function extractAssistantKeywords(text) {
+    return Array.from(new Set(String(text || '')
+        .match(/[A-Za-z0-9\u4e00-\u9fa5]{2,}/g) || []))
+        .filter(token => token.length >= 2)
+        .slice(0, 5);
+}
+
+function formatAssistantItemContext(item) {
+    const categoryLabel = item.category === 'story' ? '代餐' : '记事';
+    const title = item.title ? `《${item.title}》` : '';
+    const storyText = Array.isArray(item.segments)
+        ? item.segments.map(segment => String(segment?.text || '').trim()).filter(Boolean).join(' / ')
+        : '';
+    const excerpt = String(item.note || storyText || '').replace(/\s+/g, ' ').trim().slice(0, 110);
+    return `- [${categoryLabel}] ${item.date || ''} ${title} ${excerpt}`.trim();
+}
+
+async function buildAssistantMemoryContext(userText) {
+    if (mongoose.connection.readyState !== 1) {
+        return '';
+    }
+    const baseQuery = {
+        deletedAt: null,
+        category: { $in: ['memory', 'story'] }
+    };
+    const keywords = extractAssistantKeywords(userText);
+    const seenIds = new Set();
+    const picked = [];
+
+    if (keywords.length) {
+        const keywordPattern = keywords.map(keyword => escapeRegExp(keyword)).join('|');
+        const matchedItems = await Item.find({
+            ...baseQuery,
+            $or: [
+                { note: new RegExp(keywordPattern, 'i') },
+                { title: new RegExp(keywordPattern, 'i') },
+                { 'segments.text': new RegExp(keywordPattern, 'i') }
+            ]
+        }).sort({ time: -1 }).limit(4).lean();
+        matchedItems.forEach(item => {
+            const key = String(item._id);
+            if (seenIds.has(key)) return;
+            seenIds.add(key);
+            picked.push(item);
+        });
+    }
+
+    if (picked.length < 6) {
+        const recentItems = await Item.find(baseQuery).sort({ time: -1 }).limit(8).lean();
+        recentItems.forEach(item => {
+            const key = String(item._id);
+            if (seenIds.has(key) || picked.length >= 6) return;
+            seenIds.add(key);
+            picked.push(item);
+        });
+    }
+
+    if (!picked.length) {
+        return '';
+    }
+
+    return picked.map(formatAssistantItemContext).join('\n');
+}
+
+function formatAssistantAttachmentContext(attachments) {
+    if (!attachments.length) {
+        return '';
+    }
+    return attachments
+        .map(item => {
+            const type = item.type ? `，类型 ${item.type}` : '';
+            const size = item.size ? `，约 ${(item.size / 1024).toFixed(0)}KB` : '';
+            return `- ${item.name}${type}${size}`;
+        })
+        .join('\n');
+}
+
 function toCardItem(item) {
     const normalizedItem = normalizeItemMedia(item);
     return {
@@ -991,13 +1093,28 @@ app.post('/api/assistant/chat', async (req, res) => {
         }
         const author = normalizeAuthor(req.body?.author || '小心');
         const messages = normalizeAssistantMessages(req.body?.messages);
+        const modelMode = req.body?.mode === 'reasoner' ? 'reasoner' : 'chat';
         if (!messages.length) {
             throw createHttpError(400, '没有可发送的聊天内容');
         }
         const styleProfile = await getAssistantStyleProfile(author);
+        const latestUserMessage = [...messages].reverse().find(item => item.role === 'user');
+        const memoryContext = await buildAssistantMemoryContext(latestUserMessage?.content || '');
         const stylePrompt = styleProfile
             ? `你要轻微模仿 ${author} 的说话习惯，但不要机械复读。风格摘要：${styleProfile.summary}。常用词：${styleProfile.favoriteFillers.join('、') || '无'}。常见结尾：${styleProfile.favoriteEndings.join('、') || '无'}。示例：${(styleProfile.samples || []).slice(0, 4).join(' / ')}。`
             : '';
+        const attachmentContext = latestUserMessage?.attachments?.length
+            ? `用户这次附带了图片附件，但当前接口拿到的是附件信息，不是真实图像内容。你可以温柔追问图片里是什么，或根据附件继续聊天。\n${formatAssistantAttachmentContext(latestUserMessage.attachments)}`
+            : '';
+        const memoryPrompt = memoryContext
+            ? `下面是你们最近的记事和代餐片段，可以在合适时自然引用，不要生硬复述：\n${memoryContext}`
+            : '';
+        const systemSections = [
+            '你叫小心，是一个温柔、自然、口语化的陪伴型聊天助手。回答要简短真诚，少一点官方表达，多一点陪在身边的感觉。不要长篇说教。',
+            stylePrompt,
+            memoryPrompt,
+            attachmentContext
+        ].filter(Boolean);
 
         const response = await fetch(`${DEEPSEEK_API_BASE}/chat/completions`, {
             method: 'POST',
@@ -1006,14 +1123,22 @@ app.post('/api/assistant/chat', async (req, res) => {
                 'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
             },
             body: JSON.stringify({
-                model: DEEPSEEK_MODEL,
+                model: modelMode === 'reasoner' ? 'deepseek-reasoner' : DEEPSEEK_MODEL,
                 temperature: 0.85,
                 messages: [
                     {
                         role: 'system',
-                        content: `你叫小心，是一个温柔、自然、口语化的陪伴型聊天助手。回答要简短真诚，少一点官方表达，多一点陪在身边的感觉。不要长篇说教。${stylePrompt}`
+                        content: systemSections.join('\n\n')
                     },
-                    ...messages
+                    ...messages.map(item => ({
+                        role: item.role,
+                        content: [
+                            item.content || '',
+                            item.attachments?.length
+                                ? `\n[附带图片附件]\n${formatAssistantAttachmentContext(item.attachments)}`
+                                : ''
+                        ].filter(Boolean).join('')
+                    }))
                 ]
             })
         });
@@ -1031,7 +1156,7 @@ app.post('/api/assistant/chat', async (req, res) => {
 
         res.json({
             reply,
-            model: payload?.model || DEEPSEEK_MODEL,
+            model: payload?.model || (modelMode === 'reasoner' ? 'deepseek-reasoner' : DEEPSEEK_MODEL),
             provider: 'deepseek'
         });
     } catch (err) {
