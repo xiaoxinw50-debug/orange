@@ -16,6 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DEEPSEEK_API_BASE = String(process.env.DEEPSEEK_API_BASE || 'https://api.deepseek.com').trim().replace(/\/+$/, '');
 const DEEPSEEK_MODEL = String(process.env.DEEPSEEK_MODEL || 'deepseek-chat').trim() || 'deepseek-chat';
+const PYTHON_BIN = String(process.env.PYTHON_BIN || 'python3').trim() || 'python3';
 const execFileAsync = promisify(execFile);
 const ALLOWED_CATEGORIES = new Set(['memory', 'album', 'diary', 'wish', 'story']);
 const ALLOWED_AUTHORS = new Set(['小心', '小橙']);
@@ -261,11 +262,22 @@ function buildAssistantStyleProfile(messages, author, sourceName = '') {
 
 async function extractMessagesFromPdf(filePath, side = 'right', limit = 4000) {
     const scriptPath = path.join(__dirname, 'scripts', 'extract_chat_style.py');
-    const { stdout } = await execFileAsync('/opt/homebrew/bin/python3', [scriptPath, filePath, side, String(limit)], {
-        maxBuffer: 20 * 1024 * 1024
-    });
-    const parsed = JSON.parse(stdout || '[]');
-    return Array.isArray(parsed) ? parsed.map(item => normalizeImportedMessage(item)).filter(Boolean) : [];
+    try {
+        const { stdout } = await execFileAsync(PYTHON_BIN, [scriptPath, filePath, side, String(limit)], {
+            maxBuffer: 20 * 1024 * 1024
+        });
+        const parsed = JSON.parse(stdout || '[]');
+        return Array.isArray(parsed) ? parsed.map(item => normalizeImportedMessage(item)).filter(Boolean) : [];
+    } catch (error) {
+        if (error?.code === 'ENOENT') {
+            throw createHttpError(500, '服务器没有可用的 python3，暂时不能导入 PDF');
+        }
+        const stderr = String(error?.stderr || error?.message || '').trim();
+        if (/No module named ['"]?pdfplumber/i.test(stderr)) {
+            throw createHttpError(500, '服务器缺少 pdfplumber，暂时不能导入 PDF');
+        }
+        throw error;
+    }
 }
 
 async function extractMessagesFromUpload(file) {
