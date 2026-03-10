@@ -119,6 +119,22 @@ const dailyQuestionSchema = new mongoose.Schema({
 });
 const DailyQuestion = mongoose.model('DailyQuestion', dailyQuestionSchema);
 
+const assistantStyleProfileSchema = new mongoose.Schema({
+    author: { type: String, required: true, unique: true },
+    sourceName: { type: String, default: '' },
+    importedAt: { type: String, required: true },
+    messageCount: { type: Number, default: 0 },
+    averageLength: { type: Number, default: 0 },
+    favoriteFillers: { type: [String], default: [] },
+    favoriteEndings: { type: [String], default: [] },
+    favoritePhrases: { type: [String], default: [] },
+    summary: { type: String, default: '' },
+    samples: { type: [String], default: [] }
+}, {
+    timestamps: true
+});
+const AssistantStyleProfile = mongoose.model('AssistantStyleProfile', assistantStyleProfileSchema);
+
 // ================= 2. 配置 Cloudinary =================
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -184,9 +200,41 @@ function writeAssistantStyleProfiles(profiles) {
     fs.writeFileSync(assistantStyleStore, JSON.stringify(profiles, null, 2), 'utf8');
 }
 
-function getAssistantStyleProfile(author) {
+function getAssistantStyleProfileFromFile(author) {
     const profiles = readAssistantStyleProfiles();
     return profiles[author] || null;
+}
+
+async function getAssistantStyleProfile(author) {
+    if (mongoose.connection.readyState === 1) {
+        const profile = await AssistantStyleProfile.findOne({ author }).lean();
+        if (profile) return profile;
+    }
+    return getAssistantStyleProfileFromFile(author);
+}
+
+async function saveAssistantStyleProfile(author, profile) {
+    if (mongoose.connection.readyState === 1) {
+        await AssistantStyleProfile.findOneAndUpdate(
+            { author },
+            { ...profile, author },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+        return;
+    }
+    const profiles = readAssistantStyleProfiles();
+    profiles[author] = profile;
+    writeAssistantStyleProfiles(profiles);
+}
+
+async function deleteAssistantStyleProfile(author) {
+    if (mongoose.connection.readyState === 1) {
+        await AssistantStyleProfile.deleteOne({ author });
+        return;
+    }
+    const profiles = readAssistantStyleProfiles();
+    delete profiles[author];
+    writeAssistantStyleProfiles(profiles);
 }
 
 function normalizeImportedMessage(text) {
@@ -946,7 +994,7 @@ app.post('/api/assistant/chat', async (req, res) => {
         if (!messages.length) {
             throw createHttpError(400, '没有可发送的聊天内容');
         }
-        const styleProfile = getAssistantStyleProfile(author);
+        const styleProfile = await getAssistantStyleProfile(author);
         const stylePrompt = styleProfile
             ? `你要轻微模仿 ${author} 的说话习惯，但不要机械复读。风格摘要：${styleProfile.summary}。常用词：${styleProfile.favoriteFillers.join('、') || '无'}。常见结尾：${styleProfile.favoriteEndings.join('、') || '无'}。示例：${(styleProfile.samples || []).slice(0, 4).join(' / ')}。`
             : '';
@@ -994,7 +1042,7 @@ app.post('/api/assistant/chat', async (req, res) => {
 app.get('/api/assistant/style', async (req, res) => {
     try {
         const author = normalizeAuthor(req.query.author || '小心');
-        res.json(getAssistantStyleProfile(author));
+        res.json(await getAssistantStyleProfile(author));
     } catch (err) {
         handleError(res, err);
     }
@@ -1008,9 +1056,7 @@ app.post('/api/assistant/style/import', assistantUpload.single('file'), async (r
         }
         const messages = await extractMessagesFromUpload(req.file);
         const profile = buildAssistantStyleProfile(messages, author, req.file.originalname || '');
-        const profiles = readAssistantStyleProfiles();
-        profiles[author] = profile;
-        writeAssistantStyleProfiles(profiles);
+        await saveAssistantStyleProfile(author, profile);
         res.json(profile);
     } catch (err) {
         handleError(res, err);
@@ -1024,9 +1070,7 @@ app.post('/api/assistant/style/import', assistantUpload.single('file'), async (r
 app.delete('/api/assistant/style', async (req, res) => {
     try {
         const author = normalizeAuthor(req.query.author || '小心');
-        const profiles = readAssistantStyleProfiles();
-        delete profiles[author];
-        writeAssistantStyleProfiles(profiles);
+        await deleteAssistantStyleProfile(author);
         res.json({ ok: true });
     } catch (err) {
         handleError(res, err);
