@@ -1112,6 +1112,7 @@
                         </label>
                         <button type="button" class="assistant-chip-btn" v-if="assistantStyleProfile" @click="clearAssistantStyleProfile">清空语气</button>
                     </div>
+                    <div v-if="assistantStyleProgressText" class="assistant-style-note">{{ assistantStyleProgressText }}</div>
                     <div class="assistant-style-note">DeepSeek 在线时会按这份风格卡回话；离线时会用本地陪聊兜底。</div>
                 </div>
                 <div class="assistant-chat-log" ref="assistantLog">
@@ -2786,6 +2787,7 @@
                 assistantUnreadHint: false,
                 assistantStyleProfile: null,
                 assistantStyleImporting: false,
+                assistantStyleProgressText: '',
                 petPanelOpen: false,
                 petSpeech: '小心在这里，想被摸摸头。',
                 petMood: 'calm',
@@ -4403,16 +4405,37 @@
             async handleAssistantStyleFile(event) {
                 const file = event?.target?.files?.[0];
                 if (!file || this.assistantStyleImporting || !this.currentUser) return;
+                const maxPdfSize = 80 * 1024 * 1024;
+                if (/\.pdf$/i.test(file.name || '') && file.size > maxPdfSize) {
+                    this.assistantError = '这份 PDF 太大了，线上导入很容易卡住。先导出更小范围的 PDF，或者转成 txt 再传。';
+                    if (event?.target) event.target.value = '';
+                    return;
+                }
                 this.assistantStyleImporting = true;
                 this.assistantError = '';
+                this.assistantStyleProgressText = '准备上传聊天记录…';
                 const formData = new FormData();
                 formData.append('file', file, file.name);
                 formData.append('author', this.currentUser);
                 try {
-                    const { data } = await axios.post('/api/assistant/style/import', formData);
+                    const { data } = await axios.post('/api/assistant/style/import', formData, {
+                        timeout: 10 * 60 * 1000,
+                        onUploadProgress: progressEvent => {
+                            const total = Number(progressEvent.total || file.size || 0);
+                            const loaded = Number(progressEvent.loaded || 0);
+                            if (total > 0) {
+                                const percent = Math.max(1, Math.min(100, Math.round((loaded / total) * 100)));
+                                this.assistantStyleProgressText = `上传中 ${percent}%`;
+                            } else {
+                                this.assistantStyleProgressText = '上传中…';
+                            }
+                        }
+                    });
                     this.assistantStyleProfile = data || null;
+                    this.assistantStyleProgressText = '';
                     this.showNotice('success', '小心已经记住你说话的大致感觉了');
                 } catch (error) {
+                    this.assistantStyleProgressText = '';
                     this.assistantError = this.getErrorMessage(error, '聊天记录导入失败');
                 } finally {
                     this.assistantStyleImporting = false;
@@ -4426,6 +4449,7 @@
                         params: { author: this.currentUser }
                     });
                     this.assistantStyleProfile = null;
+                    this.assistantStyleProgressText = '';
                     this.showNotice('success', '小心先把这份语气放下了');
                 } catch (error) {
                     this.assistantError = this.getErrorMessage(error, '清空语气失败');
