@@ -17,8 +17,62 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
-    <script src="/vendor/three.min.js"></script>
-    <script src="/vendor/OrbitControls.js"></script>
+    <script src="vendor/three.min.js"></script>
+    <script src="vendor/OrbitControls.js"></script>
+    <script src="vendor/GLTFLoader.js"></script>
+    <script>
+        (function ensureThreeFallback() {
+            const loadScript = src => new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+            window.__orangeThreeReady = (async () => {
+                if (window.THREE) return true;
+                const candidates = [
+                    './vendor/three.min.js',
+                    'vendor/three.min.js',
+                    '/vendor/three.min.js'
+                ];
+                for (const src of candidates) {
+                    try {
+                        await loadScript(src);
+                        break;
+                    } catch (error) {}
+                }
+                if (!window.THREE) return false;
+                if (!window.THREE.OrbitControls) {
+                    const controlCandidates = [
+                        './vendor/OrbitControls.js',
+                        'vendor/OrbitControls.js',
+                        '/vendor/OrbitControls.js'
+                    ];
+                    for (const src of controlCandidates) {
+                        try {
+                            await loadScript(src);
+                            break;
+                        } catch (error) {}
+                    }
+                }
+                if (!window.THREE.GLTFLoader) {
+                    const loaderCandidates = [
+                        './vendor/GLTFLoader.js',
+                        'vendor/GLTFLoader.js',
+                        '/vendor/GLTFLoader.js'
+                    ];
+                    for (const src of loaderCandidates) {
+                        try {
+                            await loadScript(src);
+                            break;
+                        } catch (error) {}
+                    }
+                }
+                return Boolean(window.THREE);
+            })();
+        })();
+    </script>
     <style>
         :root {
             --paper-bg: #eef3f9; --card-bg: rgba(255, 255, 255, 0.97); --ink-main: #304458; --ink-light: #66788d;
@@ -2779,9 +2833,12 @@
                 petLastActionAt: '',
                 petViewerFrame: 0,
                 petViewerResizeBound: null,
+                petViewerBootstrapTimer: 0,
                 petModelViewers: { avatar: null, panel: null },
                 petModelReady: { avatar: false, panel: false },
                 petModelError: '',
+                petGlbAssetPromise: null,
+                petGlbAssetScene: null,
                 activeAchievement: null,
                 achievementQueue: [],
                 gamePlayerOrder: ['小橙', '小心'],
@@ -4354,12 +4411,44 @@
                 this.petPanelOpen = false;
                 this.vibrate(18);
             },
-            ensurePetModelViewers() {
+            async queuePetModelBootstrap(attempt = 0) {
+                window.clearTimeout(this.petViewerBootstrapTimer);
+                if (!this.currentUser) return;
+                if (window.__orangeThreeReady) {
+                    try {
+                        await window.__orangeThreeReady;
+                    } catch (error) {}
+                }
+                const avatarCanvas = this.$refs.petAvatarCanvas;
+                const panelCanvas = this.petPanelOpen ? this.$refs.petPanelCanvas : true;
+                if (typeof THREE === 'undefined') {
+                    if (attempt >= 12) {
+                        this.petModelError = '小心的 3D 组件没加载出来';
+                        return;
+                    }
+                    this.petViewerBootstrapTimer = window.setTimeout(() => {
+                        this.queuePetModelBootstrap(attempt + 1);
+                    }, 180);
+                    return;
+                }
+                if (!avatarCanvas || !panelCanvas) {
+                    if (attempt >= 12) {
+                        this.petModelError = '小心的画布还没准备好';
+                        return;
+                    }
+                    this.petViewerBootstrapTimer = window.setTimeout(() => {
+                        this.queuePetModelBootstrap(attempt + 1);
+                    }, 180);
+                    return;
+                }
+                this.ensurePetModelViewers();
+            },
+            async ensurePetModelViewers() {
                 if (!this.currentUser || typeof THREE === 'undefined') return;
                 this.petModelError = '';
-                this.ensurePetModelViewer('petAvatarCanvas', 'avatar', { autoRotate: true, autoRotateSpeed: 2.1 });
+                await this.ensurePetModelViewer('petAvatarCanvas', 'avatar', { autoRotate: true, autoRotateSpeed: 2.1 });
                 if (this.petPanelOpen) {
-                    this.ensurePetModelViewer('petPanelCanvas', 'panel', { autoRotate: false, autoRotateSpeed: 0, allowZoom: true });
+                    await this.ensurePetModelViewer('petPanelCanvas', 'panel', { autoRotate: false, autoRotateSpeed: 0, allowZoom: true });
                 } else {
                     this.disposePetModelViewer('panel');
                 }
@@ -4370,7 +4459,7 @@
                 this.syncPetModelViewers();
                 this.startPetModelLoop();
             },
-            ensurePetModelViewer(refName, kind, options = {}) {
+            async ensurePetModelViewer(refName, kind, options = {}) {
                 const canvas = this.$refs[refName];
                 if (!canvas || typeof THREE === 'undefined') return null;
                 const existing = this.petModelViewers[kind];
@@ -4384,6 +4473,10 @@
                 }
                 if (existing) this.disposePetModelViewer(kind);
                 try {
+                    const probe = canvas.getContext('webgl2') || canvas.getContext('webgl');
+                    if (!probe) {
+                        throw new Error('webgl-unavailable');
+                    }
                     const renderer = new THREE.WebGLRenderer({
                         canvas,
                         alpha: true,
@@ -4417,7 +4510,8 @@
                     scene.add(ambientLight);
 
                     const controls = this.createPetOrbitControls(camera, canvas, options);
-                    const model = this.buildPetModelScene();
+                    const importedModel = await this.loadPetGlbScene();
+                    const model = importedModel ? this.buildPetImportedScene(importedModel) : this.buildPetModelScene();
                     scene.add(model.root);
 
                     const viewer = {
@@ -4438,7 +4532,9 @@
                 } catch (error) {
                     console.error('pet-viewer-init-failed', error);
                     this.petModelReady = { ...this.petModelReady, [kind]: false };
-                    this.petModelError = '小心刚才没钻出来，刷新一下会更稳';
+                    this.petModelError = String(error?.message || '').includes('webgl')
+                        ? '这个浏览器暂时没有打开 WebGL'
+                        : '小心刚才没钻出来，刷新一下会更稳';
                     this.showNotice('error', '小心刚才没钻出来，再点一下试试');
                     return null;
                 }
@@ -4466,6 +4562,89 @@
                     target: new THREE.Vector3(0, 0.58, 0),
                     update() {},
                     dispose() {}
+                };
+            },
+            async loadPetGlbScene() {
+                if (this.petGlbAssetScene) {
+                    return this.petGlbAssetScene.clone(true);
+                }
+                if (this.petGlbAssetPromise) {
+                    const cached = await this.petGlbAssetPromise;
+                    return cached ? cached.clone(true) : null;
+                }
+                if (typeof THREE === 'undefined' || !THREE.GLTFLoader) {
+                    return null;
+                }
+                const candidates = [
+                    './assets/models/xiaoxin.glb',
+                    'assets/models/xiaoxin.glb',
+                    '/assets/models/xiaoxin.glb'
+                ];
+                this.petGlbAssetPromise = new Promise(resolve => {
+                    const loader = new THREE.GLTFLoader();
+                    const tryLoad = index => {
+                        if (index >= candidates.length) {
+                            resolve(null);
+                            return;
+                        }
+                        loader.load(
+                            candidates[index],
+                            gltf => resolve(gltf.scene || null),
+                            undefined,
+                            () => tryLoad(index + 1)
+                        );
+                    };
+                    tryLoad(0);
+                }).then(scene => {
+                    this.petGlbAssetScene = scene || null;
+                    return scene || null;
+                });
+                const loaded = await this.petGlbAssetPromise;
+                return loaded ? loaded.clone(true) : null;
+            },
+            buildPetImportedScene(importedScene) {
+                const root = new THREE.Group();
+                const wrapper = new THREE.Group();
+                wrapper.add(importedScene);
+                root.add(wrapper);
+
+                importedScene.traverse(node => {
+                    if (!node.isMesh) return;
+                    node.castShadow = false;
+                    node.receiveShadow = false;
+                    if (node.material) {
+                        if (Array.isArray(node.material)) {
+                            node.material = node.material.map(material => material.clone());
+                        } else {
+                            node.material = node.material.clone();
+                        }
+                    }
+                });
+
+                const box = new THREE.Box3().setFromObject(importedScene);
+                const size = new THREE.Vector3();
+                const center = new THREE.Vector3();
+                box.getSize(size);
+                box.getCenter(center);
+                const maxSize = Math.max(size.x, size.y, size.z) || 1;
+                const scale = 2.7 / maxSize;
+                wrapper.scale.setScalar(scale);
+                wrapper.position.set(-center.x * scale, -center.y * scale + 0.12, -center.z * scale);
+
+                const shadow = new THREE.Mesh(
+                    new THREE.CircleGeometry(1.34, 48),
+                    new THREE.MeshBasicMaterial({ color: 0xe8d8df, transparent: true, opacity: 0.26 })
+                );
+                shadow.position.set(0, -1.66, -0.1);
+                shadow.rotation.x = -Math.PI * 0.5;
+                root.add(shadow);
+
+                return {
+                    type: 'asset',
+                    root,
+                    importedScene,
+                    wrapper,
+                    shadow
                 };
             },
             resizeSinglePetViewer(viewer) {
@@ -4921,6 +5100,38 @@
                 };
             },
             applyPetModelState(model, state = this.petVisualState) {
+                if (model?.type === 'asset') {
+                    const imported = model.importedScene;
+                    const wrapper = model.wrapper;
+                    if (!imported || !wrapper) return;
+                    imported.rotation.set(0, 0, 0);
+                    imported.position.set(0, 0, 0);
+                    wrapper.rotation.set(0, 0, 0);
+                    wrapper.position.y = 0;
+                    wrapper.scale.setScalar(wrapper.scale.x || 1);
+                    if (state === 'hug') {
+                        wrapper.rotation.z = -0.08;
+                        wrapper.rotation.x = 0.05;
+                    } else if (state === 'shy') {
+                        wrapper.rotation.z = 0.05;
+                        wrapper.rotation.y = -0.22;
+                    } else if (state === 'feed') {
+                        wrapper.rotation.z = 0.04;
+                        wrapper.rotation.y = 0.18;
+                    } else if (state === 'angry') {
+                        wrapper.rotation.z = -0.03;
+                        wrapper.rotation.y = 0.08;
+                    } else if (state === 'cry') {
+                        wrapper.rotation.z = -0.12;
+                        wrapper.position.y = -0.06;
+                    } else if (state === 'sigh') {
+                        wrapper.rotation.z = -0.06;
+                        wrapper.rotation.y = -0.14;
+                    } else if (state === 'milktea') {
+                        wrapper.rotation.y = 0.08;
+                    }
+                    return;
+                }
                 const p = model?.parts;
                 if (!p) return;
                 const baseCheekScale = state === 'shy' || state === 'hug' ? 1.25 : 1;
@@ -5034,7 +5245,7 @@
                     this.persistPetState();
                 }
                 if (this.petPanelOpen) {
-                    this.$nextTick(() => this.ensurePetModelViewers());
+                    this.$nextTick(() => this.queuePetModelBootstrap());
                 }
             },
             interactWithPet(action) {
@@ -5111,7 +5322,7 @@
                 this.launchParticles({ x: '84%', y: '84%' }, action === 'hug' ? 18 : 12);
                 this.vibrate(action === 'hug' ? [28, 38, 28] : 24);
                 this.persistPetState();
-                this.$nextTick(() => this.ensurePetModelViewers());
+                this.$nextTick(() => this.queuePetModelBootstrap());
             },
             getComposerDraftKey(tab = this.currentTab) {
                 return `orange_draft_${this.normalizeContentTab(tab)}`;
@@ -7420,14 +7631,14 @@
             selectedMood() { this.scheduleComposerDraftSave(); },
             currentUser(newValue) {
                 if (newValue) {
-                    this.$nextTick(() => this.ensurePetModelViewers());
+                    this.$nextTick(() => this.queuePetModelBootstrap());
                 } else {
                     this.disposeAllPetModelViewers();
                 }
             },
             petPanelOpen(isOpen) {
                 if (isOpen) {
-                    this.$nextTick(() => this.ensurePetModelViewers());
+                    this.$nextTick(() => this.queuePetModelBootstrap());
                 } else {
                     this.disposePetModelViewer('panel');
                 }
@@ -7484,6 +7695,7 @@
             window.clearTimeout(this.privateAutoLockTimer);
             window.clearTimeout(this.onlineRefreshTimer);
             window.clearTimeout(this.petAnimationTimer);
+            window.clearTimeout(this.petViewerBootstrapTimer);
             this.disposeAllPetModelViewers();
             if (this.petViewerResizeBound) {
                 window.removeEventListener('resize', this.petViewerResizeBound);
