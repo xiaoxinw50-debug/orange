@@ -1214,9 +1214,8 @@
                     <div class="assistant-style-summary">
                         {{ assistantStyleProfile ? assistantStyleProfile.summary : '导入聊天记录后，小心会先记住你说话的轻重和习惯。' }}
                     </div>
-                    <div v-if="assistantStyleProfile && assistantStyleProfile.favoriteFillers?.length" class="assistant-style-tags">
-                        <span v-for="tag in assistantStyleProfile.favoriteFillers.slice(0, 4)" :key="tag" class="assistant-style-tag">{{ tag }}</span>
-                        <span v-for="tag in assistantStyleProfile.favoritePhrases.slice(0, 3)" :key="`phrase-${tag}`" class="assistant-style-tag">{{ tag }}</span>
+                    <div v-if="assistantStyleHighlights.length" class="assistant-style-tags">
+                        <span v-for="tag in assistantStyleHighlights" :key="tag" class="assistant-style-tag">{{ tag }}</span>
                     </div>
                     <div class="assistant-style-actions">
                         <label class="assistant-chip-btn assistant-file-label">
@@ -3896,6 +3895,25 @@
                     return '现在离线也能先陪你聊，网络好了再慢慢接上。';
                 }
                 return '点开她，就像有人已经把话题替你轻轻接住。';
+            },
+            assistantStyleHighlights() {
+                const profile = this.assistantStyleProfile;
+                if (!profile) return [];
+                const highlights = [];
+                (profile.toneTraits || []).forEach(tag => {
+                    if (tag && !highlights.includes(tag)) highlights.push(tag);
+                });
+                (profile.favoriteAddresses || []).slice(0, 2).forEach(tag => {
+                    const next = `会叫${tag}`;
+                    if (tag && !highlights.includes(next)) highlights.push(next);
+                });
+                (profile.favoriteFillers || []).slice(0, 2).forEach(tag => {
+                    if (tag && !highlights.includes(tag)) highlights.push(tag);
+                });
+                (profile.favoritePhrases || []).slice(0, 2).forEach(tag => {
+                    if (tag && !highlights.includes(tag)) highlights.push(tag);
+                });
+                return highlights.slice(0, 6);
             },
             petAffinityPercent() {
                 return Math.max(12, Math.min(100, this.petAffinity));

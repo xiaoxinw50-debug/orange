@@ -265,7 +265,9 @@ async function deleteAssistantStyleProfile(author) {
 function normalizeImportedMessage(text) {
     return String(text || '')
         .replace(/\(cid:\d+\)/g, '')
+        .replace(/0([^0-9]{1,8})3/g, '$1')
         .replace(/(?<=[\u4e00-\u9fa5A-Za-z0-9])F$/g, '')
+        .replace(/F/g, '')
         .replace(/\s+/g, ' ')
         .trim();
 }
@@ -277,6 +279,16 @@ function pickTopEntries(counts, limit = 3) {
         .map(([value]) => value);
 }
 
+function countRegexMatches(text, pattern) {
+    const matches = String(text || '').match(pattern);
+    return matches ? matches.length : 0;
+}
+
+function toPercent(part, total) {
+    if (!total) return 0;
+    return Math.round((part / total) * 100);
+}
+
 function buildAssistantStyleProfile(messages, author, sourceName = '') {
     const cleaned = messages
         .map(normalizeImportedMessage)
@@ -286,11 +298,27 @@ function buildAssistantStyleProfile(messages, author, sourceName = '') {
         throw createHttpError(400, '没有提取到可用的聊天内容');
     }
 
-    const fillerLexicon = ['哈哈', '哈哈哈', '呜呜', '好耶', '乐', '好哒', '好嘞', '乖乖', '可恶', 'qwq', 'QWQ', '呀', '啦', '呢', '嘛', '哼'];
-    const endingLexicon = ['呀', '啦', '呢', '嘛', '哦', '啊', '耶', '～', '~', '！', '…'];
+    const fillerLexicon = ['哈哈', '哈哈哈', '呜呜', '好耶', '乐', '好哒', '好嘞', '好嘟', '乖乖', '可恶', 'qwq', 'QWQ', '呀', '啦', '呢', '嘛', '哼', '噗', '安啦', '摸摸', '哎呦', '怜爱', '切'];
+    const endingLexicon = ['呀', '啦', '呢', '嘛', '哦', '啊', '耶', '～', '~', '！', '…', '#'];
+    const openerLexicon = ['你', '我', '那', '诶', '欸', '哎', '哎呦', '好', '嗯', '怎么', '别', '不许', '可以', '快', '晚安', '早', '上午好', '中午好', '晚上好'];
+    const addressLexicon = ['乖乖', '小橙', '小橙子', '长官', '妹妹', '小朋友', '崽崽', '崽', '宝宝', '豆豆', '孩子'];
+    const soothingLexicon = ['乖乖', '摸摸', '抱抱', '安啦', '晚安', '好梦', '加油', '注意安全', '怜爱', '可怜'];
+    const teasingLexicon = ['切', '可恶', '不许', '瞎想', '哼', '嬷', '坏'];
+    const moodMarkerLexicon = ['qwq', 'QWQ', '哈哈', '哈哈哈', '噗', '哽咽', '╮(╯▽╰)╭', 'o(︶︿︶)o', '#'];
     const fillerCounts = new Map();
     const endingCounts = new Map();
     const phraseCounts = new Map();
+    const openerCounts = new Map();
+    const addressCounts = new Map();
+    const moodMarkerCounts = new Map();
+    let shortMessageCount = 0;
+    let longMessageCount = 0;
+    let questionCount = 0;
+    let exclamationCount = 0;
+    let ellipsisCount = 0;
+    let tildeCount = 0;
+    let soothingCount = 0;
+    let teasingCount = 0;
 
     cleaned.forEach(text => {
         fillerLexicon.forEach(token => {
@@ -302,22 +330,72 @@ function buildAssistantStyleProfile(messages, author, sourceName = '') {
         if (text.length >= 2 && text.length <= 14) {
             phraseCounts.set(text, (phraseCounts.get(text) || 0) + 1);
         }
+        const opener = openerLexicon.find(token => text.startsWith(token));
+        if (opener) openerCounts.set(opener, (openerCounts.get(opener) || 0) + 1);
+        addressLexicon.forEach(token => {
+            if (text.includes(token)) addressCounts.set(token, (addressCounts.get(token) || 0) + 1);
+        });
+        moodMarkerLexicon.forEach(token => {
+            if (text.includes(token)) moodMarkerCounts.set(token, (moodMarkerCounts.get(token) || 0) + 1);
+        });
+        if (text.length <= 10) shortMessageCount += 1;
+        if (text.length >= 18) longMessageCount += 1;
+        if (/[？?]/.test(text)) questionCount += 1;
+        if (/[！!]/.test(text)) exclamationCount += 1;
+        if (/\.\.\.|…/.test(text)) ellipsisCount += 1;
+        if (/[~～]/.test(text)) tildeCount += 1;
+        if (soothingLexicon.some(token => text.includes(token))) soothingCount += 1;
+        if (teasingLexicon.some(token => text.includes(token))) teasingCount += 1;
     });
 
     const averageLength = Math.round(cleaned.reduce((sum, text) => sum + text.length, 0) / cleaned.length);
     const favoriteFillers = pickTopEntries(fillerCounts, 4);
     const favoriteEndings = pickTopEntries(endingCounts, 4);
+    const favoriteOpeners = pickTopEntries(openerCounts, 4);
+    const favoriteAddresses = pickTopEntries(addressCounts, 4);
+    const favoriteMoodMarkers = pickTopEntries(moodMarkerCounts, 4);
     const favoritePhrases = [...phraseCounts.entries()]
         .filter(([, count]) => count >= 2)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
         .map(([value]) => value);
+    const questionRate = toPercent(questionCount, cleaned.length);
+    const exclamationRate = toPercent(exclamationCount, cleaned.length);
+    const ellipsisRate = toPercent(ellipsisCount, cleaned.length);
+    const tildeRate = toPercent(tildeCount, cleaned.length);
+    const shortMessageRate = toPercent(shortMessageCount, cleaned.length);
+    const longMessageRate = toPercent(longMessageCount, cleaned.length);
+    const soothingRate = toPercent(soothingCount, cleaned.length);
+    const teasingRate = toPercent(teasingCount, cleaned.length);
+
+    const toneTraits = [];
+    if (shortMessageRate >= 60) toneTraits.push('短句快回');
+    else if (averageLength <= 14) toneTraits.push('句子偏短');
+    if (questionRate >= 18) toneTraits.push('爱顺着追问');
+    if (soothingRate >= 15) toneTraits.push('会哄人');
+    if (teasingRate >= 12) toneTraits.push('会撒娇式逗人');
+    if (favoriteAddresses.length) toneTraits.push(`常叫${favoriteAddresses[0]}`);
+    if (favoriteMoodMarkers.some(token => /qwq|QWQ|哽咽|╮|o\(/.test(token))) toneTraits.push('会带小表情');
+    if (tildeRate >= 10 || favoriteEndings.includes('～') || favoriteEndings.includes('~')) toneTraits.push('尾音偏软');
+
+    const styleGuide = [];
+    styleGuide.push(averageLength <= 10 ? '多用短句，一次一两句就够。' : averageLength <= 16 ? '句子不要太长，保持轻快。' : '可以写完整句，但别一下子说太多。');
+    if (questionRate >= 18) styleGuide.push('适当顺着对方的话再追问一句，像在把话题轻轻接住。');
+    if (favoriteAddresses.length) styleGuide.push(`称呼可以自然落在 ${favoriteAddresses.slice(0, 2).join('、')} 这种感觉上，但别每句都叫。`);
+    if (favoriteFillers.length) styleGuide.push(`口头习惯可以轻轻带上 ${favoriteFillers.slice(0, 3).join('、')}，只要一点点。`);
+    if (favoriteEndings.length) styleGuide.push(`句尾倾向落在 ${favoriteEndings.slice(0, 3).join('、')} 这类轻软语气上。`);
+    if (soothingRate >= 15) styleGuide.push('语气里要有接住人、安抚人的感觉。');
+    if (teasingRate >= 12) styleGuide.push('偶尔可以带一点撒娇式反驳和逗人，但不要真的冲。');
 
     const summaryParts = [];
-    summaryParts.push(averageLength <= 8 ? '短句偏多' : averageLength <= 16 ? '句子偏短，节奏快' : '会写完整一点的句子');
-    if (favoriteFillers.length) summaryParts.push(`常带 ${favoriteFillers.slice(0, 2).join('、')} 这类口头习惯`);
+    summaryParts.push(averageLength <= 8 ? '短句偏多，回得很快' : averageLength <= 16 ? '句子偏短，节奏轻快' : '会写完整一点的句子');
+    if (questionRate >= 18) summaryParts.push('会顺着对方的话追问');
+    if (favoriteAddresses.length) summaryParts.push(`常会叫 ${favoriteAddresses.slice(0, 2).join('、')}`);
+    if (favoriteFillers.length) summaryParts.push(`口头习惯里常带 ${favoriteFillers.slice(0, 2).join('、')}`);
     if (favoriteEndings.length) summaryParts.push(`结尾会落在 ${favoriteEndings.slice(0, 2).join('、')} 这种语气上`);
-    if (!favoriteFillers.length && !favoriteEndings.length) summaryParts.push('整体语气比较直接自然');
+    if (soothingRate >= 15) summaryParts.push('说话里会带一点哄人的软劲');
+    if (teasingRate >= 12) summaryParts.push('也会带一点撒娇式的顶嘴和逗人');
+    if (!favoriteFillers.length && !favoriteEndings.length && !favoriteAddresses.length) summaryParts.push('整体语气比较直接自然');
 
     return {
         author,
@@ -325,12 +403,42 @@ function buildAssistantStyleProfile(messages, author, sourceName = '') {
         importedAt: new Date().toISOString(),
         messageCount: cleaned.length,
         averageLength,
+        shortMessageRate,
+        longMessageRate,
+        questionRate,
+        exclamationRate,
+        ellipsisRate,
+        tildeRate,
+        soothingRate,
+        teasingRate,
         favoriteFillers,
         favoriteEndings,
+        favoriteOpeners,
+        favoriteAddresses,
+        favoriteMoodMarkers,
         favoritePhrases,
+        toneTraits,
+        styleGuide,
         summary: summaryParts.join('，'),
         samples: cleaned.slice(0, 8)
     };
+}
+
+function buildAssistantStylePrompt(author, styleProfile) {
+    if (!styleProfile) return '';
+    const sections = [
+        `语气模仿要求：你要明显贴近 ${author} 在聊天记录里的说话习惯，但不要机械复读原句，也不要装成真人本人。`,
+        `整体感觉：${styleProfile.summary}。`,
+        styleProfile.toneTraits?.length ? `语气标签：${styleProfile.toneTraits.join('、')}。` : '',
+        styleProfile.favoriteOpeners?.length ? `常见开头：${styleProfile.favoriteOpeners.join('、')}。` : '',
+        styleProfile.favoriteAddresses?.length ? `常用称呼：${styleProfile.favoriteAddresses.join('、')}。` : '',
+        styleProfile.favoriteFillers?.length ? `常见口头习惯：${styleProfile.favoriteFillers.join('、')}。` : '',
+        styleProfile.favoriteEndings?.length ? `常见收尾：${styleProfile.favoriteEndings.join('、')}。` : '',
+        styleProfile.styleGuide?.length ? `模仿时重点：${styleProfile.styleGuide.join(' ')}` : '',
+        styleProfile.samples?.length ? `参考语感样本：${styleProfile.samples.slice(0, 4).join(' / ')}。` : '',
+        '优先模仿的是节奏、轻重、称呼和口头习惯，不要为了像而硬塞词，不要每句都堆语气词。'
+    ];
+    return sections.filter(Boolean).join('\n');
 }
 
 async function extractMessagesFromPdf(filePath, side = 'right', limit = 4000) {
@@ -1111,9 +1219,7 @@ app.post('/api/assistant/chat', async (req, res) => {
         const latestUserMessage = [...messages].reverse().find(item => item.role === 'user');
         const memoryContext = await buildAssistantMemoryContext(latestUserMessage?.content || '');
         const profileContext = buildAssistantProfileContext(author);
-        const stylePrompt = styleProfile
-            ? `语气习惯：你要轻微模仿 ${author} 的说话习惯，但不要机械复读。风格摘要：${styleProfile.summary}。常用词：${styleProfile.favoriteFillers.join('、') || '无'}。常见结尾：${styleProfile.favoriteEndings.join('、') || '无'}。示例：${(styleProfile.samples || []).slice(0, 4).join(' / ')}。`
-            : '';
+        const stylePrompt = buildAssistantStylePrompt(author, styleProfile);
         const attachmentContext = latestUserMessage?.attachments?.length
             ? `附件信息：用户这次附带了图片附件，但当前接口拿到的是附件信息，不是真实图像内容。你可以温柔追问图片里是什么，或根据附件继续聊天。\n${formatAssistantAttachmentContext(latestUserMessage.attachments)}`
             : '';
