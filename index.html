@@ -1181,7 +1181,7 @@
                     :class="['assistant-fab-teaser', { 'is-unread': assistantUnreadHint }]"
                     @click="toggleAssistantPanel"
                 >
-                    <div class="assistant-fab-kicker">{{ assistantUnreadHint ? '小心在等你' : '小心在这里' }}</div>
+                    <div class="assistant-fab-kicker">{{ assistantUnreadHint ? '小心有新回复' : '和小心聊聊' }}</div>
                     <div class="assistant-fab-line">{{ assistantFabLine }}</div>
                 </button>
                 <button type="button" :class="['assistant-fab-btn', { 'is-waiting': !assistantOpen }]" @click="toggleAssistantPanel" :aria-expanded="assistantOpen ? 'true' : 'false'" aria-label="打开小心聊天">
@@ -3912,15 +3912,15 @@
             },
             assistantFabLine() {
                 if (this.assistantUnreadHint) {
-                    return '刚刚有一句新回应，点开就能接上。';
+                    return '刚刚回了你一句，点开就能接着聊。';
                 }
                 if (this.assistantStyleProfile) {
-                    return '她已经记住一点你的语气了，想不想和她说句话。';
+                    return '她已经记住一点你的语气了。';
                 }
                 if (!this.isOnline) {
-                    return '现在离线也能先陪你聊，网络好了再慢慢接上。';
+                    return '离线也能先聊，连上网后再继续。';
                 }
-                return '点开她，就像有人已经把话题替你轻轻接住。';
+                return '点开就能直接和她说话。';
             },
             assistantStyleHighlights() {
                 const profile = this.assistantStyleProfile;
