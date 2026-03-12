@@ -207,6 +207,9 @@
         .home-hero::after { content: ''; position: absolute; inset: auto -10% -52% auto; width: 240px; height: 240px; background: radial-gradient(circle, rgba(111,151,198,0.1), transparent 65%); pointer-events: none; }
         .home-kicker { font-size: 12px; letter-spacing: 3px; color: var(--ink-light); }
         .home-title { margin: 8px 0 10px; font-family: var(--font-serif); font-size: 34px; color: var(--ink-main); }
+        .home-dayline { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+        .home-daypill { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.78); color: var(--ink-main); font-size: 13px; line-height: 1.4; }
+        .home-daypill strong { font-family: var(--font-serif); font-size: 15px; }
         .home-text { max-width: 700px; font-size: 15px; line-height: 1.9; color: var(--ink-main); }
         .home-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
         .home-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
@@ -608,6 +611,7 @@
         [data-theme="dark"] .assistant-style-tag { background: rgba(28, 40, 55, 0.96); }
         [data-theme="dark"] .assistant-attach-preview,
         [data-theme="dark"] .assistant-attach-remove { background: rgba(140, 180, 224, 0.08); }
+        [data-theme="dark"] .home-daypill { background: rgba(28, 40, 55, 0.88); }
         [data-theme="dark"] .assistant-chip-btn,
         [data-theme="dark"] .assistant-thread-chip,
         [data-theme="dark"] .assistant-mode-chip { background: rgba(140, 180, 224, 0.1); }
@@ -1219,6 +1223,10 @@
         <div v-if="currentTab === 'home'" class="home-shell">
             <div class="control-panel home-hero">
                 <h2 class="home-title">今天</h2>
+                <div class="home-dayline">
+                    <div class="home-daypill">认识的第 <strong>{{ relationshipDayInfo.metDayCount }}</strong> 天</div>
+                    <div class="home-daypill">在一起的第 <strong>{{ relationshipDayInfo.togetherDayCount }}</strong> 天</div>
+                </div>
                 <div class="home-actions">
                     <button class="action-submit" @click="switchTab(homeRecommendedAction.tab)">{{ homeRecommendedAction.label }}</button>
                     <button class="action-submit secondary-btn" @click="switchTab(lastContentTab)">继续浏览 {{ getCategoryLabel(lastContentTab) }}</button>
@@ -3293,6 +3301,12 @@
                     return `最近一次记录停在 ${this.formatDate(this.homeRecentItems[0].date)}。现在首页会把最近内容、统计和高频入口收在一起，不用再先想“应该点哪一页”。`;
                 }
                 return '这里会把今天最值得先打开的内容放在最前面。等你们开始写下第一条回忆，这里就会慢慢长成真正的首页。';
+            },
+            relationshipDayInfo() {
+                return {
+                    metDayCount: this.calculateRelationshipDayCount('2025-04-06'),
+                    togetherDayCount: this.calculateRelationshipDayCount('2025-10-02')
+                };
             },
             homeMetrics() {
                 return [
@@ -5980,6 +5994,12 @@
                 const now = new Date();
                 const offset = now.getTimezoneOffset() * 60000;
                 return new Date(now.getTime() - offset).toISOString().split('T')[0];
+            },
+            calculateRelationshipDayCount(baseDate) {
+                const start = new Date(`${baseDate}T00:00:00`);
+                const today = new Date(`${this.getLocalDateString()}T00:00:00`);
+                const diff = Math.floor((today.getTime() - start.getTime()) / 86400000);
+                return diff >= 0 ? diff + 1 : 0;
             },
             getGameStateKey() {
                 return 'orange_game_state_v1';
