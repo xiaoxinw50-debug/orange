@@ -567,12 +567,23 @@
         .achievement-modal-title { font-family: var(--font-serif); font-size: 28px; color: var(--ink-main); margin-bottom: 10px; }
         .achievement-modal-text { font-size: 14px; line-height: 1.8; color: var(--ink-light); margin-bottom: 20px; }
         @keyframes modalRise { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .assistant-fab-wrap { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 1250; display: grid; justify-items: end; gap: 12px; }
+        .assistant-fab-wrap { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 1250; display: grid; justify-items: end; gap: 10px; }
+        .assistant-fab-teaser { max-width: min(260px, calc(100vw - 108px)); padding: 12px 14px; border-radius: 18px; border: 1px solid rgba(111,151,198,0.14); background: rgba(255,255,255,0.92); box-shadow: 0 12px 28px rgba(44, 79, 114, 0.12); display: grid; gap: 4px; cursor: pointer; backdrop-filter: blur(14px); position: relative; }
+        .assistant-fab-teaser::after { content: ''; position: absolute; right: 20px; bottom: -8px; width: 14px; height: 14px; background: rgba(255,255,255,0.92); border-right: 1px solid rgba(111,151,198,0.14); border-bottom: 1px solid rgba(111,151,198,0.14); transform: rotate(45deg); }
+        .assistant-fab-teaser.is-unread { background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(252,243,247,0.98)); }
+        .assistant-fab-kicker { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); }
+        .assistant-fab-line { font-size: 14px; line-height: 1.55; color: var(--ink-main); }
+        .assistant-fab-row { display: flex; align-items: center; gap: 10px; }
         .assistant-fab-btn { width: 78px; height: 78px; border-radius: 28px; border: 1px solid rgba(111,151,198,0.16); background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(246,250,255,0.72)); backdrop-filter: blur(14px); box-shadow: 0 18px 34px rgba(44, 79, 114, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
         .assistant-fab-btn:hover { transform: translateY(-2px); }
+        .assistant-fab-btn.is-waiting { animation: assistantFabFloat 2.6s ease-in-out infinite; }
         .assistant-fab-btn::after { content: ''; position: absolute; inset: 12px; border-radius: 20px; background: radial-gradient(circle at top, rgba(255,255,255,0.42), rgba(255,255,255,0)); pointer-events: none; }
         .assistant-fab-icon { width: 62px; height: 62px; object-fit: contain; display: block; filter: drop-shadow(0 6px 12px rgba(188, 151, 164, 0.16)); position: relative; z-index: 1; }
         .assistant-fab-dot { position: absolute; top: 12px; right: 12px; width: 12px; height: 12px; border-radius: 999px; background: #e8a6be; box-shadow: 0 0 0 5px rgba(232, 166, 190, 0.22); }
+        @keyframes assistantFabFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
         .assistant-chat-panel { width: min(360px, calc(100vw - 26px)); border-radius: 28px; border: 1px solid var(--border-fine); background: rgba(255,255,255,0.98); box-shadow: 0 20px 42px rgba(44, 79, 114, 0.16); display: grid; overflow: hidden; }
         .assistant-chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 18px 14px; border-bottom: 1px solid rgba(111,151,198,0.12); background: linear-gradient(135deg, rgba(111,151,198,0.08), rgba(239,195,212,0.12)); }
         .assistant-chat-head-main { display: grid; gap: 10px; min-width: 0; }
@@ -629,6 +640,9 @@
         [data-theme="dark"] .assistant-fab-btn,
         [data-theme="dark"] .assistant-chat-panel,
         [data-theme="dark"] .assistant-chat-foot { background: rgba(18, 27, 39, 0.98); }
+        [data-theme="dark"] .assistant-fab-teaser { background: rgba(20, 30, 43, 0.94); box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24); }
+        [data-theme="dark"] .assistant-fab-teaser::after { background: rgba(20, 30, 43, 0.94); border-right-color: rgba(189, 214, 240, 0.12); border-bottom-color: rgba(189, 214, 240, 0.12); }
+        [data-theme="dark"] .assistant-fab-teaser.is-unread { background: linear-gradient(135deg, rgba(33, 43, 60, 0.98), rgba(49, 41, 57, 0.96)); }
         [data-theme="dark"] .assistant-fab-btn { border-color: rgba(189, 214, 240, 0.12); background: linear-gradient(180deg, rgba(25, 36, 50, 0.92), rgba(17, 24, 35, 0.84)); box-shadow: 0 16px 28px rgba(0, 0, 0, 0.28); }
         [data-theme="dark"] .assistant-fab-btn::after { background: radial-gradient(circle at top, rgba(255,255,255,0.08), rgba(255,255,255,0)); }
         [data-theme="dark"] .assistant-fab-icon { filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.22)); }
@@ -1003,6 +1017,8 @@
             .lightbox-thumbs { padding: 0 16px 16px; }
             .lightbox-thumb { width: 64px; height: 64px; }
             .assistant-fab-wrap { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
+            .assistant-fab-teaser { max-width: min(220px, calc(100vw - 92px)); padding: 10px 12px; }
+            .assistant-fab-line { font-size: 13px; }
             .assistant-fab-btn { width: 68px; height: 68px; border-radius: 24px; }
             .assistant-fab-icon { width: 54px; height: 54px; }
             .assistant-chat-panel { width: min(330px, calc(100vw - 24px)); border-radius: 24px; }
@@ -1027,6 +1043,7 @@
             .home-daylabel { font-size: 12px; }
             .home-spotlight-title { font-size: 22px; }
             .home-spark-card { padding: 14px 15px; }
+            .assistant-fab-teaser { display: none; }
             .home-card-title, .fun-title, .night-play-title, .idv-panel-title { font-size: 20px; }
             .album-modal-body { padding: 16px 12px 24px; }
             .lightbox-header { padding: 12px; }
@@ -1149,10 +1166,21 @@
             </div>
         </div>
         <div v-if="currentUser" class="assistant-fab-wrap">
-            <button type="button" class="assistant-fab-btn" @click="toggleAssistantPanel" :aria-expanded="assistantOpen ? 'true' : 'false'" aria-label="打开小心聊天">
-                <img src="/assets/xiaoxin-chat-icon.png" alt="小心聊天入口" class="assistant-fab-icon">
-                <span v-if="assistantUnreadHint" class="assistant-fab-dot"></span>
-            </button>
+            <div class="assistant-fab-row">
+                <button
+                    v-if="!assistantOpen"
+                    type="button"
+                    :class="['assistant-fab-teaser', { 'is-unread': assistantUnreadHint }]"
+                    @click="toggleAssistantPanel"
+                >
+                    <div class="assistant-fab-kicker">{{ assistantUnreadHint ? '小心在等你' : '小心在这里' }}</div>
+                    <div class="assistant-fab-line">{{ assistantFabLine }}</div>
+                </button>
+                <button type="button" :class="['assistant-fab-btn', { 'is-waiting': !assistantOpen }]" @click="toggleAssistantPanel" :aria-expanded="assistantOpen ? 'true' : 'false'" aria-label="打开小心聊天">
+                    <img src="/assets/xiaoxin-chat-icon.png" alt="小心聊天入口" class="assistant-fab-icon">
+                    <span v-if="assistantUnreadHint" class="assistant-fab-dot"></span>
+                </button>
+            </div>
             <div v-if="assistantOpen" class="assistant-chat-panel">
                 <div class="assistant-chat-head">
                     <div class="assistant-chat-head-main">
@@ -3856,6 +3884,18 @@
                 if (!this.isOnline) return '离线陪你说话';
                 if (this.assistantMode === 'fallback') return '先陪你聊着';
                 return this.assistantModelMode === 'reasoner' ? '会认真想一想再回你' : '在线陪你聊天';
+            },
+            assistantFabLine() {
+                if (this.assistantUnreadHint) {
+                    return '刚刚有一句新回应，点开就能接上。';
+                }
+                if (this.assistantStyleProfile) {
+                    return '她已经记住一点你的语气了，想不想和她说句话。';
+                }
+                if (!this.isOnline) {
+                    return '现在离线也能先陪你聊，网络好了再慢慢接上。';
+                }
+                return '点开她，就像有人已经把话题替你轻轻接住。';
             },
             petAffinityPercent() {
                 return Math.max(12, Math.min(100, this.petAffinity));
