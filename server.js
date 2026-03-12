@@ -801,6 +801,16 @@ function formatAssistantAttachmentContext(attachments) {
         .join('\n');
 }
 
+function buildAssistantProfileContext(author) {
+    return [
+        '固定设定：',
+        '- 你叫小心，是陪伴他们说话的温柔小兔子。',
+        '- 两个人分别叫小心和小橙。',
+        '- 他们在 2025-04-06 相识，在 2025-10-02 相恋。',
+        `- 当前正在和你说话的人是 ${author}。回答时要更像在陪身边的人，而不是客服。`
+    ].join('\n');
+}
+
 function toCardItem(item) {
     const normalizedItem = normalizeItemMedia(item);
     return {
@@ -1100,20 +1110,23 @@ app.post('/api/assistant/chat', async (req, res) => {
         const styleProfile = await getAssistantStyleProfile(author);
         const latestUserMessage = [...messages].reverse().find(item => item.role === 'user');
         const memoryContext = await buildAssistantMemoryContext(latestUserMessage?.content || '');
+        const profileContext = buildAssistantProfileContext(author);
         const stylePrompt = styleProfile
-            ? `你要轻微模仿 ${author} 的说话习惯，但不要机械复读。风格摘要：${styleProfile.summary}。常用词：${styleProfile.favoriteFillers.join('、') || '无'}。常见结尾：${styleProfile.favoriteEndings.join('、') || '无'}。示例：${(styleProfile.samples || []).slice(0, 4).join(' / ')}。`
+            ? `语气习惯：你要轻微模仿 ${author} 的说话习惯，但不要机械复读。风格摘要：${styleProfile.summary}。常用词：${styleProfile.favoriteFillers.join('、') || '无'}。常见结尾：${styleProfile.favoriteEndings.join('、') || '无'}。示例：${(styleProfile.samples || []).slice(0, 4).join(' / ')}。`
             : '';
         const attachmentContext = latestUserMessage?.attachments?.length
-            ? `用户这次附带了图片附件，但当前接口拿到的是附件信息，不是真实图像内容。你可以温柔追问图片里是什么，或根据附件继续聊天。\n${formatAssistantAttachmentContext(latestUserMessage.attachments)}`
+            ? `附件信息：用户这次附带了图片附件，但当前接口拿到的是附件信息，不是真实图像内容。你可以温柔追问图片里是什么，或根据附件继续聊天。\n${formatAssistantAttachmentContext(latestUserMessage.attachments)}`
             : '';
         const memoryPrompt = memoryContext
-            ? `下面是你们最近的记事和代餐片段，可以在合适时自然引用，不要生硬复述：\n${memoryContext}`
+            ? `可引用回忆：下面是你们最近的记事和代餐片段，可以在合适时自然引用，不要生硬复述：\n${memoryContext}`
             : '';
         const systemSections = [
             '你叫小心，是一个温柔、自然、口语化的陪伴型聊天助手。回答要简短真诚，少一点官方表达，多一点陪在身边的感觉。不要长篇说教。',
+            profileContext,
             stylePrompt,
             memoryPrompt,
-            attachmentContext
+            attachmentContext,
+            '当前会话：优先回应眼前这条消息，再决定要不要自然地带出固定设定或回忆。'
         ].filter(Boolean);
 
         const response = await fetch(`${DEEPSEEK_API_BASE}/chat/completions`, {
