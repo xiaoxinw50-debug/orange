@@ -595,9 +595,15 @@
         .assistant-thread-chip, .assistant-mode-chip { border-radius: 999px; border: 1px solid rgba(111,151,198,0.18); background: rgba(111,151,198,0.06); color: var(--ink-main); padding: 7px 12px; cursor: pointer; font-size: 12px; max-width: 142px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .assistant-thread-chip.active, .assistant-mode-chip.active { background: linear-gradient(135deg, rgba(122,166,216,0.95), rgba(93,136,190,0.92)); color: white; border-color: transparent; }
         .assistant-mode-label { font-size: 11px; color: var(--ink-light); letter-spacing: 0.04em; }
+        .assistant-thread-chip-wrap { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; }
+        .assistant-thread-delete { width: 24px; height: 24px; border-radius: 50%; border: none; background: rgba(111,151,198,0.08); color: var(--ink-light); cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+        .assistant-thread-delete:hover { background: rgba(217, 127, 149, 0.16); color: #bc5b74; }
         .assistant-thread-add { margin-left: auto; }
         .assistant-chat-log { max-height: min(52vh, 440px); overflow-y: auto; padding: 16px; display: grid; gap: 12px; background: linear-gradient(180deg, rgba(244,248,252,0.9), rgba(255,255,255,0.92)); }
-        .assistant-bubble { max-width: 86%; padding: 12px 14px; border-radius: var(--radius-soft); box-shadow: var(--shadow-soft); display: grid; gap: 6px; }
+        .assistant-bubble { max-width: 86%; padding: 12px 14px; border-radius: var(--radius-soft); box-shadow: var(--shadow-soft); display: grid; gap: 6px; position: relative; }
+        .assistant-bubble-delete { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; border: none; background: rgba(255,255,255,0.74); color: var(--ink-light); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.18s ease, background-color 0.18s ease; }
+        .assistant-bubble:hover .assistant-bubble-delete { opacity: 1; }
+        .assistant-bubble-delete:hover { background: rgba(217, 127, 149, 0.16); color: #bc5b74; }
         .assistant-bubble.is-assistant { justify-self: start; background: rgba(255,255,255,0.96); border: 1px solid rgba(111,151,198,0.14); }
         .assistant-bubble.is-user { justify-self: end; background: linear-gradient(135deg, rgba(111,151,198,0.92), rgba(97,137,181,0.92)); color: white; }
         .assistant-bubble.is-loading { padding: 14px 16px; }
@@ -655,6 +661,8 @@
         [data-theme="dark"] .assistant-style-tag { background: rgba(28, 40, 55, 0.96); }
         [data-theme="dark"] .assistant-attach-preview,
         [data-theme="dark"] .assistant-attach-remove { background: rgba(140, 180, 224, 0.08); }
+        [data-theme="dark"] .assistant-thread-delete,
+        [data-theme="dark"] .assistant-bubble-delete { background: rgba(46, 65, 90, 0.52); color: var(--ink-light); }
         [data-theme="dark"] .home-daycard { background: linear-gradient(180deg, rgba(28, 40, 55, 0.94), rgba(21, 31, 45, 0.92)); border-color: rgba(140,180,224,0.16); }
         [data-theme="dark"] .home-daycard.met { box-shadow: inset 4px 0 0 rgba(111,151,198,0.76), inset 0 1px 0 rgba(255,255,255,0.03); }
         [data-theme="dark"] .home-daycard.together { box-shadow: inset 4px 0 0 rgba(223,159,184,0.82), inset 0 1px 0 rgba(255,255,255,0.03); }
@@ -1196,13 +1204,24 @@
                 </div>
                 <div class="assistant-toolbar">
                     <div class="assistant-thread-row">
-                        <button
+                        <div
                             v-for="thread in assistantThreads"
                             :key="thread.id"
-                            type="button"
-                            :class="['assistant-thread-chip', { active: thread.id === assistantActiveThreadId }]"
-                            @click="setActiveAssistantThread(thread.id)"
-                        >{{ thread.title || '新聊天' }}</button>
+                            class="assistant-thread-chip-wrap"
+                        >
+                            <button
+                                type="button"
+                                :class="['assistant-thread-chip', { active: thread.id === assistantActiveThreadId }]"
+                                @click="setActiveAssistantThread(thread.id)"
+                            >{{ thread.title || '新聊天' }}</button>
+                            <button
+                                v-if="assistantThreads.length > 1"
+                                type="button"
+                                class="assistant-thread-delete"
+                                @click.stop="removeAssistantThread(thread.id)"
+                                aria-label="删除这段聊天"
+                            >×</button>
+                        </div>
                         <button type="button" class="assistant-thread-chip assistant-thread-add" @click="createAssistantThread">+ 新聊天</button>
                     </div>
                 </div>
@@ -1229,6 +1248,13 @@
                 </div>
                 <div class="assistant-chat-log" ref="assistantLog">
                     <div v-for="message in assistantMessages" :key="message.id" :class="['assistant-bubble', `is-${message.role}`]">
+                        <button
+                            v-if="canDeleteAssistantMessage(message)"
+                            type="button"
+                            class="assistant-bubble-delete"
+                            @click="removeAssistantMessage(message.id)"
+                            aria-label="删除这条消息"
+                        >×</button>
                         <div class="assistant-bubble-text">{{ message.text }}</div>
                         <div v-if="message.attachments && message.attachments.length" class="assistant-bubble-images">
                             <template v-for="attachment in message.attachments" :key="attachment.id || attachment.name">
@@ -4681,6 +4707,36 @@
                 this.persistAssistantState();
                 this.$nextTick(() => this.$refs.assistantInput?.focus?.());
             },
+            removeAssistantThread(threadId) {
+                const threads = this.syncAssistantThreadsWithCurrentMessages();
+                const target = threads.find(thread => thread.id === threadId);
+                if (!target) return;
+                const label = target.title || '这段聊天';
+                if (!window.confirm(`要删掉“${label}”吗？这段和小心的聊天记录会一起消失。`)) return;
+                const nextThreads = threads.filter(thread => thread.id !== threadId);
+                if (!nextThreads.length) {
+                    const fallbackThread = this.createAssistantThreadPayload();
+                    this.assistantThreads = [fallbackThread];
+                    this.assistantActiveThreadId = fallbackThread.id;
+                    this.assistantMessages = fallbackThread.messages.slice();
+                } else {
+                    this.assistantThreads = nextThreads.sort((a, b) => b.updatedAt - a.updatedAt);
+                    if (this.assistantActiveThreadId === threadId) {
+                        this.assistantActiveThreadId = this.assistantThreads[0].id;
+                        this.assistantMessages = (this.assistantThreads[0].messages || []).slice(-40);
+                    } else {
+                        const activeThread = this.assistantThreads.find(thread => thread.id === this.assistantActiveThreadId) || this.assistantThreads[0];
+                        this.assistantActiveThreadId = activeThread.id;
+                        this.assistantMessages = (activeThread.messages || []).slice(-40);
+                    }
+                }
+                this.assistantDraft = '';
+                this.assistantPendingImage = null;
+                this.assistantUnreadHint = false;
+                this.persistAssistantState();
+                this.showNotice('success', '这段聊天已经放下了');
+                this.$nextTick(() => this.scrollAssistantLog());
+            },
             setActiveAssistantThread(threadId) {
                 const nextThreads = this.syncAssistantThreadsWithCurrentMessages();
                 const thread = nextThreads.find(item => item.id === threadId);
@@ -4692,6 +4748,27 @@
                 this.assistantPendingImage = null;
                 this.assistantUnreadHint = false;
                 this.persistAssistantState();
+                this.$nextTick(() => this.scrollAssistantLog());
+            },
+            canDeleteAssistantMessage(message) {
+                return Boolean(message?.id) && this.assistantMessages.length > 1;
+            },
+            removeAssistantMessage(messageId) {
+                const target = (this.assistantMessages || []).find(message => message.id === messageId);
+                if (!target) return;
+                if (!window.confirm('要删掉这一句吗？删掉后这段聊天会重新整理。')) return;
+                const nextMessages = (this.assistantMessages || []).filter(message => message.id !== messageId);
+                this.assistantMessages = nextMessages.length ? nextMessages : this.getDefaultAssistantMessages();
+                this.assistantThreads = this.syncAssistantThreadsWithCurrentMessages().map(thread => {
+                    if (thread.id !== this.assistantActiveThreadId) return thread;
+                    return {
+                        ...thread,
+                        updatedAt: Date.now(),
+                        messages: this.assistantMessages.slice(-40)
+                    };
+                }).sort((a, b) => b.updatedAt - a.updatedAt);
+                this.persistAssistantState();
+                this.showNotice('success', '这一句已经删掉了');
                 this.$nextTick(() => this.scrollAssistantLog());
             },
             async loadAssistantStyleProfile() {
